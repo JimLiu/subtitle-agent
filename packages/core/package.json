@@ -1,5 +1,5 @@
 {
-  "name": "@subtitle-agent/ui",
+  "name": "@subtitle-agent/core",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -8,19 +8,20 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@subtitle-agent/eslint-config": "*",
     "@subtitle-agent/typescript-config": "*",
+    "@subtitle-agent/vitest-config": "*",
     "@types/node": "^22.15.3",
-    "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.1",
     "eslint": "^9.33.0",
-    "typescript": "5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "diff": "^8.0.2",
+    "nanoid": "^5.1.5"
   }
 }
