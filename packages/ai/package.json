@@ -1,5 +1,5 @@
 {
-  "name": "@subtitle-agent/core",
+  "name": "@subtitle-agent/ai",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -13,10 +13,13 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@ai-sdk/google": "^2.0.8",
+    "@ai-sdk/openai": "^2.0.19",
     "@subtitle-agent/eslint-config": "*",
     "@subtitle-agent/typescript-config": "*",
     "@subtitle-agent/vitest-config": "*",
     "@types/node": "^22.15.3",
+    "ai": "^5.0.22",
     "eslint": "^9.33.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

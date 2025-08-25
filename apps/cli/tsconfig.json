@@ -1,0 +1,10 @@
+{
+  "extends": "@subtitle-agent/typescript-config/node.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "incremental": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

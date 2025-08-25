@@ -4,6 +4,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src", "../../apps/cli/src/utils/import-whisper.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
