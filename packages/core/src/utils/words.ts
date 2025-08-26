@@ -168,3 +168,10 @@ export const importWords = (
     })
     .flat();
 };
+
+/**
+ * Joins word texts into a single string for LLM processing
+ */
+export function joinWordsText(words: Word[]): string {
+  return words.map((word) => word.text).join("");
+}

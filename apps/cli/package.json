@@ -16,5 +16,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@subtitle-agent/core": "*",
+    "@subtitle-agent/ai": "*"
   }
 }
