@@ -21,7 +21,6 @@ export function realignWordTimestamps(
 
   const result: Word[] = [];
   let originalIndex = 0;
-  let correctedIndex = 0;
 
   for (const diff of diffs) {
     switch (diff.type) {
@@ -31,7 +30,6 @@ export function realignWordTimestamps(
           ...diff.word,
         });
         originalIndex++;
-        correctedIndex++;
         break;
 
       case "modified":
@@ -41,7 +39,6 @@ export function realignWordTimestamps(
           text: diff.text,
         });
         originalIndex++;
-        correctedIndex++;
         break;
 
       case "removed":
@@ -55,11 +52,9 @@ export function realignWordTimestamps(
           diff.text,
           originalWords,
           result,
-          originalIndex,
-          correctedIndex
+          originalIndex
         );
         result.push(insertedWord);
-        correctedIndex++;
         break;
       }
     }
@@ -75,8 +70,7 @@ function createInsertedWord(
   text: string,
   originalWords: Word[],
   processedWords: Word[],
-  originalIndex: number,
-  correctedIndex: number
+  originalIndex: number
 ): Word {
   let start: number;
   let end: number;
