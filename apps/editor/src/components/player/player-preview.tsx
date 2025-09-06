@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { usePlayerStore } from "@/stores/player-store";
+import { usePlayerStore } from "@/components/player/player-store";
 import { usePlaybackStore } from "@/stores/playback-store";
 import { formatTimeCode } from "@/lib/time";
 import { EditableTimecode } from "@/components/editable-timecode";

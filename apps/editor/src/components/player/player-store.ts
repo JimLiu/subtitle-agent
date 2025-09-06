@@ -3,7 +3,7 @@ import { MediaFile } from "@/types/media";
 import { TimelineTrack, TextElement } from "@/types/timeline";
 import { generateId } from "@/lib/ids";
 import { srtToTextElements, readSRTFile } from "@/lib/srt-parser";
-import { getMediaDuration, generateVideoThumbnail } from "./media-store";
+import { getMediaDuration, generateVideoThumbnail } from "../../stores/media-store";
 
 interface PlayerStore {
   videoFile: MediaFile | null;

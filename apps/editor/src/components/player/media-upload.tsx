@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { Upload, Video, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { usePlayerStore } from "@/stores/player-store";
+import { usePlayerStore } from "@/components/player/player-store";
 
 export function MediaUpload() {
   const { videoFile, subtitleTrack, setVideoFile, setSRTFile, clearAll, isLoading, error } = usePlayerStore();

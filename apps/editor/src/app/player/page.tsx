@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { MediaUpload } from "@/components/player/media-upload";
 import { PlayerPreview } from "@/components/player/player-preview";
-import { usePlayerStore } from "@/stores/player-store";
+import { usePlayerStore } from "@/components/player/player-store";
 import { usePlaybackStore } from "@/stores/playback-store";
 
 export default function PlayerPage() {
