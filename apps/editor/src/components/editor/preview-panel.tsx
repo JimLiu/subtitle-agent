@@ -41,7 +41,7 @@ interface ActiveElement {
 export function PreviewPanel() {
   const { tracks, getTotalDuration, updateTextElement } = useTimelineStore();
   const { mediaFiles } = useMediaStore();
-  const { currentTime, toggle, setCurrentTime } = usePlaybackStore();
+  const { currentTime, toggle, setCurrentTime, setDuration } = usePlaybackStore();
   const { isPlaying, volume, muted } = usePlaybackStore();
   const { activeProject } = useProjectStore();
   const { currentScene } = useSceneStore();
@@ -80,6 +80,15 @@ export function PreviewPanel() {
     elementWidth: 0,
     elementHeight: 0,
   });
+
+
+
+  // Update timeline duration when tracks change
+  useEffect(() => {
+    const totalDuration = getTotalDuration();
+    setDuration(Math.max(totalDuration, 10)); // Minimum 10 seconds for empty timeline
+  }, [tracks, setDuration, getTotalDuration]);
+
 
   useEffect(() => {
     const updatePreviewSize = () => {
@@ -259,6 +268,7 @@ export function PreviewPanel() {
   const toggleExpanded = useCallback(() => {
     setIsExpanded((prev) => !prev);
   }, []);
+
 
   const hasAnyElements = tracks.some((track) => track.elements.length > 0);
   const shouldRenderPreview = hasAnyElements || activeProject?.backgroundType;

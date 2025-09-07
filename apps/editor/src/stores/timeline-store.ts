@@ -1757,21 +1757,21 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       } as CreateTimelineElement);
     },
 
-    revealElementInMedia: (elementId) => {
-      const {
-        useMediaPanelStore,
-      } = require("../components/editor/media-panel/store");
-      const { requestRevealMedia } = useMediaPanelStore.getState();
+    // revealElementInMedia: (elementId) => {
+    //   const {
+    //     useMediaPanelStore,
+    //   } = require("../components/editor/media-panel/store");
+    //   const { requestRevealMedia } = useMediaPanelStore.getState();
 
-      const { _tracks } = get();
-      const element = _tracks
-        .flatMap((track) => track.elements)
-        .find((el) => el.id === elementId);
+    //   const { _tracks } = get();
+    //   const element = _tracks
+    //     .flatMap((track) => track.elements)
+    //     .find((el) => el.id === elementId);
 
-      if (element?.type === "media") {
-        requestRevealMedia(element.mediaId);
-      }
-    },
+    //   if (element?.type === "media") {
+    //     requestRevealMedia(element.mediaId);
+    //   }
+    // },
 
     replaceElementWithFile: async (trackId, elementId, file) => {
       try {
