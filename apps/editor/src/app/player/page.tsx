@@ -1,255 +1,252 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useDropzone } from "react-dropzone";
-import { PreviewPanel } from "@/components/editor/preview-panel";
+import { useState } from "react";
+import { Upload, Play, FileVideo, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PreviewPanel } from "@/components/editor/preview-panel";
 import { useProjectStore } from "@/stores/project-store";
 import { useMediaStore } from "@/stores/media-store";
 import { useTimelineStore } from "@/stores/timeline-store";
-import { usePlaybackStore } from "@/stores/playback-store";
 import { processMediaFiles } from "@/lib/media-processing";
-import { readSRTFile, srtToTextElements } from "@/lib/srt-parser";
-import { generateId } from "@/lib/ids";
+import { parseSrtFile, convertSubtitlesToTimelineElements } from "@/lib/srt-parser";
 import { toast } from "sonner";
-import { Upload, FileVideo, FileText, X } from "lucide-react";
+
+interface FileState {
+  video: File | null;
+  srt: File | null;
+}
 
 export default function PlayerPage() {
-  const router = useRouter();
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [srtFile, setSrtFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<FileState>({ video: null, srt: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [projectCreated, setProjectCreated] = useState(false);
+  const [playerReady, setPlayerReady] = useState(false);
   
-  const { createNewProject, activeProject } = useProjectStore();
+  const { createNewProject } = useProjectStore();
   const { addMediaFile } = useMediaStore();
-  const { addElementAtTime, clearTimeline } = useTimelineStore();
-  const { setCurrentTime, pause } = usePlaybackStore();
+  const { addElementAtTime, addTrack, addElementToTrack } = useTimelineStore();
 
-  const onDropVideo = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file && file.type.startsWith("video/")) {
-      setVideoFile(file);
-    } else {
-      toast.error("Please upload a valid video file");
-    }
-  }, []);
+  const handleFileSelect = (type: 'video' | 'srt', file: File) => {
+    setFiles(prev => ({ ...prev, [type]: file }));
+  };
 
-  const onDropSRT = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file && (file.name.endsWith(".srt") || file.type === "text/plain")) {
-      setSrtFile(file);
-    } else {
-      toast.error("Please upload a valid SRT file");
-    }
-  }, []);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    
+    droppedFiles.forEach(file => {
+      const isVideo = file.type.startsWith('video/');
+      const isSrt = file.name.endsWith('.srt') || file.type === 'application/x-subrip';
+      
+      if (isVideo && !files.video) {
+        handleFileSelect('video', file);
+      } else if (isSrt && !files.srt) {
+        handleFileSelect('srt', file);
+      }
+    });
+  };
 
-  const {
-    getRootProps: getVideoRootProps,
-    getInputProps: getVideoInputProps,
-    isDragActive: isVideoDragActive,
-  } = useDropzone({
-    onDrop: onDropVideo,
-    accept: {
-      "video/*": [".mp4", ".webm", ".mov", ".avi"],
-    },
-    maxFiles: 1,
-  });
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
 
-  const {
-    getRootProps: getSRTRootProps,
-    getInputProps: getSRTInputProps,
-    isDragActive: isSRTDragActive,
-  } = useDropzone({
-    onDrop: onDropSRT,
-    accept: {
-      "text/plain": [".srt"],
-      "application/x-subrip": [".srt"],
-    },
-    maxFiles: 1,
-  });
-
-  const handleCreatePlayer = async () => {
-    if (!videoFile || !srtFile) {
-      toast.error("Please upload both video and SRT files");
+  const loadPlayer = async () => {
+    if (!files.video) {
+      toast.error("Please select a video file");
       return;
     }
 
     setIsLoading(true);
+    
     try {
-      clearTimeline();
+      // Create new project
+      const projectName = `Player - ${files.video.name}`;
+      const projectId = await createNewProject(projectName);
       
-      const projectId = await createNewProject("Player Project");
-      
-      const processedMedia = await processMediaFiles([videoFile]);
-      if (processedMedia.length === 0) {
-        throw new Error("Failed to process video file");
+      // Process and add video file
+      const processedMedia = await processMediaFiles([files.video]);
+      if (processedMedia.length > 0) {
+        await addMediaFile(projectId, processedMedia[0]);
+        // Get the added media item from the store
+        const { mediaFiles } = useMediaStore.getState();
+        const mediaItem = mediaFiles[mediaFiles.length - 1]; // Most recently added
+        addElementAtTime(mediaItem, 0);
       }
-
-      const mediaItem = {
-        ...processedMedia[0],
-        id: generateId(),
-      };
-      await addMediaFile(projectId, mediaItem);
-
-      // Add video to timeline using addElementAtTime
-      addElementAtTime(mediaItem, 0);
-
-      // Parse SRT and add subtitles to timeline
-      const srtEntries = await readSRTFile(srtFile);
-      const textElements = srtToTextElements(srtEntries);
       
-      // Add each subtitle element at its start time
-      textElements.forEach((element) => {
-        addElementAtTime(element, element.startTime);
-      });
-
-      setCurrentTime(0);
-      pause();
-      setProjectCreated(true);
+      // Process SRT file if provided
+      if (files.srt) {
+        try {
+          const parsedSubtitles = await parseSrtFile(files.srt);
+          const timelineElements = convertSubtitlesToTimelineElements(parsedSubtitles);
+          
+          // Create text track and add elements
+          const textTrackId = addTrack("text");
+          timelineElements.forEach(element => {
+            addElementToTrack(textTrackId, element);
+          });
+          
+          toast.success(`Loaded ${timelineElements.length} subtitles`);
+        } catch (error) {
+          console.error("Failed to parse SRT:", error);
+          toast.error("Failed to load subtitles");
+        }
+      }
       
-      toast.success("Player ready! You can now play your video with subtitles.");
+      setPlayerReady(true);
+      toast.success("Player loaded successfully");
+      
     } catch (error) {
-      console.error("Failed to create player:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create player");
+      console.error("Failed to load player:", error);
+      toast.error("Failed to load player");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleReset = () => {
-    setVideoFile(null);
-    setSrtFile(null);
-    setProjectCreated(false);
-    clearTimeline();
-    pause();
-    setCurrentTime(0);
+  const resetPlayer = () => {
+    setFiles({ video: null, srt: null });
+    setPlayerReady(false);
   };
 
-  useEffect(() => {
-    return () => {
-      pause();
-    };
-  }, [pause]);
-
-  if (projectCreated && activeProject) {
+  if (playerReady) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">Video Player</h1>
-            <Button onClick={handleReset} variant="outline">
-              Upload New Files
-            </Button>
-          </div>
-          <div className="w-full h-[80vh]">
-            <PreviewPanel />
-          </div>
+      <div className="h-screen flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h1 className="text-xl font-semibold">Video Player</h1>
+          <Button onClick={resetPlayer} variant="outline">
+            Load New Video
+          </Button>
+        </div>
+        <div className="flex-1">
+          <PreviewPanel />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Video Player with Subtitles</h1>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div>
-              <h2 className="text-lg font-semibold mb-3">Upload Video</h2>
-              <div
-                {...getVideoRootProps()}
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                  ${isVideoDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}
-                  ${videoFile ? "bg-muted" : ""}`}
-              >
-                <input {...getVideoInputProps()} />
-                {videoFile ? (
-                  <div className="space-y-2">
-                    <FileVideo className="w-12 h-12 mx-auto text-primary" />
-                    <p className="text-sm font-medium">{videoFile.name}</p>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setVideoFile(null);
-                      }}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      Remove
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="w-12 h-12 mx-auto text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      {isVideoDragActive
-                        ? "Drop the video here"
-                        : "Drag & drop a video file here, or click to select"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Supports MP4, WebM, MOV, AVI
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Video Player with Subtitles</h1>
+          <p className="text-muted-foreground">
+            Upload a video file and optionally an SRT subtitle file to get started
+          </p>
+        </div>
 
+        <div
+          className="border-2 border-dashed border-border rounded-lg p-8 text-center transition-colors hover:border-primary/50"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
+          <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <p className="text-lg mb-2">Drag & drop your files here</p>
+          <p className="text-sm text-muted-foreground">or click to select files individually</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="border rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileVideo className="h-5 w-5" />
+              <h3 className="font-semibold">Video File</h3>
+              <span className="text-sm font-normal text-red-500">*</span>
+            </div>
             <div>
-              <h2 className="text-lg font-semibold mb-3">Upload Subtitles (SRT)</h2>
-              <div
-                {...getSRTRootProps()}
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                  ${isSRTDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}
-                  ${srtFile ? "bg-muted" : ""}`}
-              >
-                <input {...getSRTInputProps()} />
-                {srtFile ? (
-                  <div className="space-y-2">
-                    <FileText className="w-12 h-12 mx-auto text-primary" />
-                    <p className="text-sm font-medium">{srtFile.name}</p>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSrtFile(null);
-                      }}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      Remove
+              {files.video ? (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">{files.video.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(files.video.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFiles(prev => ({ ...prev, video: null }))}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect('video', file);
+                    }}
+                    className="hidden"
+                    id="video-upload"
+                  />
+                  <label htmlFor="video-upload">
+                    <Button variant="outline" asChild>
+                      <span>Select Video File</span>
                     </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="w-12 h-12 mx-auto text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      {isSRTDragActive
-                        ? "Drop the SRT file here"
-                        : "Drag & drop an SRT file here, or click to select"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      SRT subtitle format
-                    </p>
-                  </div>
-                )}
-              </div>
+                  </label>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex justify-center">
-            <Button
-              size="lg"
-              onClick={handleCreatePlayer}
-              disabled={!videoFile || !srtFile || isLoading}
-            >
-              {isLoading ? "Creating Player..." : "Create Player"}
-            </Button>
+          <div className="border rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5" />
+              <h3 className="font-semibold">SRT File</h3>
+              <span className="text-sm font-normal text-muted-foreground">(optional)</span>
+            </div>
+            <div>
+              {files.srt ? (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">{files.srt.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(files.srt.size / 1024).toFixed(2)} KB
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFiles(prev => ({ ...prev, srt: null }))}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    accept=".srt"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect('srt', file);
+                    }}
+                    className="hidden"
+                    id="srt-upload"
+                  />
+                  <label htmlFor="srt-upload">
+                    <Button variant="outline" asChild>
+                      <span>Select SRT File</span>
+                    </Button>
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+
+        <div className="text-center">
+          <Button
+            onClick={loadPlayer}
+            disabled={!files.video || isLoading}
+            size="lg"
+            className="px-8"
+          >
+            {isLoading ? (
+              "Loading..."
+            ) : (
+              <>
+                <Play className="mr-2 h-4 w-4" />
+                Load Player
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>

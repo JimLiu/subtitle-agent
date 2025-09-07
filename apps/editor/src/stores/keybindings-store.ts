@@ -4,8 +4,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { ActionWithOptionalArgs } from "@/constants/actions";
 import { KeybindingConfig, ShortcutKey } from "@/types/keybinding";
-import { isAppleDevice } from "@/lib/device";
 import { isDOMElement, isTypableElement } from "@/lib/dom";
+import { isAppleDevice } from "@/lib/device";
 
 // Default keybindings configuration
 export const defaultKeybindings: KeybindingConfig = {
@@ -207,6 +207,9 @@ function getPressedKey(ev: KeyboardEvent): string | null {
   const key = (ev.key ?? "").toLowerCase();
   const code = ev.code ?? "";
 
+  if (code === "Space" || key === " " || key === "spacebar" || key === "space")
+    return "space";
+
   // Check arrow keys
   if (key.startsWith("arrow")) {
     return key.slice(5);
@@ -214,7 +217,6 @@ function getPressedKey(ev: KeyboardEvent): string | null {
 
   // Check for special keys
   if (key === "tab") return "tab";
-  if (key === " " || key === "space") return "space";
   if (key === "home") return "home";
   if (key === "end") return "end";
   if (key === "delete") return "delete";

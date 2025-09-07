@@ -13,6 +13,8 @@ export type ModifierKeys =
   | "ctrl+alt"
   | "ctrl+alt+shift";
 
+/* eslint-disable prettier/prettier */
+// prettier-ignore
 export type Key =
   | "a"
   | "b"

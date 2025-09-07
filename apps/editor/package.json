@@ -18,6 +18,7 @@
     "@subtitle-agent/ui": "*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lightningcss": "^1.30.1",
     "lucide-react": "^0.542.0",
     "mediabunny": "^1.12.1",
     "next": "15.5.2",
