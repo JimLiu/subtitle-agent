@@ -7,7 +7,7 @@ import type { TextElement } from "@/types/timeline";
 
 interface SubtitlePreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: TextElement | null;
   konvaZIndex: number;
   currentTimestamp: number;

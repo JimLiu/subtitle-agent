@@ -35,7 +35,7 @@ function applyShadowOpacity(color: string): { shadowColor: string; shadowOpacity
 
 export interface PreviewKonvaNodeConstructorOptions<TElement extends TimelineElement> {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   updateSegment: (payload: { id: string } & Partial<TElement>) => void | Promise<void>;
 }
 
@@ -50,7 +50,7 @@ export interface PreviewKonvaNodeMountOptions<TElement extends TimelineElement> 
 export abstract class PreviewKonvaNode<TElement extends TimelineElement> {
   public readonly id: string;
 
-  protected parentLayer: Konva.Layer | null;
+  protected parentLayer: Konva.Group | null;
 
   protected konvaObject: Konva.Node | null = null;
 
@@ -187,7 +187,7 @@ export abstract class PreviewKonvaNode<TElement extends TimelineElement> {
     this.mediaElement?.remove?.();
   }
 
-  setParentLayer(layer: Konva.Layer | null): void {
+  setParentLayer(layer: Konva.Group | null): void {
     this.parentLayer = layer;
     if (layer && this.konvaWrapper) {
       layer.add(this.konvaWrapper);

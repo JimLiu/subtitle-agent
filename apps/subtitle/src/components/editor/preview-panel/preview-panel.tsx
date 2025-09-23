@@ -3,15 +3,22 @@ import type { CSSProperties } from "react";
 import Konva from "konva";
 import cloneDeep from "lodash/cloneDeep";
 import hotkeys from "hotkeys-js";
-import Uppy from "@uppy/core";
-import XHRUpload from "@uppy/xhr-upload";
 import { Stage } from "react-konva";
 
 import { SpectrumAnalyzer } from "./lib/spectrum-analyzer";
 import { SAMPLE_RATE } from "./lib/constants";
 import ratioPresets from "./lib/ratio-presets";
 import type { ProjectSize } from "./nodes/preview-konva-node";
-import type { AudioElement, ImageElement, ProgressBarElement, ShapeElement, TextElement, TimelineElement, VideoElement, WaveElement } from "@/types/timeline";
+import type {
+  AudioElement,
+  ImageElement,
+  ProgressBarElement,
+  ShapeElement,
+  TextElement,
+  TimelineElement,
+  VideoElement,
+  WaveElement,
+} from "@/types/timeline";
 import { SubtitlePreview } from "./previews/subtitle-preview";
 import { TextPreview } from "./previews/text-preview";
 import { ImagePreview } from "./previews/image-preview";
@@ -47,7 +54,9 @@ export interface PreviewPanelProps {
   setSelectedSegment: (id: string | null) => void;
   removeActiveTool: () => void;
   setActiveTool: (tool: string) => void;
-  updateSegment: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
+  updateSegment: (
+    payload: Partial<TimelineElement> & { id: string }
+  ) => void | Promise<void>;
   setPreviewThumbnail: (path: string) => void | Promise<void>;
   deleteSegment: (id: string) => void | Promise<void>;
   duplicateSegment: (payload: { id: string }) => void | Promise<void>;
@@ -101,7 +110,8 @@ export function PreviewPanel(props: PreviewPanelProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const [transformerActive, setTransformerActive] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
-  const [contextMenuPosition, setContextMenuPosition] = useState<ContextMenuPosition>({ x: 0, y: 0 });
+  const [contextMenuPosition, setContextMenuPosition] =
+    useState<ContextMenuPosition>({ x: 0, y: 0 });
   const [toolbarStyle, setToolbarStyle] = useState<CSSProperties>({});
 
   const scaleFactorRef = useRef(0);
@@ -112,91 +122,127 @@ export function PreviewPanel(props: PreviewPanelProps) {
   const idealWidthRef = useRef(0);
   const idealHeightRef = useRef(0);
 
-  const [selectedShapeName, setSelectedShapeName] = useState<string | null>(null);
+  const [selectedShapeName, setSelectedShapeName] = useState<string | null>(
+    null
+  );
   const hoverShapeNameRef = useRef<string | null>(null);
   const rotationTextTimeoutRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyzerRef = useRef<SpectrumAnalyzer | null>(null);
   const screenshotIntervalRef = useRef<number | null>(null);
-  const uppyRef = useRef<Uppy.Uppy | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const isDarkModeRef = useRef<boolean>(document.documentElement.classList.contains("dark"));
+  const isDarkModeRef = useRef<boolean>(
+    document.documentElement.classList.contains("dark")
+  );
   const segmentsCloneRef = useRef<Record<string, TimelineElement>>({});
 
-  const stageClip = useCallback((ctx: Konva.Context) => {
-    const videoGroup = videoGroupRef.current;
-    if (!videoGroup) {
-      return;
-    }
+  const stageClip = useCallback(
+    (ctx: Konva.Context) => {
+      const videoGroup = videoGroupRef.current;
+      if (!videoGroup) {
+        return;
+      }
 
-    const stageWidthCurrent = stageSize.width;
-    const stageHeightCurrent = stageSize.height;
+      const stageWidthCurrent = stageSize.width;
+      const stageHeightCurrent = stageSize.height;
 
-    let paddingX = 12;
-    let paddingY = 16;
-    const availableWidth = stageWidthCurrent - 24;
-    const availableHeight = stageHeightCurrent - 32;
-    let ratioWidth: number;
-    let ratioHeight: number;
-    let idealWidth: number;
+      let paddingX = 12;
+      let paddingY = 16;
+      const availableWidth = stageWidthCurrent - 24;
+      const availableHeight = stageHeightCurrent - 32;
+      let ratioWidth: number;
+      let ratioHeight: number;
+      let idealWidth: number;
 
-    if (size.ratio === "original") {
-      ratioWidth = size.original.width;
-      ratioHeight = size.original.height;
-      idealWidth = size.original.width;
-    } else {
-      const preset = ratioPresets[size.ratio];
-      ratioWidth = preset.idealRatioWidth;
-      ratioHeight = preset.idealRatioHeight;
-      idealWidth = preset.resolutions.hd;
-    }
+      if (size.ratio === "original") {
+        ratioWidth = size.original.width;
+        ratioHeight = size.original.height;
+        idealWidth = size.original.width;
+      } else {
+        const preset = ratioPresets[size.ratio];
+        ratioWidth = preset.idealRatioWidth;
+        ratioHeight = preset.idealRatioHeight;
+        idealWidth = preset.resolutions.hd;
+      }
 
-    let viewHeight = availableHeight;
-    let viewWidth = (viewHeight / ratioHeight) * ratioWidth;
+      let viewHeight = availableHeight;
+      let viewWidth = (viewHeight / ratioHeight) * ratioWidth;
 
-    if (viewWidth > availableWidth) {
-      viewWidth = availableWidth;
-      viewHeight = (viewWidth / ratioWidth) * ratioHeight;
-      paddingY += (availableHeight - viewHeight) / 2;
-    } else {
-      paddingX += (availableWidth - viewWidth) / 2;
-    }
+      if (viewWidth > availableWidth) {
+        viewWidth = availableWidth;
+        viewHeight = (viewWidth / ratioWidth) * ratioHeight;
+        paddingY += (availableHeight - viewHeight) / 2;
+      } else {
+        paddingX += (availableWidth - viewWidth) / 2;
+      }
 
-    const scale = viewWidth / idealWidth;
-    scaleFactorRef.current = scale;
-    videoGroup.scale({ x: scale, y: scale });
-    videoGroup.position({ x: paddingX, y: paddingY });
+      const scale = viewWidth / idealWidth;
+      scaleFactorRef.current = scale;
+      videoGroup.scale({ x: scale, y: scale });
+      videoGroup.position({ x: paddingX, y: paddingY });
 
-    let cornerRadius = 15;
-    if (viewWidth < 2 * cornerRadius) {
-      cornerRadius = viewWidth / 2;
-    }
-    if (viewHeight < 2 * cornerRadius) {
-      cornerRadius = viewHeight / 2;
-    }
+      let cornerRadius = 15;
+      if (viewWidth < 2 * cornerRadius) {
+        cornerRadius = viewWidth / 2;
+      }
+      if (viewHeight < 2 * cornerRadius) {
+        cornerRadius = viewHeight / 2;
+      }
 
-    calculatedWidthRef.current = viewWidth;
-    calculatedHeightRef.current = viewHeight;
-    calculatedXStartRef.current = paddingX;
-    calculatedYStartRef.current = paddingY;
-    idealWidthRef.current = idealWidth;
-    idealHeightRef.current = idealWidth * (viewHeight / viewWidth);
+      calculatedWidthRef.current = viewWidth;
+      calculatedHeightRef.current = viewHeight;
+      calculatedXStartRef.current = paddingX;
+      calculatedYStartRef.current = paddingY;
+      idealWidthRef.current = idealWidth;
+      idealHeightRef.current = idealWidth * (viewHeight / viewWidth);
 
-    if (backgroundRectRef.current) {
-      backgroundRectRef.current.position({ x: paddingX + 0.5, y: paddingY + 0.5 });
-      backgroundRectRef.current.size({ width: viewWidth - 1, height: viewHeight - 2 });
-      backgroundRectRef.current.cornerRadius(cornerRadius);
-    }
+      if (backgroundRectRef.current) {
+        backgroundRectRef.current.position({
+          x: paddingX + 0.5,
+          y: paddingY + 0.5,
+        });
+        backgroundRectRef.current.size({
+          width: viewWidth - 1,
+          height: viewHeight - 2,
+        });
+        backgroundRectRef.current.cornerRadius(cornerRadius);
+      }
 
-    ctx.beginPath();
-    ctx.moveTo(paddingX + cornerRadius, paddingY);
-    ctx.arcTo(paddingX + viewWidth, paddingY, paddingX + viewWidth, paddingY + viewHeight, cornerRadius);
-    ctx.arcTo(paddingX + viewWidth, paddingY + viewHeight, paddingX, paddingY + viewHeight, cornerRadius);
-    ctx.arcTo(paddingX, paddingY + viewHeight, paddingX, paddingY, cornerRadius);
-    ctx.arcTo(paddingX, paddingY, paddingX + viewWidth, paddingY, cornerRadius);
-    ctx.closePath();
-  }, [size, stageSize.width, stageSize.height]);
+      ctx.beginPath();
+      ctx.moveTo(paddingX + cornerRadius, paddingY);
+      ctx.arcTo(
+        paddingX + viewWidth,
+        paddingY,
+        paddingX + viewWidth,
+        paddingY + viewHeight,
+        cornerRadius
+      );
+      ctx.arcTo(
+        paddingX + viewWidth,
+        paddingY + viewHeight,
+        paddingX,
+        paddingY + viewHeight,
+        cornerRadius
+      );
+      ctx.arcTo(
+        paddingX,
+        paddingY + viewHeight,
+        paddingX,
+        paddingY,
+        cornerRadius
+      );
+      ctx.arcTo(
+        paddingX,
+        paddingY,
+        paddingX + viewWidth,
+        paddingY,
+        cornerRadius
+      );
+      ctx.closePath();
+    },
+    [size, stageSize.width, stageSize.height]
+  );
 
   useEffect(() => {
     segmentsCloneRef.current = cloneDeep(allSegments);
@@ -250,7 +296,9 @@ export function PreviewPanel(props: PreviewPanelProps) {
       (line as Konva.Line).stroke(isDark ? "#374151" : "rgb(255, 255, 255)");
     });
     if (helperTextBackgroundRectRef.current) {
-      helperTextBackgroundRectRef.current.shadowColor(isDark ? "#000" : "black");
+      helperTextBackgroundRectRef.current.shadowColor(
+        isDark ? "#000" : "black"
+      );
       helperTextBackgroundRectRef.current.shadowOpacity(isDark ? 0.5 : 0.3);
     }
     layerRef.current?.batchDraw();
@@ -326,7 +374,14 @@ export function PreviewPanel(props: PreviewPanelProps) {
       rotateLineVisible: false,
       rotateAnchorOffset: 30,
       anchorSize: 10,
-      enabledAnchors: ["middle-left", "middle-right", "top-left", "top-right", "bottom-left", "bottom-right"],
+      enabledAnchors: [
+        "middle-left",
+        "middle-right",
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right",
+      ],
     });
 
     transformer.anchorStyleFunc((anchor) => {
@@ -340,11 +395,19 @@ export function PreviewPanel(props: PreviewPanelProps) {
         anchor.offsetY(10);
         anchor.sceneFunc((ctx) => {
           ctx.beginPath();
-          ctx.arc(anchor.width() / 2, anchor.height() / 2, anchor.width() / 2, 0, Math.PI * 2);
+          ctx.arc(
+            anchor.width() / 2,
+            anchor.height() / 2,
+            anchor.width() / 2,
+            0,
+            Math.PI * 2
+          );
           ctx.fillStyle = "white";
           ctx.fill();
           ctx.closePath();
-          const path = new Path2D("M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916");
+          const path = new Path2D(
+            "M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916"
+          );
           ctx.save();
           ctx.translate(anchor.width() / 2 - 8.5, anchor.height() / 2 - 8.5);
           ctx.scale(0.7, 0.7);
@@ -357,7 +420,13 @@ export function PreviewPanel(props: PreviewPanelProps) {
         });
         anchor.hitFunc((ctx) => {
           ctx.beginPath();
-          ctx.arc(anchor.width() / 2, anchor.height() / 2, anchor.width() / 2, 0, Math.PI * 2);
+          ctx.arc(
+            anchor.width() / 2,
+            anchor.height() / 2,
+            anchor.width() / 2,
+            0,
+            Math.PI * 2
+          );
           ctx.closePath();
           ctx.fillStrokeShape(anchor);
         });
@@ -439,13 +508,19 @@ export function PreviewPanel(props: PreviewPanelProps) {
       void updateThumbnail();
     };
 
-    document.addEventListener("updateThumbnail", handleUpdateThumbnail as EventListener);
+    document.addEventListener(
+      "updateThumbnail",
+      handleUpdateThumbnail as EventListener
+    );
 
     const initialDarkMode = document.documentElement.classList.contains("dark");
     updateDarkMode(initialDarkMode);
 
     return () => {
-      document.removeEventListener("updateThumbnail", handleUpdateThumbnail as EventListener);
+      document.removeEventListener(
+        "updateThumbnail",
+        handleUpdateThumbnail as EventListener
+      );
       if (screenshotIntervalRef.current) {
         clearInterval(screenshotIntervalRef.current);
         screenshotIntervalRef.current = null;
@@ -571,10 +646,14 @@ export function PreviewPanel(props: PreviewPanelProps) {
         idealWidthRef.current,
         idealHeightRef.current,
         orderedSegments,
-        videoGroup,
+        videoGroup
       );
       const snappingEdges = getObjectSnappingEdges(event.target, videoGroup);
-      const guides = getGuides(lineGuideStops, snappingEdges, 5 / (scaleFactorRef.current || 1));
+      const guides = getGuides(
+        lineGuideStops,
+        snappingEdges,
+        5 / (scaleFactorRef.current || 1)
+      );
       if (!guides.length) {
         return;
       }
@@ -619,97 +698,151 @@ export function PreviewPanel(props: PreviewPanelProps) {
     updateTransformer,
   ]);
 
-  const updateTransformer = useCallback((forceSelect = false) => {
+  const updateTransformer = useCallback(
+    (forceSelect = false) => {
+      const stage = stageRef.current;
+      const transformer = transformerRef.current;
+      const hoverTransformer = hoverTransformerRef.current;
+      if (!stage || !transformer || !hoverTransformer) {
+        return;
+      }
+
+      const selectedNode = selectedShapeName
+        ? stage.findOne(`.${selectedShapeName}`)
+        : null;
+      const hoverNode = hoverShapeNameRef.current
+        ? stage.findOne(`.${hoverShapeNameRef.current}`)
+        : null;
+
+      if (selectedNode === hoverNode) {
+        hoverTransformer.detach();
+      } else if (hoverNode && hoverNode !== hoverTransformer.nodes()[0]) {
+        hoverTransformer.nodes([hoverNode]);
+      } else if (!hoverNode) {
+        hoverTransformer.detach();
+      }
+
+      if (transformer.isTransforming()) {
+        hoverTransformer.detach();
+      }
+
+      if (selectedNode && selectedNode !== transformer.nodes()[0]) {
+        setTransformerActive(true);
+        const segment = selectedShapeName
+          ? getSegmentById(selectedShapeName)
+          : null;
+        if (segment && segment.type === "text") {
+          transformer.enabledAnchors(["middle-left", "middle-right"]);
+        } else {
+          transformer.enabledAnchors([
+            "middle-left",
+            "middle-right",
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+            "top-center",
+            "bottom-center",
+          ]);
+        }
+        transformer.nodes([selectedNode]);
+        if (selectedShapeName) {
+          setSelectedSegment(selectedShapeName);
+        }
+        if (window.innerWidth >= 768) {
+          setActiveTool("Details");
+        }
+        positionFloatingHelpText();
+        transformer.on("transform", (event) => {
+          const target = event.target;
+          if (
+            Number(target.attrs.rotation.toFixed(2)) !==
+            Number(
+              (getSegmentById(selectedShapeName ?? "")?.rotation ?? 0).toFixed(
+                2
+              )
+            )
+          ) {
+            const angle = target.rotation();
+            requestAnimationFrame(() => {
+              updateFloatingHelpText(angle);
+            });
+          }
+        });
+        transformer.on("transformend", (event) => {
+          const angle = event.target.rotation();
+          updateFloatingHelpText(angle);
+          window.setTimeout(() => {
+            helperTextGroupRef.current?.visible(false);
+          }, 1500);
+        });
+        transformer.on("dragmove", () => {
+          positionFloatingHelpText();
+        });
+      } else if (!selectedNode) {
+        setTransformerActive(false);
+        transformer.detach();
+        helperTextGroupRef.current?.visible(false);
+        setToolbarStyle({});
+      } else if (forceSelect && selectedShapeName) {
+        setActiveTool("Details");
+      }
+      layerRef.current?.batchDraw();
+    },
+    [
+      getSegmentById,
+      positionFloatingHelpText,
+      selectedShapeName,
+      setActiveTool,
+      setSelectedSegment,
+      updateFloatingHelpText,
+    ]
+  );
+
+  const updateThumbnail = useCallback(async () => {
     const stage = stageRef.current;
-    const transformer = transformerRef.current;
-    const hoverTransformer = hoverTransformerRef.current;
-    if (!stage || !transformer || !hoverTransformer) {
+    const backgroundGroup = backgroundGroupRef.current;
+    const maskingGroup = maskingGroupRef.current;
+    if (!stage || !backgroundGroup || !maskingGroup || document.hidden) {
       return;
     }
 
-    const selectedNode = selectedShapeName ? stage.findOne(`.${selectedShapeName}`) : null;
-    const hoverNode = hoverShapeNameRef.current ? stage.findOne(`.${hoverShapeNameRef.current}`) : null;
+    const originalBackgroundClip = backgroundGroup.clipFunc();
 
-    if (selectedNode === hoverNode) {
-      hoverTransformer.detach();
-    } else if (hoverNode && hoverNode !== hoverTransformer.nodes()[0]) {
-      hoverTransformer.nodes([hoverNode]);
-    } else if (!hoverNode) {
-      hoverTransformer.detach();
-    }
+    backgroundGroup.clipFunc(
+      undefined as unknown as (ctx: Konva.Context) => void
+    );
+    maskingGroup.clipFunc(undefined as unknown as (ctx: Konva.Context) => void);
+    transformerRef.current?.hide();
 
-    if (transformer.isTransforming()) {
-      hoverTransformer.detach();
-    }
+    const dataUrl = stage.toDataURL({
+      x: calculatedXStartRef.current,
+      y: calculatedYStartRef.current,
+      width: calculatedWidthRef.current,
+      height: calculatedHeightRef.current,
+      pixelRatio: 2,
+    });
 
-    if (selectedNode && selectedNode !== transformer.nodes()[0]) {
-      setTransformerActive(true);
-      const segment = selectedShapeName ? getSegmentById(selectedShapeName) : null;
-      if (segment && segment.type === "text") {
-        transformer.enabledAnchors(["middle-left", "middle-right"]);
-      } else {
-        transformer.enabledAnchors([
-          "middle-left",
-          "middle-right",
-          "top-left",
-          "top-right",
-          "bottom-left",
-          "bottom-right",
-          "top-center",
-          "bottom-center",
-        ]);
-      }
-      transformer.nodes([selectedNode]);
-      if (selectedShapeName) {
-        setSelectedSegment(selectedShapeName);
-      }
-      if (window.innerWidth >= 768) {
-        setActiveTool("Details");
-      }
-      positionFloatingHelpText();
-      transformer.on("transform", (event) => {
-        const target = event.target;
-        if (Number(target.attrs.rotation.toFixed(2)) !== Number((getSegmentById(selectedShapeName ?? "")?.rotation ?? 0).toFixed(2))) {
-          const angle = target.rotation();
-          requestAnimationFrame(() => {
-            updateFloatingHelpText(angle);
-          });
-        }
-      });
-      transformer.on("transformend", (event) => {
-        const angle = event.target.rotation();
-        updateFloatingHelpText(angle);
-        window.setTimeout(() => {
-          helperTextGroupRef.current?.visible(false);
-        }, 1500);
-      });
-      transformer.on("dragmove", () => {
-        positionFloatingHelpText();
-      });
-    } else if (!selectedNode) {
-      setTransformerActive(false);
-      transformer.detach();
-      helperTextGroupRef.current?.visible(false);
-      setToolbarStyle({});
-    } else if (forceSelect && selectedShapeName) {
-      setActiveTool("Details");
-    }
-    layerRef.current?.batchDraw();
-  }, [
-    getSegmentById,
-    positionFloatingHelpText,
-    selectedShapeName,
-    setActiveTool,
-    setSelectedSegment,
-    updateFloatingHelpText,
-  ]);
+    backgroundGroup.clipFunc(
+      originalBackgroundClip as (ctx: Konva.Context) => void
+    );
+    maskingGroup.clipFunc(stageClip);
+    transformerRef.current?.show();
+
+    await setPreviewThumbnail(`previews/${projectID}.png`);
+  }, [projectID, setPreviewThumbnail, stageClip]);
 
   const positionFloatingHelpText = useCallback(() => {
     const transformer = transformerRef.current;
     const helperTextGroup = helperTextGroupRef.current;
     const rotationText = rotationTextRef.current;
     const helperTextBackgroundRect = helperTextBackgroundRectRef.current;
-    if (!transformer || !helperTextGroup || !rotationText || !helperTextBackgroundRect) {
+    if (
+      !transformer ||
+      !helperTextGroup ||
+      !rotationText ||
+      !helperTextBackgroundRect
+    ) {
       return;
     }
     const rect = transformer.getClientRect();
@@ -733,22 +866,25 @@ export function PreviewPanel(props: PreviewPanelProps) {
     }
   }, []);
 
-  const updateFloatingHelpText = useCallback((angle: number) => {
-    const rotationText = rotationTextRef.current;
-    const helperTextGroup = helperTextGroupRef.current;
-    if (!rotationText || !helperTextGroup) {
-      return;
-    }
-    rotationText.text(`${Math.round(angle)}°`);
-    positionFloatingHelpText();
-    helperTextGroup.visible(true);
-    if (rotationTextTimeoutRef.current) {
-      clearTimeout(rotationTextTimeoutRef.current);
-    }
-    rotationTextTimeoutRef.current = window.setTimeout(() => {
-      helperTextGroupRef.current?.visible(false);
-    }, 1500);
-  }, [positionFloatingHelpText]);
+  const updateFloatingHelpText = useCallback(
+    (angle: number) => {
+      const rotationText = rotationTextRef.current;
+      const helperTextGroup = helperTextGroupRef.current;
+      if (!rotationText || !helperTextGroup) {
+        return;
+      }
+      rotationText.text(`${Math.round(angle)}°`);
+      positionFloatingHelpText();
+      helperTextGroup.visible(true);
+      if (rotationTextTimeoutRef.current) {
+        clearTimeout(rotationTextTimeoutRef.current);
+      }
+      rotationTextTimeoutRef.current = window.setTimeout(() => {
+        helperTextGroupRef.current?.visible(false);
+      }, 1500);
+    },
+    [positionFloatingHelpText]
+  );
 
   const handleWindowClick = useCallback(() => {
     setShowContextMenu(false);
@@ -768,58 +904,6 @@ export function PreviewPanel(props: PreviewPanelProps) {
     };
   }, []);
 
-  const updateThumbnail = useCallback(async () => {
-    const stage = stageRef.current;
-    const backgroundGroup = backgroundGroupRef.current;
-    const maskingGroup = maskingGroupRef.current;
-    if (!stage || !backgroundGroup || !maskingGroup || document.hidden) {
-      return;
-    }
-
-    const originalBackgroundClip = backgroundGroup.clipFunc();
-
-    backgroundGroup.clipFunc(undefined as unknown as (ctx: Konva.Context) => void);
-    maskingGroup.clipFunc(undefined as unknown as (ctx: Konva.Context) => void);
-    transformerRef.current?.hide();
-
-    const dataUrl = stage.toDataURL({
-      x: calculatedXStartRef.current,
-      y: calculatedYStartRef.current,
-      width: calculatedWidthRef.current,
-      height: calculatedHeightRef.current,
-      pixelRatio: 2,
-    });
-
-    backgroundGroup.clipFunc(originalBackgroundClip as (ctx: Konva.Context) => void);
-    maskingGroup.clipFunc(stageClip);
-    transformerRef.current?.show();
-
-    const uppy = new Uppy({
-      autoProceed: true,
-    }).use(XHRUpload, {
-      endpoint: `https://uploads.echowave.io/previews/${projectID}.png`,
-      offset: 0,
-    });
-
-    uppyRef.current = uppy;
-
-    const response = await fetch(dataUrl);
-    const blob = await response.blob();
-
-    uppy.addFile({
-      name: `previews/${projectID}}.png`,
-      type: "image/png",
-      data: blob,
-      meta: {
-        relativePath: `/previews/${projectID}`,
-      },
-      source: "Local",
-      isRemote: false,
-    });
-
-    await uppy.upload();
-    await setPreviewThumbnail(`previews/${projectID}.png`);
-  }, [projectID, setPreviewThumbnail, stageClip]);
 
   const initializeObservers = useCallback(() => {
     window.addEventListener("click", handleWindowClick as EventListener);
@@ -827,7 +911,10 @@ export function PreviewPanel(props: PreviewPanelProps) {
 
     const mutationObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.target instanceof HTMLElement && mutation.target === document.documentElement) {
+        if (
+          mutation.target instanceof HTMLElement &&
+          mutation.target === document.documentElement
+        ) {
           updateDarkMode(document.documentElement.classList.contains("dark"));
         }
       });
@@ -845,7 +932,10 @@ export function PreviewPanel(props: PreviewPanelProps) {
         if (!entry) {
           return;
         }
-        setStageSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+        setStageSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
         backgroundGroupRef.current?.clipFunc(stageClip);
         maskingGroupRef.current?.clipFunc(stageClip);
         layerRef.current?.batchDraw();
@@ -880,10 +970,14 @@ export function PreviewPanel(props: PreviewPanelProps) {
       layerRef.current?.destroy();
       maskingGroupRef.current?.destroy();
       stageRef.current?.destroy();
-      uppyRef.current?.close();
-      uppyRef.current = null;
     };
-  }, [bindStageEvents, bindShortcuts, initializeObservers, initializeStage, stageReady]);
+  }, [
+    bindStageEvents,
+    bindShortcuts,
+    initializeObservers,
+    initializeStage,
+    stageReady,
+  ]);
 
   useEffect(() => {
     if (!konvaInit) {
@@ -937,78 +1031,129 @@ export function PreviewPanel(props: PreviewPanelProps) {
     }
   }, [konvaInit, stageSize]);
 
-  const getLineGuideStops = useCallback((
-    node: Konva.Node,
-    stage: Konva.Stage,
-    idealWidth: number,
-    idealHeight: number,
-    segments: TimelineElement[],
-    container: Konva.Group,
-  ) => {
-    const vertical: number[] = [0, idealWidth / 2, idealWidth];
-    const horizontal: number[] = [0, idealHeight / 2, idealHeight];
-    let wrapper = node;
-    while (wrapper.name() !== "konvaWrapper" && wrapper.getParent()) {
-      wrapper = wrapper.getParent();
-    }
+  const getLineGuideStops = useCallback(
+    (
+      node: Konva.Node,
+      stage: Konva.Stage,
+      idealWidth: number,
+      idealHeight: number,
+      segments: TimelineElement[],
+      container: Konva.Group
+    ) => {
+      const vertical: number[] = [0, idealWidth / 2, idealWidth];
+      const horizontal: number[] = [0, idealHeight / 2, idealHeight];
+      let wrapper = node;
+      while (wrapper.name() !== "konvaWrapper" && wrapper.getParent()) {
+        wrapper = wrapper.getParent();
+      }
 
-    segments.forEach((segment) => {
-      stage.find(`#${segment.id}`).forEach((shape) => {
-        if (wrapper.id && wrapper.id() === segment.id) {
-          return;
-        }
-        const rect = shape.getClientRect({ relativeTo: container });
-        const width = rect.width;
-        const height = rect.height;
-        const positionX = segment.x ?? 0;
-        const positionY = segment.y ?? 0;
-        vertical.push(positionX);
-        vertical.push(positionX + width);
-        vertical.push(positionX + width / 2);
-        horizontal.push(positionY);
-        horizontal.push(positionY + height);
-        horizontal.push(positionY + height / 2);
+      segments.forEach((segment) => {
+        stage.find(`#${segment.id}`).forEach((shape) => {
+          if (wrapper.id && wrapper.id() === segment.id) {
+            return;
+          }
+          const rect = shape.getClientRect({ relativeTo: container });
+          const width = rect.width;
+          const height = rect.height;
+          const positionX = segment.x ?? 0;
+          const positionY = segment.y ?? 0;
+          vertical.push(positionX);
+          vertical.push(positionX + width);
+          vertical.push(positionX + width / 2);
+          horizontal.push(positionY);
+          horizontal.push(positionY + height);
+          horizontal.push(positionY + height / 2);
+        });
       });
-    });
 
-    return {
-      vertical,
-      horizontal,
-    };
-  }, []);
+      return {
+        vertical,
+        horizontal,
+      };
+    },
+    []
+  );
 
-  const getObjectSnappingEdges = useCallback((node: Konva.Node, container: Konva.Group) => {
-    const rect = node.getClientRect({ relativeTo: container });
-    const position = node.position();
-    return {
-      vertical: [
-        { guide: Math.round(rect.x), offset: Math.round(position.x - rect.x), snap: "start" },
-        { guide: Math.round(rect.x + rect.width / 2), offset: Math.round(position.x - rect.x - rect.width / 2), snap: "center" },
-        { guide: Math.round(rect.x + rect.width), offset: Math.round(position.x - rect.x - rect.width), snap: "end" },
-      ],
-      horizontal: [
-        { guide: Math.round(rect.y), offset: Math.round(position.y - rect.y), snap: "start" },
-        { guide: Math.round(rect.y + rect.height / 2), offset: Math.round(position.y - rect.y - rect.height / 2), snap: "center" },
-        { guide: Math.round(rect.y + rect.height), offset: Math.round(position.y - rect.y - rect.height), snap: "end" },
-      ],
-    };
-  }, []);
+  const getObjectSnappingEdges = useCallback(
+    (node: Konva.Node, container: Konva.Group) => {
+      const rect = node.getClientRect({ relativeTo: container });
+      const position = node.position();
+      return {
+        vertical: [
+          {
+            guide: Math.round(rect.x),
+            offset: Math.round(position.x - rect.x),
+            snap: "start",
+          },
+          {
+            guide: Math.round(rect.x + rect.width / 2),
+            offset: Math.round(position.x - rect.x - rect.width / 2),
+            snap: "center",
+          },
+          {
+            guide: Math.round(rect.x + rect.width),
+            offset: Math.round(position.x - rect.x - rect.width),
+            snap: "end",
+          },
+        ],
+        horizontal: [
+          {
+            guide: Math.round(rect.y),
+            offset: Math.round(position.y - rect.y),
+            snap: "start",
+          },
+          {
+            guide: Math.round(rect.y + rect.height / 2),
+            offset: Math.round(position.y - rect.y - rect.height / 2),
+            snap: "center",
+          },
+          {
+            guide: Math.round(rect.y + rect.height),
+            offset: Math.round(position.y - rect.y - rect.height),
+            snap: "end",
+          },
+        ],
+      };
+    },
+    []
+  );
 
   const getGuides = useCallback(
     (
       stops: { vertical: number[]; horizontal: number[] },
       edges: ReturnType<typeof getObjectSnappingEdges>,
-      offset: number,
+      offset: number
     ) => {
-      const result: Array<{ lineGuide: number; diff: number; orientation: "V" | "H"; snap: string; offset: number }> = [];
-      const verticalMatches: Array<{ lineGuide: number; diff: number; snap: string; offset: number }> = [];
-      const horizontalMatches: Array<{ lineGuide: number; diff: number; snap: string; offset: number }> = [];
+      const result: Array<{
+        lineGuide: number;
+        diff: number;
+        orientation: "V" | "H";
+        snap: string;
+        offset: number;
+      }> = [];
+      const verticalMatches: Array<{
+        lineGuide: number;
+        diff: number;
+        snap: string;
+        offset: number;
+      }> = [];
+      const horizontalMatches: Array<{
+        lineGuide: number;
+        diff: number;
+        snap: string;
+        offset: number;
+      }> = [];
 
       stops.vertical.forEach((lineGuide) => {
         edges.vertical.forEach((edge) => {
           const diff = Math.abs(lineGuide - edge.guide);
           if (diff < offset) {
-            verticalMatches.push({ lineGuide, diff, snap: edge.snap, offset: edge.offset });
+            verticalMatches.push({
+              lineGuide,
+              diff,
+              snap: edge.snap,
+              offset: edge.offset,
+            });
           }
         });
       });
@@ -1017,13 +1162,20 @@ export function PreviewPanel(props: PreviewPanelProps) {
         edges.horizontal.forEach((edge) => {
           const diff = Math.abs(lineGuide - edge.guide);
           if (diff < offset) {
-            horizontalMatches.push({ lineGuide, diff, snap: edge.snap, offset: edge.offset });
+            horizontalMatches.push({
+              lineGuide,
+              diff,
+              snap: edge.snap,
+              offset: edge.offset,
+            });
           }
         });
       });
 
       const bestVertical = verticalMatches.sort((a, b) => a.diff - b.diff)[0];
-      const bestHorizontal = horizontalMatches.sort((a, b) => a.diff - b.diff)[0];
+      const bestHorizontal = horizontalMatches.sort(
+        (a, b) => a.diff - b.diff
+      )[0];
 
       if (bestVertical) {
         result.push({
@@ -1046,38 +1198,46 @@ export function PreviewPanel(props: PreviewPanelProps) {
 
       return result;
     },
-    [getObjectSnappingEdges],
+    [getObjectSnappingEdges]
   );
 
-  const drawGuides = useCallback((
-    guides: Array<{ lineGuide: number; orientation: "V" | "H"; snap: string; offset: number }>,
-    container: Konva.Group,
-    scale: number,
-  ) => {
-    guides.forEach((guide) => {
-      if (guide.orientation === "H") {
-        const line = new Konva.Line({
-          points: [-6000, 0, 6000, 0],
-          stroke: "rgb(255, 255, 255)",
-          strokeWidth: 2 * scale,
-          name: "guid-line",
-          dash: [4 * scale, 6 * scale],
-        });
-        container.add(line);
-        line.position({ x: 0, y: guide.lineGuide });
-      } else if (guide.orientation === "V") {
-        const line = new Konva.Line({
-          points: [0, -6000, 0, 6000],
-          stroke: "rgb(255, 255, 255)",
-          strokeWidth: 2 * scale,
-          name: "guid-line",
-          dash: [4 * scale, 6 * scale],
-        });
-        container.add(line);
-        line.position({ x: guide.lineGuide, y: 0 });
-      }
-    });
-  }, []);
+  const drawGuides = useCallback(
+    (
+      guides: Array<{
+        lineGuide: number;
+        orientation: "V" | "H";
+        snap: string;
+        offset: number;
+      }>,
+      container: Konva.Group,
+      scale: number
+    ) => {
+      guides.forEach((guide) => {
+        if (guide.orientation === "H") {
+          const line = new Konva.Line({
+            points: [-6000, 0, 6000, 0],
+            stroke: "rgb(255, 255, 255)",
+            strokeWidth: 2 * scale,
+            name: "guid-line",
+            dash: [4 * scale, 6 * scale],
+          });
+          container.add(line);
+          line.position({ x: 0, y: guide.lineGuide });
+        } else if (guide.orientation === "V") {
+          const line = new Konva.Line({
+            points: [0, -6000, 0, 6000],
+            stroke: "rgb(255, 255, 255)",
+            strokeWidth: 2 * scale,
+            name: "guid-line",
+            dash: [4 * scale, 6 * scale],
+          });
+          container.add(line);
+          line.position({ x: guide.lineGuide, y: 0 });
+        }
+      });
+    },
+    []
+  );
 
   const bringToFront = useCallback(() => {
     if (!selectedSegment) {
@@ -1119,13 +1279,19 @@ export function PreviewPanel(props: PreviewPanelProps) {
     setSelectedSegment(null);
     void deleteSegment(removedId);
     updateTransformer();
-  }, [deleteSegment, removeActiveTool, selectedSegment, setSelectedSegment, updateTransformer]);
+  }, [
+    deleteSegment,
+    removeActiveTool,
+    selectedSegment,
+    setSelectedSegment,
+    updateTransformer,
+  ]);
 
   const handleTextSegmentUpdate = useCallback(
     (payload: Partial<TextElement> & { id: string }) => {
       void updateSegment(payload);
     },
-    [updateSegment],
+    [updateSegment]
   );
 
   useEffect(() => {
@@ -1134,7 +1300,10 @@ export function PreviewPanel(props: PreviewPanelProps) {
         clearTimeout(rotationTextTimeoutRef.current);
         rotationTextTimeoutRef.current = null;
       }
-      document.removeEventListener("updateThumbnail", updateThumbnail as unknown as EventListener);
+      document.removeEventListener(
+        "updateThumbnail",
+        updateThumbnail as unknown as EventListener
+      );
       window.removeEventListener("click", handleWindowClick as EventListener);
       window.removeEventListener("blur", handleWindowBlur as EventListener);
       mutationObserverRef.current?.disconnect();
@@ -1143,21 +1312,27 @@ export function PreviewPanel(props: PreviewPanelProps) {
       layerRef.current?.destroy();
       maskingGroupRef.current?.destroy();
       stageRef.current?.destroy();
-      uppyRef.current?.close();
-      uppyRef.current = null;
     };
   }, [handleWindowBlur, handleWindowClick, updateThumbnail]);
 
   const isMobile = useMemo(() => window.innerWidth < 768, []);
 
   return (
-    <div ref={stageContainerRef} id="stage" className="pane h-full relative flex-grow">
+    <div
+      ref={stageContainerRef}
+      id="stage"
+      className="pane h-full relative flex-grow"
+    >
       {!konvaInit && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
           <LoadingSpinner />
         </div>
       )}
-      <div id="preview-container" className="preview-container dark:bg-gray-900" ref={previewContainerRef}>
+      <div
+        id="preview-container"
+        className="preview-container dark:bg-gray-900"
+        ref={previewContainerRef}
+      >
         <Stage
           ref={(node) => {
             stageRef.current = node;
@@ -1179,7 +1354,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
                 key={`${segment.id}-subtitles`}
                 id={segment.id}
                 parentLayer={videoGroupRef.current}
-                element={segment as TextElement} 
+                element={segment as TextElement}
                 konvaZIndex={getKonvaZIndex(segment.id)}
                 currentTimestamp={currentTimestamp}
                 playing={playing}
@@ -1201,12 +1376,22 @@ export function PreviewPanel(props: PreviewPanelProps) {
             };
 
             if (segment.type === "image") {
-              return <ImagePreview {...baseProps} element={segment as ImageElement} />;
+              return (
+                <ImagePreview
+                  {...baseProps}
+                  element={segment as ImageElement}
+                />
+              );
             }
             if (segment.type === "text") {
-              return <TextPreview {...baseProps} element={segment as TextElement} />;
+              return (
+                <TextPreview {...baseProps} element={segment as TextElement} />
+              );
             }
-            if (segment.type === "wave" && currentTimestamp >= segment.startTime) {
+            if (
+              segment.type === "wave" &&
+              currentTimestamp >= segment.startTime
+            ) {
               return (
                 <WavePreview
                   {...baseProps}
@@ -1217,7 +1402,12 @@ export function PreviewPanel(props: PreviewPanelProps) {
               );
             }
             if (segment.type === "progress_bar") {
-              return <ProgressBarPreview {...baseProps} element={segment as ProgressBarElement} />;
+              return (
+                <ProgressBarPreview
+                  {...baseProps}
+                  element={segment as ProgressBarElement}
+                />
+              );
             }
             if (segment.type === "audio" && audioContextRef.current) {
               return (
@@ -1242,7 +1432,12 @@ export function PreviewPanel(props: PreviewPanelProps) {
               );
             }
             if (segment.type === "shape") {
-              return <ShapePreview {...baseProps} element={segment as ShapeElement} />;
+              return (
+                <ShapePreview
+                  {...baseProps}
+                  element={segment as ShapeElement}
+                />
+              );
             }
             return null;
           })}
