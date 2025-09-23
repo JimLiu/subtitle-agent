@@ -194,7 +194,7 @@ export abstract class PreviewKonvaNode<TElement extends TimelineElement> {
     }
   }
 
-  seTElement(element: TElement | null): void {
+  setElement(element: TElement | null): void {
     const previous = this.element ? cloneDeep(this.element) : null;
     this.element = element ? (cloneDeep(element) as TElement) : null;
     this.handleSegmentChange(this.element, previous);
