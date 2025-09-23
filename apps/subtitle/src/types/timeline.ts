@@ -3,6 +3,16 @@ import { generateUUID } from "@/lib/utils";
 
 export type TrackType = "media" | "text" | "audio";
 
+export interface Scale {
+  x: number;
+  y: number;
+}
+
+export interface TimelineElementAnimation {
+  type: string;
+  duration?: number;
+}
+
 // Base element properties
 interface BaseTimelineElement {
   id: string;
@@ -12,35 +22,129 @@ interface BaseTimelineElement {
   trimStart: number;
   trimEnd: number;
   hidden?: boolean;
+  scale?: Scale;
+  x: number; // Position relative to canvas center
+  y: number; // Position relative to canvas center
+  rotation: number; // in degrees
+  opacity: number; // 0-1
+  
+  zIndex?: number;
+  animations?: TimelineElementAnimation[];
 }
 
 // Media element that references MediaStore
 export interface MediaElement extends BaseTimelineElement {
-  type: "media";
   mediaId: string;
+  remoteSource?: string;
   muted?: boolean;
+  volume?: number;
+  cornerRadius?: number;
+}
+
+export interface AudioElement extends MediaElement {
+  type: 'audio';
+}
+
+export interface VideoElement extends MediaElement {
+  type: 'video';
+}
+
+export interface ImageElement extends BaseTimelineElement {
+  type: 'image';
+  mediaId?: string;
+  remoteSource?: string;
+  cornerRadius?: number;
+}
+
+
+export interface ElementFont {
+  family?: string;
+  files?: Record<string, string>;
+  variants?: string[];
+}
+
+export interface ElementOptions {
+  stokeColor?: string;
+  shadowColor?: string;
+}
+
+export interface SubtitleCue {
+  start: number;
+  end: number;
+  text: string;
 }
 
 // Text element with embedded text data
 export interface TextElement extends BaseTimelineElement {
-  type: "text";
+  type: "text" | "subtitles";
   content: string;
+  width?: number;
+  height?: number | 'auto';
   fontSize: number;
-  fontFamily: string;
+  letterSpacing?: number;
+  lineHeight?: number;
+  font?: ElementFont;
   color: string;
   backgroundColor: string;
   textAlign: "left" | "center" | "right";
   fontWeight: "normal" | "bold";
   fontStyle: "normal" | "italic";
-  textDecoration: "none" | "underline" | "line-through";
-  x: number; // Position relative to canvas center
-  y: number; // Position relative to canvas center
-  rotation: number; // in degrees
-  opacity: number; // 0-1
+  textDecoration: "none" | "underline" | "line-through" | "underline-line-through";
+  strokeWidth?: number;
+  shadowBlur?: number;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  verticalAlign?: string;
+  options?: ElementOptions;
+  subtitles?: {
+    segments: SubtitleCue[];
+  };
 }
 
+export interface WaveElement extends BaseTimelineElement {
+  type: 'wave';
+  width?: number;
+  height?: number;
+  color?: string;
+  bars?: number;
+  corners?: number;
+  wave?: string;
+  barType?: string;
+  options?: Record<string, unknown>;
+}
+
+export interface ShapeElement extends BaseTimelineElement {
+  type: 'shape';
+  width: number;
+  height: number;
+  shapeType: string;
+  color?: string;
+  options?: {
+    radius?: number;
+    borderColor?: string;
+    borderWidth?: number;
+    cornerRadius?: number;
+  };
+}
+
+
+export interface ProgressBarElement extends BaseTimelineElement {
+  type: 'progress_bar';
+  width: number;
+  height: number;
+  barType: string;
+  color?: string;
+  options?: {
+    outerColor?: string;
+    innerColor?: string;
+    radius?: number;
+    lineWidth?: number;
+  };
+}
+
+
 // Typed timeline elements
-export type TimelineElement = MediaElement | TextElement;
+export type TimelineElement = AudioElement | TextElement | WaveElement | ImageElement | ShapeElement | VideoElement | ProgressBarElement;
 
 // Creation types (without id, for addElementToTrack)
 export type CreateMediaElement = Omit<MediaElement, "id">;
