@@ -8,7 +8,7 @@ import type { AudioElement } from "@/types/timeline";
 
 interface AudioPreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: AudioElement | null;
   konvaZIndex: number;
   currentTimestamp: number;

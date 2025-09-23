@@ -8,7 +8,7 @@ import type { VideoElement } from "@/types/timeline";
 
 interface VideoPreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: VideoElement | null;
   konvaZIndex: number;
   currentTimestamp: number;

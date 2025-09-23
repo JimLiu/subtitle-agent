@@ -7,7 +7,7 @@ import type { ShapeElement } from "@/types/timeline";
 
 interface ShapePreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: ShapeElement | null;
   konvaZIndex: number;
   currentTimestamp: number;

@@ -7,7 +7,7 @@ import type { ImageElement } from "@/types/timeline";
 
 interface ImagePreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: ImageElement | null;
   konvaZIndex: number;
   currentTimestamp: number;

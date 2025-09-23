@@ -8,7 +8,7 @@ import type { WaveElement } from "@/types/timeline";
 
 interface WavePreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: WaveElement | null;
   konvaZIndex: number;
   currentTimestamp: number;

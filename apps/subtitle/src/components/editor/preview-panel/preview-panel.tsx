@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import Konva from "konva";
+import type { SceneContext } from "konva/lib/Context";
+import type {
+  ClipFuncOutput,
+  Container as KonvaContainer,
+} from "konva/lib/Container";
 import cloneDeep from "lodash/cloneDeep";
 import hotkeys from "hotkeys-js";
 import { Stage } from "react-konva";
@@ -137,8 +142,10 @@ export function PreviewPanel(props: PreviewPanelProps) {
   );
   const segmentsCloneRef = useRef<Record<string, TimelineElement>>({});
 
-  const stageClip = useCallback(
-    (ctx: Konva.Context) => {
+  const stageClip = useCallback<
+    (ctx: SceneContext, shape?: KonvaContainer) => ClipFuncOutput
+  >(
+    (ctx) => {
       const videoGroup = videoGroupRef.current;
       if (!videoGroup) {
         return;
@@ -244,6 +251,15 @@ export function PreviewPanel(props: PreviewPanelProps) {
     [size, stageSize.width, stageSize.height]
   );
 
+  const stageClipSetter = useMemo(
+    () =>
+      stageClip as unknown as (
+        ctx: CanvasRenderingContext2D,
+        shape: KonvaContainer
+      ) => ClipFuncOutput,
+    [stageClip]
+  );
+
   useEffect(() => {
     segmentsCloneRef.current = cloneDeep(allSegments);
   }, [allSegments]);
@@ -310,6 +326,40 @@ export function PreviewPanel(props: PreviewPanelProps) {
       cleanupAudio();
     };
   }, [initializeAudio]);
+
+  const updateThumbnail = useCallback(async () => {
+    const stage = stageRef.current;
+    const backgroundGroup = backgroundGroupRef.current;
+    const maskingGroup = maskingGroupRef.current;
+    if (!stage || !backgroundGroup || !maskingGroup || document.hidden) {
+      return;
+    }
+
+    const originalBackgroundClip = backgroundGroup.clipFunc();
+    const originalMaskClip = maskingGroup.clipFunc();
+
+    backgroundGroup.clipFunc(undefined);
+    maskingGroup.clipFunc(undefined);
+    transformerRef.current?.hide();
+
+    void stage.toDataURL({
+      x: calculatedXStartRef.current,
+      y: calculatedYStartRef.current,
+      width: calculatedWidthRef.current,
+      height: calculatedHeightRef.current,
+      pixelRatio: 2,
+    });
+
+    if (originalBackgroundClip) {
+      backgroundGroup.clipFunc(originalBackgroundClip);
+    } else {
+      backgroundGroup.clipFunc(undefined);
+    }
+    maskingGroup.clipFunc(originalMaskClip ?? stageClipSetter);
+    transformerRef.current?.show();
+
+    await setPreviewThumbnail(`previews/${projectID}.png`);
+  }, [projectID, setPreviewThumbnail, stageClipSetter]);
 
   const initializeStage = useCallback(() => {
     const previewContainer = previewContainerRef.current;
@@ -531,6 +581,159 @@ export function PreviewPanel(props: PreviewPanelProps) {
     };
   }, [backgroundColor, stageClip, updateDarkMode, updateThumbnail]);
 
+  const positionFloatingHelpText = useCallback(() => {
+    const transformer = transformerRef.current;
+    const helperTextGroup = helperTextGroupRef.current;
+    const rotationText = rotationTextRef.current;
+    const helperTextBackgroundRect = helperTextBackgroundRectRef.current;
+    if (
+      !transformer ||
+      !helperTextGroup ||
+      !rotationText ||
+      !helperTextBackgroundRect
+    ) {
+      return;
+    }
+    const rect = transformer.getClientRect();
+    const width = rotationText.width();
+    const height = rotationText.height();
+    helperTextGroup.position({
+      x: rect.x + rect.width / 2 - width / 2,
+      y: rect.y - height - 10,
+    });
+    helperTextBackgroundRect.width(width);
+    helperTextBackgroundRect.height(height);
+    const stage = stageRef.current;
+    if (stage) {
+      const boundingRect = stage.container().getBoundingClientRect();
+      setToolbarStyle({
+        left: `${boundingRect.left + rect.x + rect.width / 2}px`,
+        top: `${boundingRect.top + rect.y + rect.height + 15}px`,
+        transform: "translateX(-50%)",
+        zIndex: 1000,
+      });
+    }
+  }, []);
+
+  const updateFloatingHelpText = useCallback(
+    (angle: number) => {
+      const rotationText = rotationTextRef.current;
+      const helperTextGroup = helperTextGroupRef.current;
+      if (!rotationText || !helperTextGroup) {
+        return;
+      }
+      rotationText.text(`${Math.round(angle)}°`);
+      positionFloatingHelpText();
+      helperTextGroup.visible(true);
+      if (rotationTextTimeoutRef.current) {
+        clearTimeout(rotationTextTimeoutRef.current);
+      }
+      rotationTextTimeoutRef.current = window.setTimeout(() => {
+        helperTextGroupRef.current?.visible(false);
+      }, 1500);
+    },
+    [positionFloatingHelpText]
+  );
+
+  const updateTransformer = useCallback(
+    (forceSelect = false) => {
+      const stage = stageRef.current;
+      const transformer = transformerRef.current;
+      const hoverTransformer = hoverTransformerRef.current;
+      if (!stage || !transformer || !hoverTransformer) {
+        return;
+      }
+
+      const selectedNode = selectedShapeName
+        ? stage.findOne(`.${selectedShapeName}`)
+        : null;
+      const hoverNode = hoverShapeNameRef.current
+        ? stage.findOne(`.${hoverShapeNameRef.current}`)
+        : null;
+
+      if (selectedNode === hoverNode) {
+        hoverTransformer.detach();
+      } else if (hoverNode && hoverNode !== hoverTransformer.nodes()[0]) {
+        hoverTransformer.nodes([hoverNode]);
+      } else if (!hoverNode) {
+        hoverTransformer.detach();
+      }
+
+      if (transformer.isTransforming()) {
+        hoverTransformer.detach();
+      }
+
+      if (selectedNode && selectedNode !== transformer.nodes()[0]) {
+        setTransformerActive(true);
+        const segment = selectedShapeName
+          ? getSegmentById(selectedShapeName)
+          : null;
+        if (segment && segment.type === "text") {
+          transformer.enabledAnchors(["middle-left", "middle-right"]);
+        } else {
+          transformer.enabledAnchors([
+            "middle-left",
+            "middle-right",
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+            "top-center",
+            "bottom-center",
+          ]);
+        }
+        transformer.nodes([selectedNode]);
+        if (selectedShapeName) {
+          setSelectedSegment(selectedShapeName);
+        }
+        if (window.innerWidth >= 768) {
+          setActiveTool("Details");
+        }
+        positionFloatingHelpText();
+        transformer.on("transform", (event) => {
+          const target = event.target;
+          if (
+            Number(target.attrs.rotation.toFixed(2)) !==
+            Number(
+              (getSegmentById(selectedShapeName ?? "")?.rotation ?? 0).toFixed(
+                2
+              )
+            )
+          ) {
+            const angle = target.rotation();
+            requestAnimationFrame(() => {
+              updateFloatingHelpText(angle);
+            });
+          }
+        });
+        transformer.on("transformend", (event) => {
+          const angle = event.target.rotation();
+          updateFloatingHelpText(angle);
+          window.setTimeout(() => {
+            helperTextGroupRef.current?.visible(false);
+          }, 1500);
+        });
+        transformer.on("dragmove", () => {
+          positionFloatingHelpText();
+        });
+      } else if (!selectedNode) {
+        setTransformerActive(false);
+        transformer.detach();
+        helperTextGroupRef.current?.visible(false);
+        setToolbarStyle({});
+      } else if (forceSelect && selectedShapeName) {
+        setActiveTool("Details");
+      }
+      layerRef.current?.batchDraw();
+    }, [
+      getSegmentById,
+      positionFloatingHelpText,
+      selectedShapeName,
+      setActiveTool,
+      setSelectedSegment,
+      updateFloatingHelpText,
+    ]);
+
   const bindStageEvents = useCallback(() => {
     const stage = stageRef.current;
     const videoGroup = videoGroupRef.current;
@@ -688,203 +891,11 @@ export function PreviewPanel(props: PreviewPanelProps) {
     };
   }, [
     orderedSegments,
-    getGuides,
-    getLineGuideStops,
-    getObjectSnappingEdges,
-    drawGuides,
     setPlaying,
     setSelectedSegment,
     selectedShapeName,
     updateTransformer,
   ]);
-
-  const updateTransformer = useCallback(
-    (forceSelect = false) => {
-      const stage = stageRef.current;
-      const transformer = transformerRef.current;
-      const hoverTransformer = hoverTransformerRef.current;
-      if (!stage || !transformer || !hoverTransformer) {
-        return;
-      }
-
-      const selectedNode = selectedShapeName
-        ? stage.findOne(`.${selectedShapeName}`)
-        : null;
-      const hoverNode = hoverShapeNameRef.current
-        ? stage.findOne(`.${hoverShapeNameRef.current}`)
-        : null;
-
-      if (selectedNode === hoverNode) {
-        hoverTransformer.detach();
-      } else if (hoverNode && hoverNode !== hoverTransformer.nodes()[0]) {
-        hoverTransformer.nodes([hoverNode]);
-      } else if (!hoverNode) {
-        hoverTransformer.detach();
-      }
-
-      if (transformer.isTransforming()) {
-        hoverTransformer.detach();
-      }
-
-      if (selectedNode && selectedNode !== transformer.nodes()[0]) {
-        setTransformerActive(true);
-        const segment = selectedShapeName
-          ? getSegmentById(selectedShapeName)
-          : null;
-        if (segment && segment.type === "text") {
-          transformer.enabledAnchors(["middle-left", "middle-right"]);
-        } else {
-          transformer.enabledAnchors([
-            "middle-left",
-            "middle-right",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "top-center",
-            "bottom-center",
-          ]);
-        }
-        transformer.nodes([selectedNode]);
-        if (selectedShapeName) {
-          setSelectedSegment(selectedShapeName);
-        }
-        if (window.innerWidth >= 768) {
-          setActiveTool("Details");
-        }
-        positionFloatingHelpText();
-        transformer.on("transform", (event) => {
-          const target = event.target;
-          if (
-            Number(target.attrs.rotation.toFixed(2)) !==
-            Number(
-              (getSegmentById(selectedShapeName ?? "")?.rotation ?? 0).toFixed(
-                2
-              )
-            )
-          ) {
-            const angle = target.rotation();
-            requestAnimationFrame(() => {
-              updateFloatingHelpText(angle);
-            });
-          }
-        });
-        transformer.on("transformend", (event) => {
-          const angle = event.target.rotation();
-          updateFloatingHelpText(angle);
-          window.setTimeout(() => {
-            helperTextGroupRef.current?.visible(false);
-          }, 1500);
-        });
-        transformer.on("dragmove", () => {
-          positionFloatingHelpText();
-        });
-      } else if (!selectedNode) {
-        setTransformerActive(false);
-        transformer.detach();
-        helperTextGroupRef.current?.visible(false);
-        setToolbarStyle({});
-      } else if (forceSelect && selectedShapeName) {
-        setActiveTool("Details");
-      }
-      layerRef.current?.batchDraw();
-    },
-    [
-      getSegmentById,
-      positionFloatingHelpText,
-      selectedShapeName,
-      setActiveTool,
-      setSelectedSegment,
-      updateFloatingHelpText,
-    ]
-  );
-
-  const updateThumbnail = useCallback(async () => {
-    const stage = stageRef.current;
-    const backgroundGroup = backgroundGroupRef.current;
-    const maskingGroup = maskingGroupRef.current;
-    if (!stage || !backgroundGroup || !maskingGroup || document.hidden) {
-      return;
-    }
-
-    const originalBackgroundClip = backgroundGroup.clipFunc();
-
-    backgroundGroup.clipFunc(
-      undefined as unknown as (ctx: Konva.Context) => void
-    );
-    maskingGroup.clipFunc(undefined as unknown as (ctx: Konva.Context) => void);
-    transformerRef.current?.hide();
-
-    const dataUrl = stage.toDataURL({
-      x: calculatedXStartRef.current,
-      y: calculatedYStartRef.current,
-      width: calculatedWidthRef.current,
-      height: calculatedHeightRef.current,
-      pixelRatio: 2,
-    });
-
-    backgroundGroup.clipFunc(
-      originalBackgroundClip as (ctx: Konva.Context) => void
-    );
-    maskingGroup.clipFunc(stageClip);
-    transformerRef.current?.show();
-
-    await setPreviewThumbnail(`previews/${projectID}.png`);
-  }, [projectID, setPreviewThumbnail, stageClip]);
-
-  const positionFloatingHelpText = useCallback(() => {
-    const transformer = transformerRef.current;
-    const helperTextGroup = helperTextGroupRef.current;
-    const rotationText = rotationTextRef.current;
-    const helperTextBackgroundRect = helperTextBackgroundRectRef.current;
-    if (
-      !transformer ||
-      !helperTextGroup ||
-      !rotationText ||
-      !helperTextBackgroundRect
-    ) {
-      return;
-    }
-    const rect = transformer.getClientRect();
-    const width = rotationText.width();
-    const height = rotationText.height();
-    helperTextGroup.position({
-      x: rect.x + rect.width / 2 - width / 2,
-      y: rect.y - height - 10,
-    });
-    helperTextBackgroundRect.width(width);
-    helperTextBackgroundRect.height(height);
-    const stage = stageRef.current;
-    if (stage) {
-      const boundingRect = stage.container().getBoundingClientRect();
-      setToolbarStyle({
-        left: `${boundingRect.left + rect.x + rect.width / 2}px`,
-        top: `${boundingRect.top + rect.y + rect.height + 15}px`,
-        transform: "translateX(-50%)",
-        zIndex: 1000,
-      });
-    }
-  }, []);
-
-  const updateFloatingHelpText = useCallback(
-    (angle: number) => {
-      const rotationText = rotationTextRef.current;
-      const helperTextGroup = helperTextGroupRef.current;
-      if (!rotationText || !helperTextGroup) {
-        return;
-      }
-      rotationText.text(`${Math.round(angle)}°`);
-      positionFloatingHelpText();
-      helperTextGroup.visible(true);
-      if (rotationTextTimeoutRef.current) {
-        clearTimeout(rotationTextTimeoutRef.current);
-      }
-      rotationTextTimeoutRef.current = window.setTimeout(() => {
-        helperTextGroupRef.current?.visible(false);
-      }, 1500);
-    },
-    [positionFloatingHelpText]
-  );
 
   const handleWindowClick = useCallback(() => {
     setShowContextMenu(false);
@@ -936,8 +947,8 @@ export function PreviewPanel(props: PreviewPanelProps) {
           width: entry.contentRect.width,
           height: entry.contentRect.height,
         });
-        backgroundGroupRef.current?.clipFunc(stageClip);
-        maskingGroupRef.current?.clipFunc(stageClip);
+        backgroundGroupRef.current?.clipFunc(stageClipSetter);
+        maskingGroupRef.current?.clipFunc(stageClipSetter);
         layerRef.current?.batchDraw();
       });
       resizeObserver.observe(previewContainer);
@@ -950,7 +961,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
       mutationObserver.disconnect();
       resizeObserverRef.current?.disconnect();
     };
-  }, [handleWindowBlur, handleWindowClick, stageClip, updateDarkMode]);
+  }, [handleWindowBlur, handleWindowClick, stageClipSetter, updateDarkMode]);
 
   useEffect(() => {
     if (!stageReady) {
@@ -983,10 +994,10 @@ export function PreviewPanel(props: PreviewPanelProps) {
     if (!konvaInit) {
       return;
     }
-    backgroundGroupRef.current?.clipFunc(stageClip);
-    maskingGroupRef.current?.clipFunc(stageClip);
+    backgroundGroupRef.current?.clipFunc(stageClipSetter);
+    maskingGroupRef.current?.clipFunc(stageClipSetter);
     layerRef.current?.batchDraw();
-  }, [konvaInit, stageClip, stageSize]);
+  }, [konvaInit, stageClipSetter, stageSize]);
 
   useEffect(() => {
     if (backgroundRectRef.current) {
@@ -1030,214 +1041,6 @@ export function PreviewPanel(props: PreviewPanelProps) {
       stage.height(stageSize.height * 2);
     }
   }, [konvaInit, stageSize]);
-
-  const getLineGuideStops = useCallback(
-    (
-      node: Konva.Node,
-      stage: Konva.Stage,
-      idealWidth: number,
-      idealHeight: number,
-      segments: TimelineElement[],
-      container: Konva.Group
-    ) => {
-      const vertical: number[] = [0, idealWidth / 2, idealWidth];
-      const horizontal: number[] = [0, idealHeight / 2, idealHeight];
-      let wrapper = node;
-      while (wrapper.name() !== "konvaWrapper" && wrapper.getParent()) {
-        wrapper = wrapper.getParent();
-      }
-
-      segments.forEach((segment) => {
-        stage.find(`#${segment.id}`).forEach((shape) => {
-          if (wrapper.id && wrapper.id() === segment.id) {
-            return;
-          }
-          const rect = shape.getClientRect({ relativeTo: container });
-          const width = rect.width;
-          const height = rect.height;
-          const positionX = segment.x ?? 0;
-          const positionY = segment.y ?? 0;
-          vertical.push(positionX);
-          vertical.push(positionX + width);
-          vertical.push(positionX + width / 2);
-          horizontal.push(positionY);
-          horizontal.push(positionY + height);
-          horizontal.push(positionY + height / 2);
-        });
-      });
-
-      return {
-        vertical,
-        horizontal,
-      };
-    },
-    []
-  );
-
-  const getObjectSnappingEdges = useCallback(
-    (node: Konva.Node, container: Konva.Group) => {
-      const rect = node.getClientRect({ relativeTo: container });
-      const position = node.position();
-      return {
-        vertical: [
-          {
-            guide: Math.round(rect.x),
-            offset: Math.round(position.x - rect.x),
-            snap: "start",
-          },
-          {
-            guide: Math.round(rect.x + rect.width / 2),
-            offset: Math.round(position.x - rect.x - rect.width / 2),
-            snap: "center",
-          },
-          {
-            guide: Math.round(rect.x + rect.width),
-            offset: Math.round(position.x - rect.x - rect.width),
-            snap: "end",
-          },
-        ],
-        horizontal: [
-          {
-            guide: Math.round(rect.y),
-            offset: Math.round(position.y - rect.y),
-            snap: "start",
-          },
-          {
-            guide: Math.round(rect.y + rect.height / 2),
-            offset: Math.round(position.y - rect.y - rect.height / 2),
-            snap: "center",
-          },
-          {
-            guide: Math.round(rect.y + rect.height),
-            offset: Math.round(position.y - rect.y - rect.height),
-            snap: "end",
-          },
-        ],
-      };
-    },
-    []
-  );
-
-  const getGuides = useCallback(
-    (
-      stops: { vertical: number[]; horizontal: number[] },
-      edges: ReturnType<typeof getObjectSnappingEdges>,
-      offset: number
-    ) => {
-      const result: Array<{
-        lineGuide: number;
-        diff: number;
-        orientation: "V" | "H";
-        snap: string;
-        offset: number;
-      }> = [];
-      const verticalMatches: Array<{
-        lineGuide: number;
-        diff: number;
-        snap: string;
-        offset: number;
-      }> = [];
-      const horizontalMatches: Array<{
-        lineGuide: number;
-        diff: number;
-        snap: string;
-        offset: number;
-      }> = [];
-
-      stops.vertical.forEach((lineGuide) => {
-        edges.vertical.forEach((edge) => {
-          const diff = Math.abs(lineGuide - edge.guide);
-          if (diff < offset) {
-            verticalMatches.push({
-              lineGuide,
-              diff,
-              snap: edge.snap,
-              offset: edge.offset,
-            });
-          }
-        });
-      });
-
-      stops.horizontal.forEach((lineGuide) => {
-        edges.horizontal.forEach((edge) => {
-          const diff = Math.abs(lineGuide - edge.guide);
-          if (diff < offset) {
-            horizontalMatches.push({
-              lineGuide,
-              diff,
-              snap: edge.snap,
-              offset: edge.offset,
-            });
-          }
-        });
-      });
-
-      const bestVertical = verticalMatches.sort((a, b) => a.diff - b.diff)[0];
-      const bestHorizontal = horizontalMatches.sort(
-        (a, b) => a.diff - b.diff
-      )[0];
-
-      if (bestVertical) {
-        result.push({
-          lineGuide: bestVertical.lineGuide,
-          diff: bestVertical.diff,
-          orientation: "V",
-          snap: bestVertical.snap,
-          offset: bestVertical.offset,
-        });
-      }
-      if (bestHorizontal) {
-        result.push({
-          lineGuide: bestHorizontal.lineGuide,
-          diff: bestHorizontal.diff,
-          orientation: "H",
-          snap: bestHorizontal.snap,
-          offset: bestHorizontal.offset,
-        });
-      }
-
-      return result;
-    },
-    [getObjectSnappingEdges]
-  );
-
-  const drawGuides = useCallback(
-    (
-      guides: Array<{
-        lineGuide: number;
-        orientation: "V" | "H";
-        snap: string;
-        offset: number;
-      }>,
-      container: Konva.Group,
-      scale: number
-    ) => {
-      guides.forEach((guide) => {
-        if (guide.orientation === "H") {
-          const line = new Konva.Line({
-            points: [-6000, 0, 6000, 0],
-            stroke: "rgb(255, 255, 255)",
-            strokeWidth: 2 * scale,
-            name: "guid-line",
-            dash: [4 * scale, 6 * scale],
-          });
-          container.add(line);
-          line.position({ x: 0, y: guide.lineGuide });
-        } else if (guide.orientation === "V") {
-          const line = new Konva.Line({
-            points: [0, -6000, 0, 6000],
-            stroke: "rgb(255, 255, 255)",
-            strokeWidth: 2 * scale,
-            name: "guid-line",
-            dash: [4 * scale, 6 * scale],
-          });
-          container.add(line);
-          line.position({ x: guide.lineGuide, y: 0 });
-        }
-      });
-    },
-    []
-  );
 
   const bringToFront = useCallback(() => {
     if (!selectedSegment) {
@@ -1379,13 +1182,15 @@ export function PreviewPanel(props: PreviewPanelProps) {
               return (
                 <ImagePreview
                   {...baseProps}
+                  key={segment.id}
                   element={segment as ImageElement}
                 />
               );
             }
             if (segment.type === "text") {
               return (
-                <TextPreview {...baseProps} element={segment as TextElement} />
+                <TextPreview {...baseProps}
+                  key={segment.id} element={segment as TextElement} />
               );
             }
             if (
@@ -1395,6 +1200,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
               return (
                 <WavePreview
                   {...baseProps}
+                  key={segment.id}
                   element={segment as WaveElement}
                   audioContext={audioContextRef.current}
                   analyzer={analyzerRef.current}
@@ -1405,6 +1211,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
               return (
                 <ProgressBarPreview
                   {...baseProps}
+                  key={segment.id}
                   element={segment as ProgressBarElement}
                 />
               );
@@ -1413,6 +1220,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
               return (
                 <AudioPreview
                   {...baseProps}
+                  key={segment.id}
                   element={segment as AudioElement}
                   audioContext={audioContextRef.current}
                   analyzer={analyzerRef.current}
@@ -1425,6 +1233,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
               return (
                 <VideoPreview
                   {...baseProps}
+                  key={segment.id}
                   element={segment as VideoElement}
                   audioContext={audioContextRef.current}
                   analyzer={analyzerRef.current}
@@ -1435,6 +1244,7 @@ export function PreviewPanel(props: PreviewPanelProps) {
               return (
                 <ShapePreview
                   {...baseProps}
+                  key={segment.id}
                   element={segment as ShapeElement}
                 />
               );
@@ -1467,4 +1277,206 @@ export function PreviewPanel(props: PreviewPanelProps) {
       )}
     </div>
   );
+}
+
+function getLineGuideStops(
+  node: Konva.Node,
+  stage: Konva.Stage,
+  idealWidth: number,
+  idealHeight: number,
+  segments: TimelineElement[],
+  container: Konva.Group
+): { vertical: number[]; horizontal: number[] } {
+  const vertical: number[] = [0, idealWidth / 2, idealWidth];
+  const horizontal: number[] = [0, idealHeight / 2, idealHeight];
+  let wrapper: Konva.Node | null = node;
+
+  while (wrapper && wrapper.name() !== "konvaWrapper" && wrapper.getParent()) {
+    wrapper = wrapper.getParent();
+  }
+
+  segments.forEach((segment) => {
+    stage.find(`#${segment.id}`).forEach((shape) => {
+      if (wrapper?.id && wrapper.id() === segment.id) {
+        return;
+      }
+      const rect = shape.getClientRect({ relativeTo: container });
+      const width = rect.width;
+      const height = rect.height;
+      const positionX = segment.x ?? 0;
+      const positionY = segment.y ?? 0;
+      vertical.push(positionX, positionX + width, positionX + width / 2);
+      horizontal.push(positionY, positionY + height, positionY + height / 2);
+    });
+  });
+
+  return { vertical, horizontal };
+}
+
+function getObjectSnappingEdges(
+  node: Konva.Node,
+  container: Konva.Group
+): {
+  vertical: Array<{ guide: number; offset: number; snap: string }>;
+  horizontal: Array<{ guide: number; offset: number; snap: string }>;
+} {
+  const rect = node.getClientRect({ relativeTo: container });
+  const position = node.position();
+
+  return {
+    vertical: [
+      {
+        guide: Math.round(rect.x),
+        offset: Math.round(position.x - rect.x),
+        snap: "start",
+      },
+      {
+        guide: Math.round(rect.x + rect.width / 2),
+        offset: Math.round(position.x - rect.x - rect.width / 2),
+        snap: "center",
+      },
+      {
+        guide: Math.round(rect.x + rect.width),
+        offset: Math.round(position.x - rect.x - rect.width),
+        snap: "end",
+      },
+    ],
+    horizontal: [
+      {
+        guide: Math.round(rect.y),
+        offset: Math.round(position.y - rect.y),
+        snap: "start",
+      },
+      {
+        guide: Math.round(rect.y + rect.height / 2),
+        offset: Math.round(position.y - rect.y - rect.height / 2),
+        snap: "center",
+      },
+      {
+        guide: Math.round(rect.y + rect.height),
+        offset: Math.round(position.y - rect.y - rect.height),
+        snap: "end",
+      },
+    ],
+  };
+}
+
+function getGuides(
+  stops: { vertical: number[]; horizontal: number[] },
+  edges: ReturnType<typeof getObjectSnappingEdges>,
+  offset: number
+): Array<{
+  lineGuide: number;
+  diff: number;
+  orientation: "V" | "H";
+  snap: string;
+  offset: number;
+}> {
+  const result: Array<{
+    lineGuide: number;
+    diff: number;
+    orientation: "V" | "H";
+    snap: string;
+    offset: number;
+  }> = [];
+  const verticalMatches: Array<{
+    lineGuide: number;
+    diff: number;
+    snap: string;
+    offset: number;
+  }> = [];
+  const horizontalMatches: Array<{
+    lineGuide: number;
+    diff: number;
+    snap: string;
+    offset: number;
+  }> = [];
+
+  stops.vertical.forEach((lineGuide) => {
+    edges.vertical.forEach((edge) => {
+      const diff = Math.abs(lineGuide - edge.guide);
+      if (diff < offset) {
+        verticalMatches.push({
+          lineGuide,
+          diff,
+          snap: edge.snap,
+          offset: edge.offset,
+        });
+      }
+    });
+  });
+
+  stops.horizontal.forEach((lineGuide) => {
+    edges.horizontal.forEach((edge) => {
+      const diff = Math.abs(lineGuide - edge.guide);
+      if (diff < offset) {
+        horizontalMatches.push({
+          lineGuide,
+          diff,
+          snap: edge.snap,
+          offset: edge.offset,
+        });
+      }
+    });
+  });
+
+  const bestVertical = verticalMatches.sort((a, b) => a.diff - b.diff)[0];
+  const bestHorizontal = horizontalMatches.sort((a, b) => a.diff - b.diff)[0];
+
+  if (bestVertical) {
+    result.push({
+      lineGuide: bestVertical.lineGuide,
+      diff: bestVertical.diff,
+      orientation: "V",
+      snap: bestVertical.snap,
+      offset: bestVertical.offset,
+    });
+  }
+
+  if (bestHorizontal) {
+    result.push({
+      lineGuide: bestHorizontal.lineGuide,
+      diff: bestHorizontal.diff,
+      orientation: "H",
+      snap: bestHorizontal.snap,
+      offset: bestHorizontal.offset,
+    });
+  }
+
+  return result;
+}
+
+function drawGuides(
+  guides: Array<{
+    lineGuide: number;
+    orientation: "V" | "H";
+    snap: string;
+    offset: number;
+  }>,
+  container: Konva.Group,
+  scale: number
+): void {
+  guides.forEach((guide) => {
+    if (guide.orientation === "H") {
+      const line = new Konva.Line({
+        points: [-6000, 0, 6000, 0],
+        stroke: "rgb(255, 255, 255)",
+        strokeWidth: 2 * scale,
+        name: "guid-line",
+        dash: [4 * scale, 6 * scale],
+      });
+      container.add(line);
+      line.position({ x: 0, y: guide.lineGuide });
+    } else if (guide.orientation === "V") {
+      const line = new Konva.Line({
+        points: [0, -6000, 0, 6000],
+        stroke: "rgb(255, 255, 255)",
+        strokeWidth: 2 * scale,
+        name: "guid-line",
+        dash: [4 * scale, 6 * scale],
+      });
+      container.add(line);
+      line.position({ x: guide.lineGuide, y: 0 });
+    }
+  });
 }

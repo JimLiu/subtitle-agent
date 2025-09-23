@@ -7,7 +7,7 @@ import type { ProgressBarElement } from "@/types/timeline";
 
 interface ProgressBarPreviewProps {
   id: string;
-  parentLayer: Konva.Layer | null;
+  parentLayer: Konva.Group | null;
   element: ProgressBarElement | null;
   konvaZIndex: number;
   currentTimestamp: number;
