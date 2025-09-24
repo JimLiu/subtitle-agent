@@ -156,53 +156,69 @@ export function PreviewPanel(props: PreviewPanelProps) {
 
       let paddingX = 12;
       let paddingY = 16;
-      const availableWidth = stageWidthCurrent - 24;
-      const availableHeight = stageHeightCurrent - 32;
+      const availableWidth = Math.max(stageWidthCurrent - 24, 0);
+      const availableHeight = Math.max(stageHeightCurrent - 32, 0);
       let ratioWidth: number;
       let ratioHeight: number;
       let idealWidth: number;
+      let idealHeight: number;
 
       if (size.ratio === "original") {
         ratioWidth = size.original.width;
         ratioHeight = size.original.height;
         idealWidth = size.original.width;
+        idealHeight = size.original.height;
       } else {
         const preset = ratioPresets[size.ratio];
         ratioWidth = preset.idealRatioWidth;
         ratioHeight = preset.idealRatioHeight;
         idealWidth = preset.resolutions.hd;
+        idealHeight = (idealWidth / ratioWidth) * ratioHeight;
+      }
+
+      const safeRatioWidth = Math.max(Math.abs(ratioWidth), 1e-3);
+      const safeRatioHeight = Math.max(Math.abs(ratioHeight), 1e-3);
+      if (!Number.isFinite(idealHeight) || idealHeight <= 0) {
+        idealHeight = (idealWidth / safeRatioWidth) * safeRatioHeight;
       }
 
       let viewHeight = availableHeight;
-      let viewWidth = (viewHeight / ratioHeight) * ratioWidth;
+      if (viewHeight < 0 || !Number.isFinite(viewHeight)) {
+        viewHeight = 0;
+      }
+      let viewWidth = (viewHeight / safeRatioHeight) * safeRatioWidth;
+      if (!Number.isFinite(viewWidth)) {
+        viewWidth = 0;
+      }
 
       if (viewWidth > availableWidth) {
         viewWidth = availableWidth;
-        viewHeight = (viewWidth / ratioWidth) * ratioHeight;
+        viewHeight = (viewWidth / safeRatioWidth) * safeRatioHeight;
         paddingY += (availableHeight - viewHeight) / 2;
       } else {
         paddingX += (availableWidth - viewWidth) / 2;
       }
 
-      const scale = viewWidth / idealWidth;
+      const safeIdealWidth = idealWidth > 0 ? idealWidth : 1;
+      const safeIdealHeight =
+        idealHeight > 0 ? idealHeight : (safeIdealWidth / safeRatioWidth) * safeRatioHeight;
+      const scale = viewWidth / safeIdealWidth;
       scaleFactorRef.current = scale;
       videoGroup.scale({ x: scale, y: scale });
       videoGroup.position({ x: paddingX, y: paddingY });
 
-      let cornerRadius = 15;
-      if (viewWidth < 2 * cornerRadius) {
-        cornerRadius = viewWidth / 2;
-      }
-      if (viewHeight < 2 * cornerRadius) {
-        cornerRadius = viewHeight / 2;
-      }
+      const maxRoundedDimension = Math.max(
+        0,
+        Math.min(viewWidth, viewHeight) / 2
+      );
+      const cornerRadius = Math.min(15, maxRoundedDimension);
 
       calculatedWidthRef.current = viewWidth;
       calculatedHeightRef.current = viewHeight;
       calculatedXStartRef.current = paddingX;
       calculatedYStartRef.current = paddingY;
-      idealWidthRef.current = idealWidth;
-      idealHeightRef.current = idealWidth * (viewHeight / viewWidth);
+      idealWidthRef.current = safeIdealWidth;
+      idealHeightRef.current = safeIdealHeight;
 
       if (backgroundRectRef.current) {
         backgroundRectRef.current.position({
@@ -210,8 +226,8 @@ export function PreviewPanel(props: PreviewPanelProps) {
           y: paddingY + 0.5,
         });
         backgroundRectRef.current.size({
-          width: viewWidth - 1,
-          height: viewHeight - 2,
+          width: Math.max(viewWidth - 1, 0),
+          height: Math.max(viewHeight - 2, 0),
         });
         backgroundRectRef.current.cornerRadius(cornerRadius);
       }

@@ -65,6 +65,7 @@ interface ProjectStore {
   ) => Promise<void>;
   updateProjectFps: (fps: number) => Promise<void>;
   updateCanvasSize: (size: CanvasSize, mode: CanvasMode) => Promise<void>;
+  setPreviewThumbnail: (thumbnailPath: string) => Promise<void>;
 
   // Bookmark methods
   toggleBookmark: (time: number) => Promise<void>;
@@ -514,6 +515,25 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       toast.error("Failed to update canvas size", {
         description: "Please try again",
       });
+    }
+  },
+
+  setPreviewThumbnail: async (thumbnailPath: string) => {
+    const { activeProject } = get();
+    if (!activeProject) return;
+
+    const updatedProject: TProject = {
+      ...activeProject,
+      thumbnail: thumbnailPath,
+      updatedAt: new Date(),
+    };
+
+    try {
+      await storageService.saveProject({ project: updatedProject });
+      set({ activeProject: updatedProject });
+      await get().loadAllProjects();
+    } catch (error) {
+      console.error("Failed to update preview thumbnail:", error);
     }
   },
 

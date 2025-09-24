@@ -126,6 +126,11 @@ interface TimelineStore {
     startTime: number,
     pushHistory?: boolean
   ) => void;
+  updateElementProperties: (
+    trackId: string,
+    elementId: string,
+    updates: Partial<TimelineElement>
+  ) => void;
   toggleTrackMute: (trackId: string) => void;
   splitAndKeepLeft: (
     trackId: string,
@@ -778,6 +783,37 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
                 elements: track.elements.map((element) =>
                   element.id === elementId
                     ? { ...element, startTime: clampedStartTime }
+                    : element
+                ),
+              }
+            : track
+        )
+      );
+    },
+
+    updateElementProperties: (trackId, elementId, updates) => {
+      if (!updates) {
+        return;
+      }
+
+      const rest: Partial<TimelineElement> = { ...updates };
+      delete rest.id;
+      delete rest.type;
+
+      if (Object.keys(rest).length === 0) {
+        return;
+      }
+
+      get().pushHistory();
+
+      updateTracksAndSave(
+        get()._tracks.map((track) =>
+          track.id === trackId
+            ? {
+                ...track,
+                elements: track.elements.map((element) =>
+                  element.id === elementId
+                    ? ({ ...element, ...rest } as TimelineElement)
                     : element
                 ),
               }
