@@ -227,7 +227,7 @@ interface TimelineStore {
         TextElement,
         | "content"
         | "fontSize"
-        | "fontFamily"
+        | "font"
         | "color"
         | "backgroundColor"
         | "textAlign"
@@ -382,8 +382,8 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       get().pushHistory();
 
       const trackName =
-        type === "media"
-          ? "Media Track"
+        type === "video"
+          ? "Video Track"
           : type === "text"
             ? "Text Track"
             : type === "audio"
@@ -406,8 +406,8 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       get().pushHistory();
 
       const trackName =
-        type === "media"
-          ? "Media Track"
+        type === "video"
+          ? "Video Track"
           : type === "text"
             ? "Text Track"
             : type === "audio"
@@ -532,7 +532,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         return;
       }
 
-      if (elementData.type === "media" && !elementData.mediaId) {
+      if (elementData.type === "video" && !elementData.mediaId) {
         console.error("Media element must have mediaId");
         return;
       }
@@ -555,12 +555,12 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         startTime: elementData.startTime,
         trimStart: elementData.trimStart ?? 0,
         trimEnd: elementData.trimEnd ?? 0,
-        ...(elementData.type === "media"
+        ...(elementData.type === "video"
           ? { muted: elementData.muted ?? false }
           : {}),
       } as TimelineElement;
 
-      if (isFirstElement && newElement.type === "media") {
+      if (isFirstElement && newElement.type === "video") {
         const mediaStore = useMediaStore.getState();
         const mediaItem = mediaStore.mediaFiles.find(
           (item) => item.id === newElement.mediaId
@@ -1012,7 +1012,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       const track = _tracks.find((t) => t.id === trackId);
       const element = track?.elements.find((c) => c.id === elementId);
 
-      if (!element || track?.type !== "media") return null;
+      if (!element || track?.type !== "video") return null;
 
       get().pushHistory();
 
@@ -1072,10 +1072,10 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         return { success: false, error: "Timeline element not found" };
       }
 
-      if (element.type !== "media") {
+      if (element.type !== "video") {
         return {
           success: false,
-          error: "Replace is only available for media clips",
+          error: "Replace is only available for video clips",
         };
       }
 
@@ -1233,7 +1233,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
         const firstMediaElement = tracks
           .flatMap((track) => track.elements)
-          .filter((element) => element.type === "media")
+          .filter((element) => element.type === "video")
           .sort((a, b) => a.startTime - b.startTime)[0];
 
         if (!firstMediaElement) return null;
@@ -1446,10 +1446,10 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       }
 
       const media = item as MediaFile;
-      const trackType = media.type === "audio" ? "audio" : "media";
+      const trackType = media.type === "audio" ? "audio" : "video";
       const targetTrackId = get().insertTrackAt(trackType, 0);
       get().addElementToTrack(targetTrackId, {
-        type: "media",
+        type: "video",
         mediaId: media.id,
         name: media.name,
         duration: media.duration || TIMELINE_CONSTANTS.DEFAULT_IMAGE_DURATION,
@@ -1457,6 +1457,13 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         trimStart: 0,
         trimEnd: 0,
         muted: false,
+        x: 0,
+        y: 0,
+        scale: {
+          x: 1, y: 1
+        },
+        rotation: 0,
+        opacity: 1,
       });
       return true;
     },
@@ -1472,10 +1479,10 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       }
 
       const media = item as MediaFile;
-      const trackType = media.type === "audio" ? "audio" : "media";
+      const trackType = media.type === "audio" ? "audio" : "video";
       const targetTrackId = get().insertTrackAt(trackType, 0);
       get().addElementToTrack(targetTrackId, {
-        type: "media",
+        type: "video",
         mediaId: media.id,
         name: media.name,
         duration: media.duration || TIMELINE_CONSTANTS.DEFAULT_IMAGE_DURATION,
@@ -1483,6 +1490,13 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         trimStart: 0,
         trimEnd: 0,
         muted: false,
+        x: 0,
+        y: 0,
+        scale: {
+          x: 1, y: 1
+        },
+        rotation: 0,
+        opacity: 1,
       });
       return true;
     },
@@ -1747,7 +1761,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         ({ trackId: tId, elementId: eId }) => {
           const track = _tracks.find((t) => t.id === tId);
           const element = track?.elements.find((e) => e.id === eId);
-          return element?.type === "media";
+          return element?.type === "video";
         }
       );
 
@@ -1757,7 +1771,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         ({ trackId: tId, elementId: eId }) => {
           const track = _tracks.find((t) => t.id === tId);
           const element = track?.elements.find((e) => e.id === eId);
-          return element?.type === "media" && !element.muted;
+          return element?.type === "video" && !element.muted;
         }
       );
 
@@ -1770,7 +1784,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
                 track.id === tId && element.id === eId
             );
             return shouldUpdate &&
-              element.type === "media" &&
+              element.type === "video" &&
               element.muted !== shouldMute
               ? { ...element, muted: shouldMute }
               : element;
@@ -1807,7 +1821,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
         .flatMap((track) => track.elements)
         .find((el) => el.id === elementId);
 
-      if (element?.type === "media") {
+      if (element?.type === "video") {
         requestRevealMedia(element.mediaId);
       }
     },
@@ -1851,7 +1865,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
           const selectedElement = selectedTrack?.elements.find(
             (e) => e.id === eId
           );
-          if (selectedElement?.type !== "media") return false;
+          if (selectedElement?.type !== "video") return false;
           const mediaElement = selectedElement as MediaElement;
           const mediaItem = mediaFiles.find(
             (file: MediaFile) => file.id === mediaElement.mediaId
@@ -1906,7 +1920,7 @@ function buildTextElement(
       typeof t.fontSize === "number"
         ? t.fontSize
         : DEFAULT_TEXT_ELEMENT.fontSize,
-    fontFamily: t.fontFamily ?? DEFAULT_TEXT_ELEMENT.fontFamily,
+    font: t.font ?? DEFAULT_TEXT_ELEMENT.font,
     color: t.color ?? DEFAULT_TEXT_ELEMENT.color,
     backgroundColor: t.backgroundColor ?? DEFAULT_TEXT_ELEMENT.backgroundColor,
     textAlign: t.textAlign ?? DEFAULT_TEXT_ELEMENT.textAlign,

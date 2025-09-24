@@ -146,7 +146,7 @@ export function TimelineToolbar({
     }
     const { trackId, elementId } = selectedElements[0];
     const track = tracks.find((t) => t.id === trackId);
-    if (!track || track.type !== "media") {
+    if (!track || track.type !== "video") {
       toast.error("Select a media element to separate audio");
       return;
     }
@@ -227,15 +227,23 @@ export function TimelineToolbar({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const trackId = addTrack("media");
+                      const trackId = addTrack("video");
                       addElementToTrack(trackId, {
-                        type: "media",
+                        type: "video",
                         mediaId: "test",
                         name: "Test Clip",
                         duration: TIMELINE_CONSTANTS.DEFAULT_TEXT_DURATION,
                         startTime: 0,
                         trimStart: 0,
                         trimEnd: 0,
+                        x: 0,
+                        y: 0,
+                        scale: {
+                          x: 1,
+                          y: 1,
+                        },
+                        rotation: 0,
+                        opacity: 1,
                       });
                     }}
                     className="text-xs"

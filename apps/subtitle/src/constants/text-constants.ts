@@ -9,7 +9,9 @@ export const DEFAULT_TEXT_ELEMENT: Omit<
   name: "Text",
   content: "Default Text",
   fontSize: 48,
-  fontFamily: "Arial",
+  font: {
+    family: "Arial",
+  },
   color: "#ffffff",
   backgroundColor: "transparent",
   textAlign: "center",

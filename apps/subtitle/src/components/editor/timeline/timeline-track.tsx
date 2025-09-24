@@ -594,7 +594,7 @@ export function TimelineTrackContent({
             (t: TimelineTrack) => t.id === fromTrackId
           );
           const movingElement = sourceTrack?.elements.find(
-            (c: any) => c.id === elementId
+            (c) => c.id === elementId
           );
 
           if (movingElement) {
@@ -928,9 +928,9 @@ export function TimelineTrackContent({
             dragData.type === "video" || dragData.type === "image";
           const isAudio = dragData.type === "audio";
           const isCompatible = isVideoOrImage
-            ? canElementGoOnTrack("media", track.type)
+            ? canElementGoOnTrack("video", track.type)
             : isAudio
-              ? canElementGoOnTrack("media", track.type)
+              ? canElementGoOnTrack("video", track.type)
               : false;
 
           let targetTrack = tracks.find((t) => t.id === targetTrackId);
@@ -943,7 +943,7 @@ export function TimelineTrackContent({
 
               if (!mainTrack) {
                 // No main track exists, create it
-                targetTrackId = addTrack("media");
+                targetTrackId = addTrack("video");
                 const updatedTracks = useTimelineStore.getState().tracks;
                 const newTargetTrack = updatedTracks.find(
                   (t) => t.id === targetTrackId
@@ -973,7 +973,7 @@ export function TimelineTrackContent({
                   insertIndex = mainTrackIndex;
                 }
 
-                targetTrackId = insertTrackAt("media", insertIndex);
+                targetTrackId = insertTrackAt("video", insertIndex);
                 const updatedTracks = useTimelineStore.getState().tracks;
                 const newTargetTrack = updatedTracks.find(
                   (t) => t.id === targetTrackId
@@ -1044,13 +1044,21 @@ export function TimelineTrackContent({
           }
 
           addElementToTrack(targetTrackId, {
-            type: "media",
+            type: "video",
             mediaId: mediaItem.id,
             name: mediaItem.name,
             duration: mediaItem.duration || 5,
             startTime: mediaSnappedTime,
             trimStart: 0,
             trimEnd: 0,
+            x: 0,
+            y: 0,
+            scale: {
+              x: 1,
+              y: 1,
+            },
+            rotation: 0,
+            opacity: 1,
           });
         }
       } else if (hasFiles) {
@@ -1078,17 +1086,25 @@ export function TimelineTrackContent({
 
               if (addedItem) {
                 const trackType: TrackType =
-                  addedItem.type === "audio" ? "audio" : "media";
+                  addedItem.type === "audio" ? "audio" : "video";
                 const targetTrackId = insertTrackAt(trackType, 0);
 
                 addElementToTrack(targetTrackId, {
-                  type: "media",
+                  type: "video",
                   mediaId: addedItem.id,
                   name: addedItem.name,
                   duration: addedItem.duration || 5,
                   startTime: currentTime,
                   trimStart: 0,
                   trimEnd: 0,
+                  x: 0,
+                  y: 0,
+                  scale: {
+                    x: 1,
+                    y: 1,
+                  },
+                  rotation: 0,
+                  opacity: 1,
                 });
               }
             }
@@ -1145,6 +1161,7 @@ export function TimelineTrackContent({
                 (c) => c.trackId === track.id && c.elementId === element.id
               );
 
+              /*
               const handleElementSplit = () => {
                 const { currentTime } = usePlaybackStore();
                 const { splitSelected } = useTimelineStore();
@@ -1178,6 +1195,7 @@ export function TimelineTrackContent({
                 const { deleteSelected } = useTimelineStore.getState();
                 deleteSelected(track.id, element.id);
               };
+              */
 
               return (
                 <TimelineElement

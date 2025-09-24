@@ -463,7 +463,7 @@ export function Timeline() {
         } else {
           // Handle media items
           const mediaItem = mediaFiles.find(
-            (item: any) => item.id === dragData.id
+            (item) => item.id === dragData.id
           );
           if (!mediaItem) {
             toast.error("Media item not found");
@@ -494,19 +494,27 @@ export function Timeline() {
           );
           if (addedItem) {
             const trackType: TrackType =
-              addedItem.type === "audio" ? "audio" : "media";
+              addedItem.type === "audio" ? "audio" : "video";
             const targetTrackId = useTimelineStore
               .getState()
               .insertTrackAt(trackType, 0);
 
             useTimelineStore.getState().addElementToTrack(targetTrackId, {
-              type: "media",
+              type: "video",
               mediaId: addedItem.id,
               name: addedItem.name,
               duration: addedItem.duration || 5,
               startTime: currentTime,
               trimStart: 0,
               trimEnd: 0,
+              x: 0,
+              y: 0,
+              scale: {
+                x: 1,
+                y: 1,
+              },
+              rotation: 0,
+              opacity: 1,
             });
           }
         }
@@ -911,7 +919,7 @@ export function Timeline() {
 function TrackIcon({ track }: { track: TimelineTrack }) {
   return (
     <>
-      {track.type === "media" && (
+      {track.type === "video" && (
         <Video className="w-4 h-4 shrink-0 text-muted-foreground" />
       )}
       {track.type === "text" && (

@@ -1,7 +1,7 @@
 import { MediaType } from "@/types/media";
 import { generateUUID } from "@/lib/utils";
 
-export type TrackType = "media" | "text" | "audio";
+export type TrackType = "video" | "text" | "audio";
 
 export interface Scale {
   x: number;
@@ -34,6 +34,7 @@ interface BaseTimelineElement {
 
 // Media element that references MediaStore
 export interface MediaElement extends BaseTimelineElement {
+  type: 'video' | 'audio';
   mediaId: string;
   remoteSource?: string;
   muted?: boolean;
@@ -147,9 +148,10 @@ export interface ProgressBarElement extends BaseTimelineElement {
 export type TimelineElement = AudioElement | TextElement | WaveElement | ImageElement | ShapeElement | VideoElement | ProgressBarElement;
 
 // Creation types (without id, for addElementToTrack)
-export type CreateMediaElement = Omit<MediaElement, "id">;
+export type CreateVideoElement = Omit<VideoElement, "id">;
+export type CreateAudioElement = Omit<AudioElement, "id">;
 export type CreateTextElement = Omit<TextElement, "id">;
-export type CreateTimelineElement = CreateMediaElement | CreateTextElement;
+export type CreateTimelineElement = CreateVideoElement | CreateAudioElement | CreateTextElement;
 
 export interface TimelineElementProps {
   element: TimelineElement;
@@ -226,7 +228,7 @@ export function ensureMainTrack(tracks: TimelineTrack[]): TimelineTrack[] {
     const mainTrack: TimelineTrack = {
       id: generateUUID(),
       name: "Main Track",
-      type: "media",
+      type: "video",
       elements: [],
       muted: false,
       isMain: true,
@@ -239,20 +241,20 @@ export function ensureMainTrack(tracks: TimelineTrack[]): TimelineTrack[] {
 
 // Timeline validation utilities
 export function canElementGoOnTrack(
-  elementType: "text" | "media",
+  elementType: "text" | "subtitles" | "video" | "audio" | "image" | "shape" | "wave" | "progress_bar",
   trackType: TrackType
 ): boolean {
   if (elementType === "text") {
     return trackType === "text";
   }
-  if (elementType === "media") {
-    return trackType === "media" || trackType === "audio";
+  if (elementType === "video") {
+    return trackType === "video" || trackType === "audio";
   }
   return false;
 }
 
 export function validateElementTrackCompatibility(
-  element: { type: "text" | "media" },
+  element: { type: "text" | "subtitles" | "video" | "audio" | "image" | "shape" | "wave" | "progress_bar" },
   track: { type: TrackType }
 ): { isValid: boolean; errorMessage?: string } {
   const isValid = canElementGoOnTrack(element.type, track.type);
