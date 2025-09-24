@@ -1,8 +1,8 @@
 
 import { SpectrumAnalyzer } from '../lib/spectrum-analyzer';
-import { openEchowaveDatabase, getFileFromStore } from '../lib/open-echowave-db';
 import { PreviewKonvaNode, PreviewKonvaNodeConstructorOptions } from './preview-konva-node';
 import { AudioElement } from '@/types/timeline';
+import { useMediaStore } from '@/stores/media-store';
 
 interface AudioPreviewNodeOptions extends PreviewKonvaNodeConstructorOptions<AudioElement> {
   audioContext?: AudioContext | null;
@@ -20,6 +20,8 @@ export class AudioPreviewNode extends PreviewKonvaNode<AudioElement> {
 
   private readonly removeBuffering?: (id: string) => void;
 
+  private objectUrl: string | null = null;
+
   constructor(options: AudioPreviewNodeOptions) {
     super(options);
     this.audioContext = options.audioContext ?? null;
@@ -34,7 +36,6 @@ export class AudioPreviewNode extends PreviewKonvaNode<AudioElement> {
       return;
     }
 
-    const database = await openEchowaveDatabase();
     const audio = document.createElement('audio');
     audio.crossOrigin = 'anonymous';
     audio.classList.add('fft');
@@ -42,26 +43,24 @@ export class AudioPreviewNode extends PreviewKonvaNode<AudioElement> {
     this.mediaElement = audio;
     document.body.append(audio);
 
-    let sourceBlob: Blob | null = null;
+    this.objectUrl = null;
+    let sourceUrl: string | null = null;
     if (element.mediaId) {
-      const transaction = database.transaction(['files'], 'readonly');
-      const store = transaction.objectStore('files');
-      sourceBlob = await getFileFromStore(store, element.mediaId);
+      const { mediaFiles } = useMediaStore.getState();
+      const mediaItem = mediaFiles.find((item) => item.id === element.mediaId);
+      if (mediaItem?.file) {
+        if (mediaItem.url) {
+          sourceUrl = mediaItem.url;
+        } else {
+          sourceUrl = URL.createObjectURL(mediaItem.file);
+          this.objectUrl = sourceUrl;
+        }
+      }
     }
 
-    if (sourceBlob) {
-      await new Promise<void>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            audio.src = result;
-            audio.volume = (element.volume ?? 100) / 100;
-          }
-          resolve();
-        };
-        reader.readAsDataURL(sourceBlob);
-      });
+    if (sourceUrl) {
+      audio.src = sourceUrl;
+      audio.volume = (element.volume ?? 100) / 100;
     } else if (element.remoteSource) {
       audio.src = element.remoteSource;
       audio.volume = (element.volume ?? 100) / 100;
@@ -115,6 +114,10 @@ export class AudioPreviewNode extends PreviewKonvaNode<AudioElement> {
 
   destroy(): void {
     this.mediaElement?.remove();
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = null;
+    }
     super.destroy();
   }
 }

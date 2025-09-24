@@ -1,9 +1,9 @@
 import Konva from 'konva';
 
 import { SpectrumAnalyzer } from '../lib/spectrum-analyzer';
-import { openEchowaveDatabase, getFileFromStore } from '../lib/open-echowave-db';
 import { PreviewKonvaNode, PreviewKonvaNodeConstructorOptions } from './preview-konva-node';
 import { VideoElement } from '@/types/timeline';
+import { useMediaStore } from '@/stores/media-store';
 
 interface VideoPreviewNodeOptions extends PreviewKonvaNodeConstructorOptions<VideoElement> {
   audioContext?: AudioContext | null;
@@ -14,6 +14,8 @@ export class VideoPreviewNode extends PreviewKonvaNode<VideoElement> {
   private readonly audioContext?: AudioContext | null;
 
   private readonly analyzer?: SpectrumAnalyzer | null;
+
+  private objectUrl: string | null = null;
 
   constructor(options: VideoPreviewNodeOptions) {
     super(options);
@@ -27,33 +29,30 @@ export class VideoPreviewNode extends PreviewKonvaNode<VideoElement> {
       return;
     }
 
-    const database = await openEchowaveDatabase();
     const video = document.createElement('video');
     video.crossOrigin = 'anonymous';
     video.preload = 'auto';
     video.loop = true;
     this.mediaElement = video;
 
-    let sourceBlob: Blob | null = null;
+    this.objectUrl = null;
+    let sourceUrl: string | null = null;
     if (element.mediaId) {
-      const transaction = database.transaction(['files'], 'readonly');
-      const store = transaction.objectStore('files');
-      sourceBlob = await getFileFromStore(store, element.mediaId);
+      const { mediaFiles } = useMediaStore.getState();
+      const mediaItem = mediaFiles.find((item) => item.id === element.mediaId);
+      if (mediaItem?.file) {
+        if (mediaItem.url) {
+          sourceUrl = mediaItem.url;
+        } else {
+          sourceUrl = URL.createObjectURL(mediaItem.file);
+          this.objectUrl = sourceUrl;
+        }
+      }
     }
 
-    if (sourceBlob) {
-      await new Promise<void>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            video.src = result;
-            video.volume = (element.volume ?? 100) / 100;
-          }
-          resolve();
-        };
-        reader.readAsDataURL(sourceBlob);
-      });
+    if (sourceUrl) {
+      video.src = sourceUrl;
+      video.volume = (element.volume ?? 100) / 100;
     } else if (element.remoteSource) {
       video.src = element.remoteSource;
       video.volume = (element.volume ?? 100) / 100;
@@ -122,6 +121,10 @@ export class VideoPreviewNode extends PreviewKonvaNode<VideoElement> {
   destroy(): void {
     if (this.mediaElement) {
       this.mediaElement.remove();
+    }
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = null;
     }
     super.destroy();
   }

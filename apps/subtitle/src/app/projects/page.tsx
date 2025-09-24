@@ -45,6 +45,7 @@ export default function ProjectsPage() {
     savedProjects,
     isLoading,
     isInitialized,
+    loadAllProjects,
     deleteProject,
     createNewProject,
     getFilteredAndSortedProjects,
@@ -63,6 +64,13 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("createdAt-desc");
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isInitialized) {
+      // Populate the project list when landing directly on the projects page
+      void loadAllProjects();
+    }
+  }, [isInitialized, loadAllProjects]);
 
   const getProjectThumbnail = useCallback(
     async (projectId: string): Promise<string | null> => {

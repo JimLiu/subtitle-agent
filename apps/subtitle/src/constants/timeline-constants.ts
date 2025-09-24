@@ -5,7 +5,7 @@ export const TRACK_COLORS: Record<
   TrackType,
   { solid: string; background: string; border: string }
 > = {
-  media: {
+  video: {
     solid: "bg-blue-500",
     background: "",
     border: "",
@@ -24,7 +24,7 @@ export const TRACK_COLORS: Record<
 
 // Utility functions
 export function getTrackColors(type: TrackType) {
-  return TRACK_COLORS[type];
+  return TRACK_COLORS[type] ?? TRACK_COLORS.video;
 }
 
 export function getTrackElementClasses(type: TrackType) {
@@ -34,7 +34,7 @@ export function getTrackElementClasses(type: TrackType) {
 
 // Track height definitions
 export const TRACK_HEIGHTS: Record<TrackType, number> = {
-  media: 60,
+  video: 60,
   text: 25,
   audio: 50,
 } as const;

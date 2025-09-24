@@ -1,40 +1,39 @@
 import Konva from 'konva';
 
-import { openEchowaveDatabase, getFileFromStore } from '../lib/open-echowave-db';
 import { PreviewKonvaNode } from './preview-konva-node';
 import { ImageElement } from '@/types/timeline';
+import { useMediaStore } from '@/stores/media-store';
 
 export class ImagePreviewNode extends PreviewKonvaNode<ImageElement> {
+  private objectUrl: string | null = null;
+
   protected async initKonvaObject(): Promise<void> {
     const element = this.element;
     if (!element) {
       return;
     }
 
-    const database = await openEchowaveDatabase();
     const image = new Image();
     image.crossOrigin = 'anonymous';
     this.mediaElement = image as unknown as HTMLMediaElement;
 
-    let sourceBlob: Blob | null = null;
+    this.objectUrl = null;
+    let sourceUrl: string | null = null;
     if (element.mediaId) {
-      const transaction = database.transaction(['files'], 'readonly');
-      const store = transaction.objectStore('files');
-      sourceBlob = await getFileFromStore(store, element.mediaId);
+      const { mediaFiles } = useMediaStore.getState();
+      const mediaItem = mediaFiles.find((item) => item.id === element.mediaId);
+      if (mediaItem?.file) {
+        if (mediaItem.url) {
+          sourceUrl = mediaItem.url;
+        } else {
+          sourceUrl = URL.createObjectURL(mediaItem.file);
+          this.objectUrl = sourceUrl;
+        }
+      }
     }
 
-    if (sourceBlob) {
-      await new Promise<void>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const result = event.target?.result;
-          if (typeof result === 'string') {
-            image.src = result;
-          }
-          resolve();
-        };
-        reader.readAsDataURL(sourceBlob);
-      });
+    if (sourceUrl) {
+      image.src = sourceUrl;
     } else if (element.remoteSource) {
       image.src = element.remoteSource;
     } else {
@@ -45,5 +44,13 @@ export class ImagePreviewNode extends PreviewKonvaNode<ImageElement> {
       image,
       cornerRadius: element.cornerRadius ?? 0,
     });
+  }
+
+  destroy(): void {
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = null;
+    }
+    super.destroy();
   }
 }
