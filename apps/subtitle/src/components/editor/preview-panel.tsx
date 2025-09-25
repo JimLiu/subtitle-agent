@@ -1,13 +1,22 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import ratioPresets from "./preview-panel/lib/ratio-presets";
-import { PreviewPanel as PreviewPanelImpl } from "./preview-panel/preview-panel";
-import { useTimelineStore } from "@/stores/timeline-store";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+
 import { useProjectStore } from "@/stores/project-store";
+import { useTimelineStore } from "@/stores/timeline-store";
 import { usePlaybackStore } from "@/stores/playback-store";
 import type { TimelineElement } from "@/types/timeline";
-import type { ProjectSize } from "./preview-panel/nodes/preview-konva-node";
+
+import ratioPresets from "./preview-panel/deps/ratio-presets";
+import {
+  PreviewPanel as PreviewPanelImpl,
+} from "./preview-panel/preview-panel";
+import { createPreviewPanelStore } from "./preview-panel/preview-panel-store";
+import type {
+  PreviewPanelStore,
+  PreviewPanelStoreData,
+  PreviewSize,
+} from "./preview-panel/preview-panel-store";
 
 type ElementMeta = {
   element: TimelineElement;
@@ -54,44 +63,32 @@ export function PreviewPanel() {
       });
     });
 
-    const sortedEntries = entries
+    const orderedElements = entries
       .slice()
       .sort((a, b) => {
-        const aValue = (a.element.zIndex ?? a.fallbackZ);
-        const bValue = (b.element.zIndex ?? b.fallbackZ);
+        const aValue = a.element.zIndex ?? a.fallbackZ;
+        const bValue = b.element.zIndex ?? b.fallbackZ;
         if (aValue === bValue) {
           return a.element.startTime - b.element.startTime;
         }
         return aValue - bValue;
-      });
+      })
+      .map((entry) => entry.element);
 
     const zValues = entries.map((entry) => entry.element.zIndex ?? entry.fallbackZ);
     const minZIndex = zValues.length > 0 ? Math.min(...zValues) : 0;
     const maxZIndex = zValues.length > 0 ? Math.max(...zValues) : 0;
 
-    const konvaZIndexMap = new Map<string, number>();
-    sortedEntries.forEach((entry, index) => {
-      konvaZIndexMap.set(entry.element.id, index);
-    });
-
     return {
-      orderedElements: sortedEntries.map((entry) => entry.element),
+      orderedElements,
       elementMap,
       elementTrackMap,
-      konvaZIndexMap,
       minZIndex,
       maxZIndex,
     };
   }, [tracks]);
 
-  const {
-    orderedElements,
-    elementMap,
-    elementTrackMap,
-    konvaZIndexMap,
-    minZIndex,
-    maxZIndex,
-  } = segmentsMeta;
+  const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = segmentsMeta;
 
   const selectedSegmentId = useMemo(() => {
     const currentId = selectedElements[0]?.elementId;
@@ -103,7 +100,7 @@ export function PreviewPanel() {
 
   const projectId = activeProject?.id;
 
-  const projectSize: ProjectSize | null = useMemo(() => {
+  const previewSize: PreviewSize | null = useMemo(() => {
     if (!activeProject) {
       return null;
     }
@@ -114,14 +111,54 @@ export function PreviewPanel() {
 
     return {
       ratio: isPresetMode ? ratioKey : "original",
-      width: canvasSize.width,
-      height: canvasSize.height,
       original: {
         width: canvasSize.width,
         height: canvasSize.height,
       },
     };
   }, [activeProject]);
+
+  const previewStoreRef = useRef<PreviewPanelStore>();
+  if (!previewStoreRef.current) {
+    previewStoreRef.current = createPreviewPanelStore();
+  }
+  const previewStore = previewStoreRef.current;
+
+  useEffect(() => {
+    if (!activeProject || !previewSize) {
+      return;
+    }
+
+    previewStore.getState().patch({
+      backgroundColor: activeProject.backgroundColor ?? "#000000",
+      size: previewSize,
+      segments: { ...elementMap },
+      orderedSegments: orderedElements.slice(),
+      minZIndex,
+      maxZIndex,
+      buffering: false,
+    } as Partial<PreviewPanelStoreData>);
+  }, [
+    activeProject,
+    previewSize,
+    elementMap,
+    orderedElements,
+    minZIndex,
+    maxZIndex,
+    previewStore,
+  ]);
+
+  useEffect(() => {
+    if (!previewSize) {
+      return;
+    }
+
+    previewStore.getState().patch({
+      playing: isPlaying,
+      currentTimestamp: Math.max(0, currentTime) * 1000,
+      selectedSegment: selectedSegmentId,
+    } as Partial<PreviewPanelStoreData>);
+  }, [isPlaying, currentTime, selectedSegmentId, previewSize, previewStore]);
 
   const setPlaying = useCallback(
     (shouldPlay: boolean) => {
@@ -178,50 +215,24 @@ export function PreviewPanel() {
     [duplicateElement, elementTrackMap]
   );
 
-  const getSegmentById = useCallback(
-    (id: string) => elementMap[id] ?? null,
-    [elementMap]
-  );
-
-  const getKonvaZIndex = useCallback(
-    (id: string) => konvaZIndexMap.get(id) ?? 0,
-    [konvaZIndexMap]
-  );
-
-  const removeActiveTool = useCallback(() => {
-    // no-op placeholder for future tool integration
-  }, []);
-  const setActiveTool = useCallback((tool: string) => {
+  const handleActiveToolChange = useCallback((tool: string | null) => {
     void tool;
   }, []);
 
-  if (!activeProject || !projectId || !projectSize) {
+  if (!activeProject || !projectId || !previewSize) {
     return <div className="h-full w-full bg-panel" />;
   }
 
   return (
     <PreviewPanelImpl
-      projectID={projectId}
-      selectedSegment={selectedSegmentId}
-      orderedSegments={orderedElements}
-      allSegments={elementMap}
-      size={projectSize}
-      backgroundColor={activeProject.backgroundColor ?? "#000000"}
-      currentTimestamp={currentTime}
-      buffering={false}
-      playing={isPlaying}
-      minZIndex={minZIndex}
-      maxZIndex={maxZIndex}
-      getSegmentById={getSegmentById}
-      getKonvaZIndex={getKonvaZIndex}
-      setPlaying={setPlaying}
-      setSelectedSegment={setSelectedSegment}
-      removeActiveTool={removeActiveTool}
-      setActiveTool={setActiveTool}
-      updateSegment={updateSegment}
-      setPreviewThumbnail={setPreviewThumbnail}
-      deleteSegment={deleteSegment}
-      duplicateSegment={duplicateSegment}
+      store={previewStore}
+      onPlayingChange={setPlaying}
+      onSelectedSegmentChange={setSelectedSegment}
+      onActiveToolChange={handleActiveToolChange}
+      onSegmentUpdate={updateSegment}
+      onPreviewThumbnailChange={setPreviewThumbnail}
+      onDeleteSegment={deleteSegment}
+      onDuplicateSegment={duplicateSegment}
     />
   );
 }
