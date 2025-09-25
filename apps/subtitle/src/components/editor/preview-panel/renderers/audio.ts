@@ -1,16 +1,17 @@
 import Konva from 'konva';
 
+import { AudioElement } from "@/types/timeline";
+
 import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
-import { AudioSegment } from '../deps/segment-types';
 import { BaseRenderer, BaseRendererOptions } from './base';
 
-export interface AudioRendererOptions extends BaseRendererOptions<AudioSegment> {
+export interface AudioRendererOptions extends BaseRendererOptions<AudioElement> {
   audioContext: AudioContext;
   analyzer: SpectrumAnalyzer;
 }
 
-export class AudioRenderer extends BaseRenderer<AudioSegment> {
+export class AudioRenderer extends BaseRenderer<AudioElement> {
   private readonly audioContext: AudioContext;
   private readonly analyzer: SpectrumAnalyzer;
   private mediaElement: HTMLAudioElement | null = null;
@@ -32,9 +33,9 @@ export class AudioRenderer extends BaseRenderer<AudioSegment> {
     });
   }
 
-  protected onSegmentUpdated(segment: AudioSegment, previous: AudioSegment): void {
+  protected onSegmentUpdated(segment: AudioElement, previous: AudioElement): void {
     if (segment.volume !== previous.volume && this.mediaElement) {
-      this.mediaElement.volume = (segment.volume ?? 100) / 100;
+      this.mediaElement.volume = this.resolveVolume(segment.volume);
     }
 
     const nextKey = this.getSourceKey(segment);
@@ -87,11 +88,11 @@ export class AudioRenderer extends BaseRenderer<AudioSegment> {
     }
   }
 
-  private getSourceKey(segment: AudioSegment): string | null {
-    return segment.fileId ?? segment.remoteSource ?? null;
+  private getSourceKey(segment: AudioElement): string | null {
+    return segment.mediaId ?? segment.remoteSource ?? null;
   }
 
-  private async ensureMediaElement(segment: AudioSegment): Promise<void> {
+  private async ensureMediaElement(segment: AudioElement): Promise<void> {
     const key = this.getSourceKey(segment);
     this.sourceKey = key;
 
@@ -120,12 +121,12 @@ export class AudioRenderer extends BaseRenderer<AudioSegment> {
 
     let sourceConfigured = false;
 
-    if (segment.fileId) {
+    if (segment.mediaId) {
       try {
         const database = await openEchowaveDatabase();
         const transaction = database.transaction(['files'], 'readonly');
         const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.fileId);
+        const blob = await getFileFromStore(store, segment.mediaId);
         if (blob) {
           await new Promise<void>((resolve, reject) => {
             const reader = new FileReader();
@@ -133,7 +134,7 @@ export class AudioRenderer extends BaseRenderer<AudioSegment> {
               const result = event.target?.result;
               if (typeof result === 'string') {
                 audio.src = result;
-                audio.volume = (segment.volume ?? 100) / 100;
+                audio.volume = this.resolveVolume(segment.volume);
               }
               resolve();
             };
@@ -149,7 +150,7 @@ export class AudioRenderer extends BaseRenderer<AudioSegment> {
 
     if (!sourceConfigured && segment.remoteSource) {
       audio.src = segment.remoteSource;
-      audio.volume = (segment.volume ?? 100) / 100;
+      audio.volume = this.resolveVolume(segment.volume);
       sourceConfigured = true;
     }
 
@@ -166,11 +167,18 @@ export class AudioRenderer extends BaseRenderer<AudioSegment> {
     if (this.playing && !force) {
       return;
     }
-    const offset = timestamp - (this.segment.startTime ?? 0) + (this.segment.cut ?? 0);
+    const offset = timestamp - this.segment.startTime + this.segment.trimStart;
     const seconds = Number.isFinite(offset) ? offset / 1000 : 0;
     if (Math.abs(audio.currentTime - seconds) > 0.05) {
       audio.currentTime = seconds >= 0 ? seconds : 0;
     }
+  }
+
+  private resolveVolume(volume?: number): number {
+    if (typeof volume !== 'number') {
+      return 1;
+    }
+    return volume > 1 ? volume / 100 : volume;
   }
 }
 

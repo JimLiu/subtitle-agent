@@ -1,7 +1,8 @@
 import Konva from 'konva';
 import WebFont from 'webfontloader';
 
-import { TextSegment } from '../deps/segment-types';
+import { TextElement } from "@/types/timeline";
+
 import { BaseRenderer, BaseRendererOptions } from './base';
 
 interface ShadowProps {
@@ -23,10 +24,10 @@ function parseShadowColor(value?: string): ShadowProps | null {
   return { color, opacity };
 }
 
-export class TextRenderer extends BaseRenderer<TextSegment> {
+export class TextRenderer extends BaseRenderer<TextElement> {
   private currentFontFamily?: string;
 
-  constructor(options: BaseRendererOptions<TextSegment>) {
+  constructor(options: BaseRendererOptions<TextElement>) {
     super(options);
     this.currentFontFamily = options.segment.font?.family;
   }
@@ -40,10 +41,10 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
 
     return new Konva.Text({
       id: segment.id,
-      text: segment.text ?? '',
-      x: segment.position?.x ?? 0,
-      y: segment.position?.y ?? 0,
-      fill: (segment as unknown as { color?: string }).color ?? '#ffffff',
+      text: segment.content ?? '',
+      x: segment.x ?? 0,
+      y: segment.y ?? 0,
+      fill: segment.color ?? '#ffffff',
       opacity: segment.opacity,
       rotation: segment.rotation,
       scaleX: segment.scale?.x ?? 1,
@@ -51,7 +52,7 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
       width: segment.width ?? 100,
       fontSize: segment.fontSize ?? 20,
       letterSpacing: segment.letterSpacing ?? 0,
-      align: segment.align ?? 'left',
+      align: segment.textAlign ?? 'left',
       lineHeight: segment.lineHeight ?? 1,
       fontFamily,
       strokeWidth: segment.strokeWidth ?? 0,
@@ -76,14 +77,14 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
     node.on('dblclick dbltap', this.handleTextEdit);
   }
 
-  protected onSegmentUpdated(segment: TextSegment, _previous: TextSegment): void {
+  protected onSegmentUpdated(segment: TextElement, _previous: TextElement): void {
     const node = this.node as Konva.Text | null;
     if (!node) {
       return;
     }
 
-    if (segment.text !== undefined) {
-      node.text(segment.text ?? '');
+    if (segment.content !== undefined) {
+      node.text(segment.content ?? '');
     }
     if (segment.width !== undefined) {
       node.width(segment.width ?? node.width());
@@ -97,8 +98,8 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
     if (segment.letterSpacing !== undefined) {
       node.letterSpacing(segment.letterSpacing ?? 0);
     }
-    if (segment.align !== undefined) {
-      node.align(segment.align ?? 'left');
+    if (segment.textAlign !== undefined) {
+      node.align(segment.textAlign ?? 'left');
     }
     if (segment.lineHeight !== undefined) {
       node.lineHeight(segment.lineHeight ?? 1);
@@ -131,8 +132,8 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
       node.stroke(segment.options.stokeColor ?? '#FFFFFF');
     }
 
-    if ((segment as unknown as { color?: string }).color) {
-      node.fill((segment as unknown as { color?: string }).color ?? '#ffffff');
+    if (segment.color) {
+      node.fill(segment.color ?? '#ffffff');
     }
 
     node.fontStyle(this.getFontStyle(segment));
@@ -183,34 +184,29 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
     });
   }
 
-  private getFontStyle(segment: TextSegment): string {
-    const bold = Boolean(segment.bold);
-    const italic = Boolean(segment.italic);
-    if (bold && italic) {
-      return 'italic bold';
+  private getFontStyle(segment: TextElement): string {
+    const parts: string[] = [];
+    if (segment.fontStyle === 'italic') {
+      parts.push('italic');
     }
-    if (bold) {
-      return 'bold';
+    if (segment.fontWeight === 'bold') {
+      parts.push('bold');
     }
-    if (italic) {
-      return 'italic';
+    if (!parts.length) {
+      return 'normal';
     }
-    return 'normal';
+    return parts.join(' ');
   }
 
-  private getTextDecoration(segment: TextSegment): string {
-    const underline = Boolean(segment.underline);
-    const strike = Boolean(segment.strikethrough);
-    if (underline && strike) {
+  private getTextDecoration(segment: TextElement): string {
+    const decoration = segment.textDecoration ?? 'none';
+    if (decoration === 'underline-line-through') {
       return 'underline line-through';
     }
-    if (underline) {
-      return 'underline';
+    if (decoration === 'none') {
+      return '';
     }
-    if (strike) {
-      return 'line-through';
-    }
-    return '';
+    return decoration;
   }
 
   private handleTextEdit = () => {
@@ -272,7 +268,7 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
     const commitIfChanged = () => {
       const nextValue = textarea.value;
       if (nextValue !== node.text()) {
-        this.updateSegment({ text: nextValue });
+        this.updateSegment({ content: nextValue });
       }
     };
 
@@ -305,6 +301,6 @@ export class TextRenderer extends BaseRenderer<TextSegment> {
   };
 }
 
-export function createTextRenderer(options: BaseRendererOptions<TextSegment>): TextRenderer {
+export function createTextRenderer(options: BaseRendererOptions<TextElement>): TextRenderer {
   return new TextRenderer(options);
 }

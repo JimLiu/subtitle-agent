@@ -2,17 +2,19 @@ import Konva from 'konva';
 
 import type { WrappedCanvas } from 'mediabunny';
 
+import { VideoElement } from "@/types/timeline";
+
 import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
-import { VideoSegment } from '../deps/segment-types';
+import { getSegmentEndTime } from '../deps/segment-helpers';
 import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
 
-export interface VideoRendererOptions extends BaseRendererOptions<VideoSegment> {
+export interface VideoRendererOptions extends BaseRendererOptions<VideoElement> {
   audioContext: AudioContext | null;
   analyzer: SpectrumAnalyzer | null;
 }
 
-export class VideoRenderer extends BaseRenderer<VideoSegment> {
+export class VideoRenderer extends BaseRenderer<VideoElement> {
   private audioContext: AudioContext | null;
   private analyzer: SpectrumAnalyzer | null;
   private audioSource: MediaElementAudioSourceNode | null = null;
@@ -32,17 +34,17 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
     video.crossOrigin = 'anonymous';
     video.preload = 'auto';
     video.loop = true;
-    video.volume = (segment.volume ?? 100) / 100;
+    video.volume = this.resolveVolume(segment.volume);
 
     this.mediaElement = video;
 
     let sourceConfigured = false;
     try {
-      if (segment.fileId) {
+      if (segment.mediaId) {
         const database = await openEchowaveDatabase();
         const transaction = database.transaction(['files'], 'readonly');
         const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.fileId);
+        const blob = await getFileFromStore(store, segment.mediaId);
         if (blob) {
           await new Promise<void>((resolve) => {
             const reader = new FileReader();
@@ -100,7 +102,7 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
     return node;
   }
 
-  protected onSegmentUpdated(segment: VideoSegment, _previous: VideoSegment): void {
+  protected onSegmentUpdated(segment: VideoElement, _previous: VideoElement): void {
     const node = this.node as Konva.Image | null;
     if (!node) {
       return;
@@ -110,7 +112,7 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
       node.cornerRadius(segment.cornerRadius ?? 0);
     }
     if (video && segment.volume !== undefined) {
-      video.volume = (segment.volume ?? 100) / 100;
+      video.volume = this.resolveVolume(segment.volume);
     }
   }
 
@@ -134,7 +136,7 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
     }
 
     if (!this.playing) {
-      const offset = timestamp - this.segment.startTime + (this.segment.cut ?? 0);
+      const offset = timestamp - this.segment.startTime + this.segment.trimStart;
       if (offset >= 0) {
         const seconds = offset / 1000;
         if (Math.abs(video.currentTime - seconds) > 0.05) {
@@ -235,7 +237,8 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
     if (!this.mediaElement) {
       return;
     }
-    if (timestamp < (this.segment.startTime ?? 0) || timestamp > (this.segment.endTime ?? timestamp)) {
+    const endTime = getSegmentEndTime(this.segment);
+    if (timestamp < this.segment.startTime || timestamp > endTime) {
       return;
     }
     await this.seekToTimestamp(timestamp);
@@ -265,8 +268,8 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
     await this.ensureMetadata(video);
 
     const segmentStart = this.segment.startTime ?? 0;
-    const segmentCut = this.segment.cut ?? 0;
-    const offsetMs = timestamp - segmentStart + segmentCut;
+    const segmentTrim = this.segment.trimStart;
+    const offsetMs = timestamp - segmentStart + segmentTrim;
     if (!Number.isFinite(offsetMs) || offsetMs < 0) {
       return;
     }
@@ -366,6 +369,13 @@ export class VideoRenderer extends BaseRenderer<VideoSegment> {
         requestAnimationFrame(() => resolve());
       });
     });
+  }
+
+  private resolveVolume(volume?: number): number {
+    if (typeof volume !== 'number') {
+      return 1;
+    }
+    return volume > 1 ? volume / 100 : volume;
   }
 }
 

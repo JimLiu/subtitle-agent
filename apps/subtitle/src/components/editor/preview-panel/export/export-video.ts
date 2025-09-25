@@ -16,15 +16,15 @@ import {
 } from 'mediabunny';
 
 import { ExportOptions, ExportResult } from '@/types/export';
-
 import {
-  PreviewSegment,
-  AudioSegment,
-  VideoSegment,
-  MediaSegment,
-} from '../deps/segment-types';
+  AudioElement,
+  MediaElement,
+  TimelineElement,
+  VideoElement,
+} from "@/types/timeline";
 import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { PreviewExportRuntime } from './export-runtime';
+import { getSegmentEndTime, getSegmentDuration } from '../deps/segment-helpers';
 
 const DEFAULT_FPS = 30;
 
@@ -43,20 +43,27 @@ interface PreviewExportSettings {
 }
 
 interface PreviewExportRequest {
-  segments: PreviewSegment[];
+  segments: TimelineElement[];
   settings: PreviewExportSettings;
   options: ExportOptions;
 }
 
 interface AudioElementData {
   buffer: AudioBuffer;
-  segment: MediaSegment;
+  segment: MediaElement;
 }
 
 declare global {
   interface Window {
     webkitAudioContext?: typeof AudioContext;
   }
+}
+
+function resolveVolume(volume?: number): number {
+  if (typeof volume !== 'number') {
+    return 1;
+  }
+  return volume > 1 ? volume / 100 : volume;
 }
 
 export async function exportPreviewVideo(request: PreviewExportRequest): Promise<ExportResult> {
@@ -169,19 +176,19 @@ export async function exportPreviewVideo(request: PreviewExportRequest): Promise
   }
 }
 
-function computeDurationMs(segments: PreviewSegment[]): number {
+function computeDurationMs(segments: TimelineElement[]): number {
   let maxEnd = 0;
   for (const segment of segments) {
-    maxEnd = Math.max(maxEnd, segment.endTime ?? segment.startTime ?? 0);
+    maxEnd = Math.max(maxEnd, getSegmentEndTime(segment));
   }
   return maxEnd;
 }
 
-function isMediaSegment(segment: PreviewSegment): segment is AudioSegment | VideoSegment {
+function isMediaSegment(segment: TimelineElement): segment is AudioElement | VideoElement {
   return segment.type === 'audio' || segment.type === 'video';
 }
 
-async function createAudioMixdown(segments: PreviewSegment[], durationSeconds: number): Promise<AudioBuffer | null> {
+async function createAudioMixdown(segments: TimelineElement[], durationSeconds: number): Promise<AudioBuffer | null> {
   if (typeof window === 'undefined') {
     return null;
   }
@@ -222,7 +229,7 @@ async function createAudioMixdown(segments: PreviewSegment[], durationSeconds: n
   }
 }
 
-async function loadAudioElement(segment: MediaSegment, audioContext: AudioContext): Promise<AudioElementData | null> {
+async function loadAudioElement(segment: MediaElement, audioContext: AudioContext): Promise<AudioElementData | null> {
   const blob = await getSegmentBlob(segment);
   if (!blob) {
     return null;
@@ -309,13 +316,13 @@ async function decodeWithMediabunny(blob: Blob): Promise<AudioBuffer | null> {
   }
 }
 
-async function getSegmentBlob(segment: MediaSegment): Promise<Blob | null> {
-  if (segment.fileId) {
+async function getSegmentBlob(segment: MediaElement): Promise<Blob | null> {
+  if (segment.mediaId) {
     try {
       const database = await openEchowaveDatabase();
       const transaction = database.transaction(['files'], 'readonly');
       const store = transaction.objectStore('files');
-      const blob = await getFileFromStore(store, segment.fileId);
+      const blob = await getFileFromStore(store, segment.mediaId);
       if (blob) {
         return blob;
       }
@@ -342,18 +349,18 @@ function mixAudioElementIntoBuffer(element: AudioElementData, target: AudioBuffe
   const { buffer, segment } = element;
   const outputSampleRate = target.sampleRate;
 
-  const segmentStart = (segment.startTime ?? 0) / 1000;
-  const segmentEnd = (segment.endTime ?? segment.startTime ?? 0) / 1000;
-  const segmentDuration = Math.max(segmentEnd - segmentStart, 0);
-  const cutSeconds = (segment.cut ?? 0) / 1000;
+  const segmentStartSeconds = segment.startTime / 1000;
+  const segmentDurationSeconds = getSegmentDuration(segment) / 1000;
+  const trimSeconds = segment.trimStart / 1000;
 
-  if (segmentDuration <= 0 || segment.volume === 0) {
+  if (segmentDurationSeconds <= 0 || segment.volume === 0) {
     return;
   }
 
   const sourceSampleRate = buffer.sampleRate;
-  const sourceStartSample = Math.floor(cutSeconds * sourceSampleRate);
-  const sourceDurationSeconds = Math.min(segmentDuration, buffer.duration - cutSeconds);
+  const sourceStartSample = Math.floor(trimSeconds * sourceSampleRate);
+  const availableDuration = buffer.duration - trimSeconds;
+  const sourceDurationSeconds = Math.min(segmentDurationSeconds, availableDuration);
   if (sourceDurationSeconds <= 0) {
     return;
   }
@@ -361,9 +368,9 @@ function mixAudioElementIntoBuffer(element: AudioElementData, target: AudioBuffe
   const sourceLengthSamples = Math.floor(sourceDurationSeconds * sourceSampleRate);
   const resampleRatio = outputSampleRate / sourceSampleRate;
   const resampledLength = Math.floor(sourceLengthSamples * resampleRatio);
-  const outputStartSample = Math.floor(segmentStart * outputSampleRate);
+  const outputStartSample = Math.floor(segmentStartSeconds * outputSampleRate);
 
-  const volume = (segment.volume ?? 100) / 100;
+  const volume = resolveVolume(segment.volume);
   const outputLength = target.length;
 
   for (let channel = 0; channel < target.numberOfChannels; channel += 1) {

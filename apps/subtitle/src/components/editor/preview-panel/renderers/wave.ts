@@ -1,20 +1,19 @@
 import Konva from 'konva';
 
+import { WaveElement } from "@/types/timeline";
+
 import { FFT_SIZE } from '../deps/constants';
 import { FftParser } from '../deps/fft-parser';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
-import { WaveSegment } from '../deps/segment-types';
 import { waveRenderers } from '../deps/wave-renderers';
 import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
-import { Context } from 'konva/lib/Context';
-import { Rect } from 'konva/lib/shapes/Rect';
 
-export interface WaveRendererOptions extends BaseRendererOptions<WaveSegment> {
+export interface WaveRendererOptions extends BaseRendererOptions<WaveElement> {
   audioContext?: AudioContext;
   analyzer?: SpectrumAnalyzer;
 }
 
-export class WaveRenderer extends BaseRenderer<WaveSegment> {
+export class WaveRenderer extends BaseRenderer<WaveElement> {
   private analyzer?: SpectrumAnalyzer;
   private parser?: FftParser;
   private readonly placeholder: number[];
@@ -35,9 +34,9 @@ export class WaveRenderer extends BaseRenderer<WaveSegment> {
     const node = new Konva.Rect({
       id: segment.id,
       name: segment.id,
-      x: segment.position?.x ?? 0,
-      y: segment.position?.y ?? 0,
-      fill: (segment as unknown as { color?: string }).color ?? '#000000',
+      x: segment.x ?? 0,
+      y: segment.y ?? 0,
+      fill: segment.color ?? '#000000',
       opacity: segment.opacity,
       rotation: segment.rotation,
       scaleX: segment.scale?.x ?? 1,
@@ -122,7 +121,7 @@ export class WaveRenderer extends BaseRenderer<WaveSegment> {
     });
   }
 
-  protected onSegmentUpdated(segment: WaveSegment, previous: WaveSegment): void {
+  protected onSegmentUpdated(segment: WaveElement, previous: WaveElement): void {
     const node = this.node as Konva.Rect | null;
     if (!node) {
       return;
@@ -144,8 +143,8 @@ export class WaveRenderer extends BaseRenderer<WaveSegment> {
       node.setAttr('waveType', segment.wave);
     }
 
-    const nextColor = (segment as unknown as { color?: string }).color;
-    const prevColor = (previous as unknown as { color?: string }).color;
+    const nextColor = segment.color;
+    const prevColor = previous.color;
     if (nextColor && nextColor !== prevColor) {
       node.fill(nextColor);
     }

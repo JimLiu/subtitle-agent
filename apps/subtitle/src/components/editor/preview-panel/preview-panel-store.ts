@@ -1,12 +1,13 @@
-import Uppy from '@uppy/core';
+
 import Konva from 'konva';
 import cloneDeep from 'lodash/cloneDeep';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 import type { Mutate, StoreApi } from 'zustand/vanilla';
 
+import { TimelineElement } from "@/types/timeline";
+
 import { SpectrumAnalyzer } from './deps/spectrum-analyzer';
-import { PreviewSegment } from './deps/segment-types';
 
 export interface ContextMenuPosition {
   x: number;
@@ -52,7 +53,6 @@ export interface PreviewPanelState {
   showContextMenu: boolean;
   contextMenuPosition: ContextMenuPosition;
   screenshotInterval: number | null;
-  uppy: Uppy | null;
   isDarkMode: boolean;
   mutationObserver: MutationObserver | null;
   resizeObserver: ResizeObserver | null;
@@ -61,8 +61,8 @@ export interface PreviewPanelState {
 
 export interface PreviewPanelStoreData extends PreviewPanelState {
   selectedSegment: string | null;
-  segments: Record<string, PreviewSegment>;
-  orderedSegments: PreviewSegment[];
+  segments: Record<string, TimelineElement>;
+  orderedSegments: TimelineElement[];
   backgroundColor: string;
   size: PreviewSize;
   currentTimestamp: number;
@@ -74,8 +74,8 @@ export interface PreviewPanelStoreData extends PreviewPanelState {
 
 export interface PreviewPanelStoreActions {
   patch(partial: Partial<PreviewPanelStoreData>): void;
-  getSegmentsClone(): Record<string, PreviewSegment>;
-  getSegmentById(id: string): PreviewSegment | null;
+  getSegmentsClone(): Record<string, TimelineElement>;
+  getSegmentById(id: string): TimelineElement | null;
 }
 
 export type PreviewPanelStoreState = PreviewPanelStoreData & PreviewPanelStoreActions;
@@ -126,7 +126,6 @@ function createDefaultState(): PreviewPanelStoreData {
     showContextMenu: false,
     contextMenuPosition: { x: 0, y: 0 },
     screenshotInterval: null,
-    uppy: null,
     isDarkMode: typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
     mutationObserver: null,
     resizeObserver: null,

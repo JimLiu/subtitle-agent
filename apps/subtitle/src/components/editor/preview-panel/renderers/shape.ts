@@ -1,13 +1,14 @@
 import Konva from 'konva';
 
-import { ShapeSegment } from '../deps/segment-types';
+import { ShapeElement } from "@/types/timeline";
+
 import { BaseRenderer, BaseRendererOptions } from './base';
 
-export class ShapeRenderer extends BaseRenderer<ShapeSegment> {
+export class ShapeRenderer extends BaseRenderer<ShapeElement> {
   protected createNode(): Konva.Shape {
     const segment = this.segment;
     const options = segment.options ?? {};
-    const fill = (segment as unknown as { color?: string }).color ?? '#FFFFFF';
+    const fill = segment.color ?? '#FFFFFF';
 
     let shape: Konva.Shape;
     switch (segment.shapeType) {
@@ -48,8 +49,8 @@ export class ShapeRenderer extends BaseRenderer<ShapeSegment> {
     shape.setAttrs({
       id: segment.id,
       name: segment.id,
-      x: segment.position?.x ?? 0,
-      y: segment.position?.y ?? 0,
+      x: segment.x ?? 0,
+      y: segment.y ?? 0,
       fill,
       opacity: segment.opacity,
       rotation: segment.rotation,
@@ -63,14 +64,14 @@ export class ShapeRenderer extends BaseRenderer<ShapeSegment> {
     return shape;
   }
 
-  protected onSegmentUpdated(segment: ShapeSegment, previous: ShapeSegment): void {
+  protected onSegmentUpdated(segment: ShapeElement, previous: ShapeElement): void {
     const node = this.node as Konva.Shape | null;
     if (!node) {
       return;
     }
 
-    const nextFill = (segment as unknown as { color?: string }).color;
-    const prevFill = (previous as unknown as { color?: string }).color;
+    const nextFill = segment.color;
+    const prevFill = previous.color;
     if (nextFill && nextFill !== prevFill) {
       node.fill(nextFill);
     }
@@ -104,6 +105,6 @@ export class ShapeRenderer extends BaseRenderer<ShapeSegment> {
   }
 }
 
-export function createShapeRenderer(options: BaseRendererOptions<ShapeSegment>): ShapeRenderer {
+export function createShapeRenderer(options: BaseRendererOptions<ShapeElement>): ShapeRenderer {
   return new ShapeRenderer(options);
 }

@@ -1,10 +1,11 @@
 import Konva from 'konva';
 
+import { ImageElement } from "@/types/timeline";
+
 import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
-import { ImageSegment } from '../deps/segment-types';
 import { BaseRenderer, BaseRendererOptions } from './base';
 
-export class ImageRenderer extends BaseRenderer<ImageSegment> {
+export class ImageRenderer extends BaseRenderer<ImageElement> {
   private mediaElement: HTMLImageElement | null = null;
   private sourceKey: string | null = null;
 
@@ -19,7 +20,7 @@ export class ImageRenderer extends BaseRenderer<ImageSegment> {
     return node;
   }
 
-  protected onSegmentUpdated(segment: ImageSegment, previous: ImageSegment): void {
+  protected onSegmentUpdated(segment: ImageElement, previous: ImageElement): void {
     const node = this.node as Konva.Image | null;
     if (!node) {
       return;
@@ -42,11 +43,11 @@ export class ImageRenderer extends BaseRenderer<ImageSegment> {
     }
   }
 
-  private getSourceKey(segment: ImageSegment): string | null {
-    return segment.fileId ?? segment.remoteSource ?? null;
+  private getSourceKey(segment: ImageElement): string | null {
+    return segment.mediaId ?? segment.remoteSource ?? null;
   }
 
-  private async loadImage(segment: ImageSegment, node: Konva.Image): Promise<void> {
+  private async loadImage(segment: ImageElement, node: Konva.Image): Promise<void> {
     const key = this.getSourceKey(segment);
     this.sourceKey = key;
 
@@ -59,12 +60,12 @@ export class ImageRenderer extends BaseRenderer<ImageSegment> {
     image.crossOrigin = 'anonymous';
     let sourceConfigured = false;
 
-    if (segment.fileId) {
+    if (segment.mediaId) {
       try {
         const database = await openEchowaveDatabase();
         const transaction = database.transaction(['files'], 'readonly');
         const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.fileId);
+        const blob = await getFileFromStore(store, segment.mediaId);
         if (blob) {
           await new Promise<void>((resolve, reject) => {
             const reader = new FileReader();
@@ -126,6 +127,6 @@ export class ImageRenderer extends BaseRenderer<ImageSegment> {
   }
 }
 
-export function createImageRenderer(options: BaseRendererOptions<ImageSegment>): ImageRenderer {
+export function createImageRenderer(options: BaseRendererOptions<ImageElement>): ImageRenderer {
   return new ImageRenderer(options);
 }

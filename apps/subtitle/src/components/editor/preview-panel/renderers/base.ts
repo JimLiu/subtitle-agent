@@ -1,17 +1,14 @@
 import Konva from 'konva';
 
-import {
-  PreviewSegment,
-  SegmentAnimation,
-  SegmentPosition,
-  SegmentScale,
-} from '../deps/segment-types';
+import { TimelineElement, TimelineElementAnimation, Scale } from "@/types/timeline";
 
-export interface BaseRendererOptions<T extends PreviewSegment> {
+import { getSegmentDuration, getSegmentEndTime } from '../deps/segment-helpers';
+
+export interface BaseRendererOptions<T extends TimelineElement> {
   segment: T;
   container: Konva.Group;
   stage: Konva.Stage;
-  updateSegment: (payload: Partial<PreviewSegment> & { id: string }) => void | Promise<void>;
+  updateSegment: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
 }
 
 export interface RendererFrameContext {
@@ -29,11 +26,11 @@ export interface RendererFrameInfo {
   scale: number;
 }
 
-export abstract class BaseRenderer<T extends PreviewSegment> {
+export abstract class BaseRenderer<T extends TimelineElement> {
   protected segment: T;
   protected readonly container: Konva.Group;
   protected readonly stage: Konva.Stage;
-  protected readonly updateSegmentAction: (payload: Partial<PreviewSegment> & { id: string }) => void | Promise<void>;
+  protected readonly updateSegmentAction: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
 
   protected wrapper: Konva.Group | null = null;
   protected node: Konva.Node | null = null;
@@ -96,7 +93,8 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
 
   syncVisibility(timestamp: number): void {
     this.currentTimestamp = timestamp;
-    const shouldBeVisible = timestamp >= this.segment.startTime && timestamp <= this.segment.endTime;
+    const endTime = getSegmentEndTime(this.segment);
+    const shouldBeVisible = timestamp >= this.segment.startTime && timestamp <= endTime;
     if (shouldBeVisible && !this.visible) {
       this.show();
     } else if (!shouldBeVisible && this.visible) {
@@ -116,9 +114,8 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
     this.currentTimestamp = context.timestamp;
     this.playing = context.playing;
 
-    const start = this.segment.startTime ?? 0;
-    const end = this.segment.endTime ?? this.segment.startTime ?? 0;
-    const duration = Math.max(end - start, 1);
+    const start = this.segment.startTime;
+    const duration = Math.max(getSegmentDuration(this.segment), 1);
     const rawLocalTime = context.timestamp - start;
     this.localTime = rawLocalTime > 0 ? rawLocalTime : 0;
     this.localFrame = Math.round((this.localTime / 1000) * 60);
@@ -211,15 +208,15 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
     if (!this.node) {
       return;
     }
-    const { position, scale, rotation, opacity } = this.segment;
-    this.node.position({ x: position?.x ?? 0, y: position?.y ?? 0 });
-    const effectiveScale: SegmentScale = scale ?? { x: 1, y: 1 };
+    const { scale, rotation, opacity } = this.segment;
+    this.node.position({ x: this.segment.x ?? 0, y: this.segment.y ?? 0 });
+    const effectiveScale: Scale = scale ?? { x: 1, y: 1 };
     this.node.scale({ x: effectiveScale.x ?? 1, y: effectiveScale.y ?? 1 });
     this.node.rotation(rotation ?? 0);
     this.node.opacity(opacity ?? 1);
   }
 
-  protected updateSegment(values: Partial<PreviewSegment>): void {
+  protected updateSegment(values: Partial<TimelineElement>): void {
     void this.updateSegmentAction({ id: this.segment.id, ...values });
   }
 
@@ -295,7 +292,7 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
     });
   }
 
-  private applyFade(animation: SegmentAnimation): void {
+  private applyFade(animation: TimelineElementAnimation): void {
     if (!this.wrapper) {
       return;
     }
@@ -459,7 +456,7 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
     this.wrapper.position({ x: target.x(), y: target.y() });
   }
 
-  private animationsChanged(previous: PreviewSegment, next: PreviewSegment): boolean {
+  private animationsChanged(previous: TimelineElement, next: TimelineElement): boolean {
     const prior = previous.animations ?? [];
     const current = next.animations ?? [];
     if (prior.length !== current.length) {
@@ -473,8 +470,7 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
       return;
     }
     const target = event.target;
-    const position: SegmentPosition = { x: target.x(), y: target.y() };
-    this.updateSegment({ position });
+    this.updateSegment({ x: target.x(), y: target.y() });
   };
 
   private handleTransform = (event: Konva.KonvaEventObject<Event>) => {
@@ -488,9 +484,8 @@ export abstract class BaseRenderer<T extends PreviewSegment> {
       return;
     }
     const target = event.target;
-    const position: SegmentPosition = { x: target.x(), y: target.y() };
-    const scale: SegmentScale = { x: target.scaleX(), y: target.scaleY() };
+    const scale: Scale = { x: target.scaleX(), y: target.scaleY() };
     const rotation = target.rotation();
-    this.updateSegment({ position, scale, rotation });
+    this.updateSegment({ x: target.x(), y: target.y(), scale, rotation });
   };
 }

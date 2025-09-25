@@ -6,15 +6,15 @@ import ratioPresets from './deps/ratio-presets';
 import { SAMPLE_RATE } from './deps/constants';
 import { SpectrumAnalyzer } from './deps/spectrum-analyzer';
 import {
-  AudioSegment,
-  ImageSegment,
-  PreviewSegment,
-  ProgressBarSegment,
-  ShapeSegment,
-  TextSegment,
-  VideoSegment,
-  WaveSegment,
-} from './deps/segment-types';
+  AudioElement,
+  ImageElement,
+  ProgressBarElement,
+  ShapeElement,
+  TextElement,
+  TimelineElement,
+  VideoElement,
+  WaveElement,
+} from "@/types/timeline";
 import { ExportOptions, ExportResult } from '@/types/export';
 import { exportPreviewVideo } from './export/export-video';
 import { PreviewPanelStore, PreviewPanelStoreData, PreviewPanelStoreState } from './preview-panel-store';
@@ -33,7 +33,7 @@ export interface PreviewPanelKonvaActions {
   setSelectedSegment?(id: string | null): void;
   removeActiveTool?(): void;
   setActiveTool?(tool: string): void;
-  updateSegment?(payload: Partial<PreviewSegment> & { id: string }): void | Promise<void>;
+  updateSegment?(payload: Partial<TimelineElement> & { id: string }): void | Promise<void>;
   setPreviewThumbnail?(path: string): Promise<void> | void;
   deleteSegment?(id: string): void | Promise<void>;
   duplicateSegment?(payload: { id: string }): void | Promise<void>;
@@ -49,7 +49,7 @@ export class PreviewPanelKonva {
   private readonly container: HTMLElement;
   private readonly store: PreviewPanelStore;
   private readonly unsubscribeFns: Array<() => void> = [];
-  private readonly renderers: Map<string, BaseRenderer<PreviewSegment>> = new Map();
+  private readonly renderers: Map<string, BaseRenderer<TimelineElement>> = new Map();
 
   private stageClipFunc: ((ctx: Konva.Context) => void) | null = null;
   private firstInteractionHandler: ((event: Event) => void) | null = null;
@@ -132,9 +132,7 @@ export class PreviewPanelKonva {
     state.layer?.destroy();
     state.maskingGroup?.destroy();
     state.stage?.destroy();
-
-    state.uppy?.destroy();
-    this.patch({ uppy: null });
+    this.patch({  });
 
     this.renderers.forEach((renderer) => renderer.destroy());
     this.renderers.clear();
@@ -965,7 +963,7 @@ export class PreviewPanelKonva {
   private setSelectedSegment: (id: string | null) => void = () => undefined;
   private removeActiveTool: () => void = () => undefined;
   private setActiveTool: (tool: string) => void = () => undefined;
-  private updateSegment: (payload: Partial<PreviewSegment> & { id: string }) => void | Promise<void> = () => undefined;
+  private updateSegment: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void> = () => undefined;
   private setPreviewThumbnail: (path: string) => Promise<void> | void = () => undefined;
   private deleteSegment: (id: string) => void | Promise<void> = () => undefined;
   private duplicateSegment: (payload: { id: string }) => void | Promise<void> = () => undefined;
@@ -1023,9 +1021,9 @@ export class PreviewPanelKonva {
     });
   }
 
-  private computeOrderedSegments(segments: Record<string, PreviewSegment>): PreviewSegment[] {
+  private computeOrderedSegments(segments: Record<string, TimelineElement>): TimelineElement[] {
     return Object.values(segments)
-      .filter((segment): segment is PreviewSegment => Boolean(segment))
+      .filter((segment): segment is TimelineElement => Boolean(segment))
       .map((segment) => cloneDeep(segment))
       .sort((a, b) => {
         const aZ = a.zIndex ?? 0;
@@ -1042,12 +1040,12 @@ export class PreviewPanelKonva {
       });
   }
 
-  private computeMaxZIndex(segments: Record<string, PreviewSegment>): number {
+  private computeMaxZIndex(segments: Record<string, TimelineElement>): number {
     const values = Object.values(segments).map((segment) => segment?.zIndex ?? 0);
     return values.length ? Math.max(...values) : 0;
   }
 
-  private computeMinZIndex(segments: Record<string, PreviewSegment>): number {
+  private computeMinZIndex(segments: Record<string, TimelineElement>): number {
     const values = Object.values(segments).map((segment) => segment?.zIndex ?? 0);
     return values.length ? Math.min(...values) : 0;
   }
@@ -1064,7 +1062,7 @@ export class PreviewPanelKonva {
     };
   }
 
-  private async syncSegmentRenderers(ordered: PreviewSegment[]): Promise<void> {
+  private async syncSegmentRenderers(ordered: TimelineElement[]): Promise<void> {
     const state = this.getState();
     const { stage, videoGroup, konvaInit } = state;
     if (!stage || !videoGroup || !konvaInit) {
@@ -1120,7 +1118,7 @@ export class PreviewPanelKonva {
     state.layer?.batchDraw();
   }
 
-  private async createRenderer(segment: PreviewSegment): Promise<BaseRenderer<PreviewSegment> | null> {
+  private async createRenderer(segment: TimelineElement): Promise<BaseRenderer<TimelineElement> | null> {
     const state = this.getState();
     const { stage, videoGroup } = state;
     if (!stage || !videoGroup) {
@@ -1130,7 +1128,7 @@ export class PreviewPanelKonva {
     switch (segment.type) {
       case 'text': {
         const renderer = createTextRenderer({
-          segment: segment as TextSegment,
+          segment: segment as TextElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1146,7 +1144,7 @@ export class PreviewPanelKonva {
       }
       case 'subtitles': {
         const renderer = createSubtitleRenderer({
-          segment: segment as TextSegment,
+          segment: segment as TextElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1162,7 +1160,7 @@ export class PreviewPanelKonva {
       }
       case 'image': {
         const renderer = createImageRenderer({
-          segment: segment as ImageSegment,
+          segment: segment as ImageElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1178,7 +1176,7 @@ export class PreviewPanelKonva {
       }
       case 'shape': {
         const renderer = createShapeRenderer({
-          segment: segment as ShapeSegment,
+          segment: segment as ShapeElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1194,7 +1192,7 @@ export class PreviewPanelKonva {
       }
       case 'progress_bar': {
         const renderer = createProgressBarRenderer({
-          segment: segment as ProgressBarSegment,
+          segment: segment as ProgressBarElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1210,7 +1208,7 @@ export class PreviewPanelKonva {
       }
       case 'wave': {
         const renderer = createWaveRenderer({
-          segment: segment as WaveSegment,
+          segment: segment as WaveElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1229,7 +1227,7 @@ export class PreviewPanelKonva {
       case 'video': {
         const { audioContext, analyzer } = state;
         const renderer = createVideoRenderer({
-          segment: segment as VideoSegment,
+          segment: segment as VideoElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1251,7 +1249,7 @@ export class PreviewPanelKonva {
           return null;
         }
         const renderer = createAudioRenderer({
-          segment: segment as AudioSegment,
+          segment: segment as AudioElement,
           stage,
           container: videoGroup,
           updateSegment: (payload) => this.updateSegment(payload),
@@ -1272,7 +1270,7 @@ export class PreviewPanelKonva {
     }
   }
 
-  private shouldRenderSegment(segment: PreviewSegment): boolean {
+  private shouldRenderSegment(segment: TimelineElement): boolean {
     switch (segment.type) {
       case 'text':
       case 'subtitles':
@@ -1317,7 +1315,7 @@ export class PreviewPanelKonva {
     stage: Konva.Stage,
     idealWidth: number,
     idealHeight: number,
-    segments: PreviewSegment[],
+    segments: TimelineElement[],
     container: Konva.Group,
   ) {
     const vertical: number[] = [0, idealWidth / 2, idealWidth];
@@ -1335,8 +1333,8 @@ export class PreviewPanelKonva {
         const rect = shape.getClientRect({ relativeTo: container });
         const width = rect.width;
         const height = rect.height;
-        const positionX = segment.position?.x ?? 0;
-        const positionY = segment.position?.y ?? 0;
+        const positionX = segment.x ?? 0;
+        const positionY = segment.y ?? 0;
         vertical.push(positionX);
         vertical.push(positionX + width);
         vertical.push(positionX + width / 2);

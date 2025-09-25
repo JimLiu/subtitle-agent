@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { useStore } from 'zustand';
 
-import { SegmentContextMenu } from '@/components/video-editor/segment-context-menu';
+import { SegmentContextMenu } from './segment-context-menu';
+import { TimelineElement } from "@/types/timeline";
 
-import { PreviewSegment } from './deps/segment-types';
+import { getSegmentEndTime } from './deps/segment-helpers';
 import type { PreviewPanelKonvaActions } from './preview-panel-konva';
 import {
   PreviewPanelStore,
@@ -24,7 +25,7 @@ interface PreviewPanelProps {
   onPlayingChange?: (value: boolean) => void;
   onSelectedSegmentChange?: (segmentId: string | null) => void;
   onActiveToolChange?: (tool: string | null) => void;
-  onSegmentUpdate?: (payload: Partial<PreviewSegment> & { id: string }) => void | Promise<void>;
+  onSegmentUpdate?: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
   onPreviewThumbnailChange?: (path: string) => void | Promise<void>;
   onDeleteSegment?: (segmentId: string) => void | Promise<void>;
   onDuplicateSegment?: (payload: { id: string }) => void | Promise<void>;
@@ -35,7 +36,7 @@ function getDurationFromSegments(segments: PreviewPanelStoreState['segments']): 
     if (!segment) {
       return acc;
     }
-    return Math.max(acc, segment.endTime ?? segment.startTime ?? 0);
+    return Math.max(acc, getSegmentEndTime(segment));
   }, 0);
 }
 
@@ -143,13 +144,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
   );
 
   const handleUpdateSegment = useCallback(
-    async (payload: Partial<PreviewSegment> & { id: string }) => {
+    async (payload: Partial<TimelineElement> & { id: string }) => {
       const state = storeApi.getState();
       const existing = state.segments[payload.id];
       if (!existing) {
         return;
       }
-      const updated: PreviewSegment = { ...existing, ...cloneDeep(payload) } as PreviewSegment;
+      const updated: TimelineElement = { ...existing, ...cloneDeep(payload) } as TimelineElement;
       patch({
         segments: {
           ...state.segments,

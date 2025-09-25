@@ -1,6 +1,7 @@
 import Konva from 'konva';
 
-import { TextSegment } from '../deps/segment-types';
+import { TextElement } from "@/types/timeline";
+
 import { BaseRendererOptions, RendererFrameInfo } from './base';
 import { TextRenderer } from './text';
 
@@ -26,7 +27,7 @@ export class SubtitleRenderer extends TextRenderer {
     }
   }
 
-  protected onSegmentUpdated(segment: TextSegment, previous: TextSegment): void {
+  protected onSegmentUpdated(segment: TextElement, previous: TextElement): void {
     super.onSegmentUpdated(segment, previous);
     const node = this.node as Konva.Text | null;
     if (!node) {
@@ -38,6 +39,6 @@ export class SubtitleRenderer extends TextRenderer {
   }
 }
 
-export function createSubtitleRenderer(options: BaseRendererOptions<TextSegment>): SubtitleRenderer {
+export function createSubtitleRenderer(options: BaseRendererOptions<TextElement>): SubtitleRenderer {
   return new SubtitleRenderer(options);
 }

@@ -1,18 +1,19 @@
 import Konva from 'konva';
 
+import { ProgressBarElement } from "@/types/timeline";
+
 import { progressRenderers } from '../deps/progress-renderers';
-import { ProgressBarSegment } from '../deps/segment-types';
 import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
 
-export class ProgressBarRenderer extends BaseRenderer<ProgressBarSegment> {
+export class ProgressBarRenderer extends BaseRenderer<ProgressBarElement> {
   protected createNode(): Konva.Rect {
     const segment = this.segment;
     return new Konva.Rect({
       id: segment.id,
       name: segment.id,
-      x: segment.position?.x ?? 0,
-      y: segment.position?.y ?? 0,
-      fill: (segment as unknown as { color?: string }).color ?? '#FFFFFF',
+      x: segment.x ?? 0,
+      y: segment.y ?? 0,
+      fill: segment.color ?? '#FFFFFF',
       opacity: segment.opacity,
       rotation: segment.rotation,
       scaleX: segment.scale?.x ?? 1,
@@ -28,7 +29,7 @@ export class ProgressBarRenderer extends BaseRenderer<ProgressBarSegment> {
         const width = shape.getAttr('width') as number;
         const height = shape.getAttr('height') as number;
         const progress = shape.getAttr('progress') as number;
-        const options = shape.getAttr('options') as ProgressBarSegment['options'];
+        const options = shape.getAttr('options') as ProgressBarElement['options'];
         renderer.render(context as unknown as CanvasRenderingContext2D, {
           width,
           height,
@@ -47,7 +48,7 @@ export class ProgressBarRenderer extends BaseRenderer<ProgressBarSegment> {
     node.setAttr('progress', info.progress);
   }
 
-  protected onSegmentUpdated(segment: ProgressBarSegment, previous: ProgressBarSegment): void {
+  protected onSegmentUpdated(segment: ProgressBarElement, previous: ProgressBarElement): void {
     const node = this.node as Konva.Rect | null;
     if (!node) {
       return;
@@ -66,14 +67,14 @@ export class ProgressBarRenderer extends BaseRenderer<ProgressBarSegment> {
       node.setAttr('options', segment.options);
     }
 
-    const nextColor = (segment as unknown as { color?: string }).color;
-    const prevColor = (previous as unknown as { color?: string }).color;
+    const nextColor = segment.color;
+    const prevColor = previous.color;
     if (nextColor && nextColor !== prevColor) {
       node.fill(nextColor);
     }
   }
 }
 
-export function createProgressBarRenderer(options: BaseRendererOptions<ProgressBarSegment>): ProgressBarRenderer {
+export function createProgressBarRenderer(options: BaseRendererOptions<ProgressBarElement>): ProgressBarRenderer {
   return new ProgressBarRenderer(options);
 }
