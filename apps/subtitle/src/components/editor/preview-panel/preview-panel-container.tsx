@@ -10,16 +10,11 @@ import { useMediaStore } from "@/stores/media-store";
 import type { TimelineElement } from "@/types/timeline";
 import type { MediaFile } from "@/types/media";
 
-import ratioPresets from "./preview-panel/deps/ratio-presets";
-import {
-  PreviewPanel as PreviewPanelImpl,
-} from "./preview-panel/preview-panel";
-import { createPreviewPanelStore } from "./preview-panel/preview-panel-store";
-import type {
-  PreviewPanelStore,
-  PreviewPanelStoreData,
-  PreviewSize,
-} from "./preview-panel/preview-panel-store";
+import ratioPresets from "./deps/ratio-presets";
+import { PreviewPanelView } from "./preview-panel-view";
+import { createPreviewPanelStore } from "./preview-panel-store";
+import type { PreviewPanelStore, PreviewPanelStoreData, PreviewSize } from "./preview-panel-store";
+import { getRatioKey } from "./ratio-utils";
 
 type ElementMeta = {
   element: TimelineElement;
@@ -27,7 +22,7 @@ type ElementMeta = {
   fallbackZ: number;
 };
 
-export function PreviewPanel() {
+export function PreviewPanelContainer() {
   const tracks = useTimelineStore((state) => state.tracks);
   const selectedElements = useTimelineStore((state) => state.selectedElements);
   const selectElement = useTimelineStore((state) => state.selectElement);
@@ -308,7 +303,7 @@ export function PreviewPanel() {
   }
 
   return (
-    <PreviewPanelImpl
+    <PreviewPanelView
       store={previewStore}
       onPlayingChange={setPlaying}
       onSelectedSegmentChange={setSelectedSegment}
@@ -319,22 +314,4 @@ export function PreviewPanel() {
       onDuplicateSegment={duplicateSegment}
     />
   );
-}
-
-function getRatioKey(width: number, height: number): string {
-  const safeWidth = Math.max(1, Math.round(width));
-  const safeHeight = Math.max(1, Math.round(height));
-  const divisor = gcd(safeWidth, safeHeight);
-  return `${Math.round(safeWidth / divisor)}:${Math.round(safeHeight / divisor)}`;
-}
-
-function gcd(a: number, b: number): number {
-  let x = Math.abs(a);
-  let y = Math.abs(b);
-  while (y !== 0) {
-    const temp = y;
-    y = x % y;
-    x = temp;
-  }
-  return x || 1;
 }

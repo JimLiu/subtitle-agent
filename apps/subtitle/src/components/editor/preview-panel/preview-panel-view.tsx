@@ -1,25 +1,26 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
-import { useStore } from 'zustand';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import cloneDeep from "lodash/cloneDeep";
+import { useStore } from "zustand";
 
-import { SegmentContextMenu } from './segment-context-menu';
+import { SegmentContextMenu } from "./segment-context-menu";
 import { TimelineElement } from "@/types/timeline";
 
-import { getSegmentEndTime } from './deps/segment-helpers';
-import type { PreviewPanelKonvaActions } from './preview-panel-konva';
+import { getSegmentEndTime } from "./deps/segment-helpers";
+import type { PreviewPanelKonvaActions } from "./preview-panel-konva";
 import {
   PreviewPanelStore,
   PreviewPanelStoreState,
   createPreviewPanelStore,
-} from './preview-panel-store';
+} from "./preview-panel-store";
+import { PreviewPlaybackControls } from "./preview-playback-controls";
 
-type PreviewPanelKonvaModule = typeof import('./preview-panel-konva');
-type PreviewPanelKonvaClass = PreviewPanelKonvaModule['PreviewPanelKonva'];
+type PreviewPanelKonvaModule = typeof import("./preview-panel-konva");
+type PreviewPanelKonvaClass = PreviewPanelKonvaModule["PreviewPanelKonva"];
 type PreviewPanelKonvaInstance = InstanceType<PreviewPanelKonvaClass>;
 
-interface PreviewPanelProps {
+interface PreviewPanelViewProps {
   store?: PreviewPanelStore;
   className?: string;
   onPlayingChange?: (value: boolean) => void;
@@ -31,7 +32,7 @@ interface PreviewPanelProps {
   onDuplicateSegment?: (payload: { id: string }) => void | Promise<void>;
 }
 
-function getDurationFromSegments(segments: PreviewPanelStoreState['segments']): number {
+function getDurationFromSegments(segments: PreviewPanelStoreState["segments"]): number {
   return Object.values(segments).reduce((acc, segment) => {
     if (!segment) {
       return acc;
@@ -41,23 +42,13 @@ function getDurationFromSegments(segments: PreviewPanelStoreState['segments']): 
 }
 
 function generateSegmentId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
   return `segment-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 }
 
-function formatTimestamp(seconds: number): string {
-  const wholeSeconds = Math.floor(seconds);
-  const minutes = Math.floor(wholeSeconds / 60);
-  const remainingSeconds = wholeSeconds % 60;
-  const centiseconds = Math.min(99, Math.max(0, Math.floor((seconds - wholeSeconds) * 100)));
-  const paddedSeconds = remainingSeconds.toString().padStart(2, '0');
-  const paddedCentiseconds = centiseconds.toString().padStart(2, '0');
-  return `${minutes}:${paddedSeconds}.${paddedCentiseconds}`;
-}
-
-export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
+export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
   const {
     store: providedStore,
     className,
@@ -111,9 +102,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
     (value: boolean) => {
       if (value) {
         const audioContext = storeApi.getState().audioContext;
-        if (audioContext && audioContext.state === 'suspended') {
+        if (audioContext && audioContext.state === "suspended") {
           void audioContext.resume().catch((error) => {
-            console.warn('Failed to resume audio context for preview playback', error);
+            console.warn("Failed to resume audio context for preview playback", error);
           });
         }
       }
@@ -259,7 +250,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
   useEffect(() => {
     let isCancelled = false;
 
-    void import('./preview-panel-konva')
+    void import("./preview-panel-konva")
       .then((module) => {
         if (isCancelled) {
           return;
@@ -267,7 +258,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
         setPreviewPanelKonvaCtor(() => module.PreviewPanelKonva);
       })
       .catch((error) => {
-        console.error('Failed to load preview panel renderer', error);
+        console.error("Failed to load preview panel renderer", error);
       });
 
     return () => {
@@ -363,7 +354,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
   }, [duration, patch, storeApi]);
 
   const containerClassName = useMemo(() => {
-    const base = 'pane relative flex h-full min-h-0 w-full flex-grow flex-col';
+    const base = "pane relative flex h-full min-h-0 w-full flex-grow flex-col";
     return className ? `${base} ${className}` : base;
   }, [className]);
 
@@ -394,32 +385,14 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
           className="preview-container relative dark:bg-gray-900 flex-1 min-h-128 w-full"
         />
 
-        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-md px-3 py-2 text-sm backdrop-blur">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleTogglePlayback}
-              className="rounded bg-white/20 px-3 py-1 text-xs font-medium uppercase tracking-wide hover:bg-white/30"
-            >
-              {playing ? 'Pause' : 'Play'}
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded bg-white/10 px-2 py-1 text-xs hover:bg-white/20"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3">
-              <span className="tabular-nums">{formatTimestamp(currentTimestamp)}</span>
-              <span className="text-white/50">/</span>
-              <span className="tabular-nums">{formatTimestamp(duration)}</span>
-              {buffering ? <span className="text-xs text-white/70">Buffering…</span> : null}
-            </div>
-          </div>
-        </div>
+        <PreviewPlaybackControls
+          playing={playing}
+          buffering={buffering}
+          currentTimestamp={currentTimestamp}
+          duration={duration}
+          onTogglePlayback={handleTogglePlayback}
+          onReset={handleReset}
+        />
       </div>
 
       {shouldShowContextMenu ? (
@@ -437,4 +410,4 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
   );
 }
 
-export default PreviewPanel;
+export default PreviewPanelView;
