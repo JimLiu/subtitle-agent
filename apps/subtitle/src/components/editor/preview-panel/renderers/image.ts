@@ -2,7 +2,6 @@ import Konva from 'konva';
 
 import { ImageElement } from "@/types/timeline";
 
-import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { BaseRenderer, BaseRendererOptions } from './base';
 
 export class ImageRenderer extends BaseRenderer<ImageElement> {
@@ -44,7 +43,7 @@ export class ImageRenderer extends BaseRenderer<ImageElement> {
   }
 
   private getSourceKey(segment: ImageElement): string | null {
-    return segment.mediaId ?? segment.remoteSource ?? null;
+    return segment.remoteSource ?? segment.mediaId ?? null;
   }
 
   private async loadImage(segment: ImageElement, node: Konva.Image): Promise<void> {
@@ -60,35 +59,14 @@ export class ImageRenderer extends BaseRenderer<ImageElement> {
     image.crossOrigin = 'anonymous';
     let sourceConfigured = false;
 
-    if (segment.mediaId) {
-      try {
-        const database = await openEchowaveDatabase();
-        const transaction = database.transaction(['files'], 'readonly');
-        const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.mediaId);
-        if (blob) {
-          await new Promise<void>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const result = event.target?.result;
-              if (typeof result === 'string') {
-                image.src = result;
-              }
-              resolve();
-            };
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(blob);
-          });
-          sourceConfigured = true;
-        }
-      } catch (error) {
-        console.warn('Failed to load image blob', error);
-      }
-    }
-
-    if (!sourceConfigured && segment.remoteSource) {
+    if (segment.remoteSource) {
       image.src = segment.remoteSource;
       sourceConfigured = true;
+    } else if (segment.mediaId) {
+      console.warn(`Missing remote source for image segment ${segment.id}`);
+      image.src = '';
+    } else {
+      image.src = '';
     }
 
     if (!sourceConfigured) {

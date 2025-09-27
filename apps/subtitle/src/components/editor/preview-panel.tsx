@@ -1,11 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import cloneDeep from "lodash/cloneDeep";
 
 import { useProjectStore } from "@/stores/project-store";
 import { useTimelineStore } from "@/stores/timeline-store";
 import { usePlaybackStore } from "@/stores/playback-store";
+import { useMediaStore } from "@/stores/media-store";
 import type { TimelineElement } from "@/types/timeline";
+import type { MediaFile } from "@/types/media";
 
 import ratioPresets from "./preview-panel/deps/ratio-presets";
 import {
@@ -38,6 +41,7 @@ export function PreviewPanel() {
     (state) => state.removeElementFromTrackWithRipple
   );
   const duplicateElement = useTimelineStore((state) => state.duplicateElement);
+  const mediaFiles = useMediaStore((state) => state.mediaFiles);
 
   const activeProject = useProjectStore((state) => state.activeProject);
   const setPreviewThumbnail = useProjectStore(
@@ -90,6 +94,14 @@ export function PreviewPanel() {
 
   const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = segmentsMeta;
 
+  const mediaById = useMemo(() => {
+    const map = new Map<string, MediaFile>();
+    mediaFiles.forEach((item) => {
+      map.set(item.id, item);
+    });
+    return map;
+  }, [mediaFiles]);
+
   const selectedSegmentId = useMemo(() => {
     const currentId = selectedElements[0]?.elementId;
     if (!currentId) {
@@ -123,17 +135,88 @@ export function PreviewPanel() {
     previewStoreRef.current = createPreviewPanelStore();
   }
   const previewStore = previewStoreRef.current;
+  const objectUrlCacheRef = useRef<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    return () => {
+      objectUrlCacheRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+      objectUrlCacheRef.current.clear();
+    };
+  }, []);
 
   useEffect(() => {
     if (!activeProject || !previewSize) {
       return;
     }
 
+    const currentCache = objectUrlCacheRef.current;
+    const nextCache = new Map<string, string>();
+    const segmentCache = new Map<string, TimelineElement>();
+
+    const resolveRemoteSource = (mediaId: string): string | null => {
+      const media = mediaById.get(mediaId);
+      if (!media) {
+        console.warn(`Media asset ${mediaId} not found for preview rendering`);
+        return null;
+      }
+
+      if (media.url) {
+        return media.url;
+      }
+
+      const cachedUrl = currentCache.get(mediaId);
+      if (cachedUrl) {
+        nextCache.set(mediaId, cachedUrl);
+        return cachedUrl;
+      }
+
+      if (media.file) {
+        const url = URL.createObjectURL(media.file);
+        nextCache.set(mediaId, url);
+        return url;
+      }
+
+      return null;
+    };
+
+    const getSegmentClone = (segment: TimelineElement): TimelineElement => {
+      const existing = segmentCache.get(segment.id);
+      if (existing) {
+        return existing;
+      }
+
+      const clone = cloneDeep(segment);
+      if (segment.mediaId) {
+        const remoteSource = resolveRemoteSource(segment.mediaId);
+        if (remoteSource) {
+          clone.remoteSource = remoteSource;
+        }
+      }
+      segmentCache.set(segment.id, clone);
+      return clone;
+    };
+
+    const segmentsWithSources: Record<string, TimelineElement> = {};
+    Object.entries(elementMap).forEach(([id, segment]) => {
+      segmentsWithSources[id] = getSegmentClone(segment);
+    });
+
+    const orderedWithSources = orderedElements.map((segment) => getSegmentClone(segment));
+
+    currentCache.forEach((url, mediaId) => {
+      if (!nextCache.has(mediaId)) {
+        URL.revokeObjectURL(url);
+      }
+    });
+    objectUrlCacheRef.current = nextCache;
+
     previewStore.getState().patch({
       backgroundColor: activeProject.backgroundColor ?? "#000000",
       size: previewSize,
-      segments: { ...elementMap },
-      orderedSegments: orderedElements.slice(),
+      segments: segmentsWithSources,
+      orderedSegments: orderedWithSources,
       minZIndex,
       maxZIndex,
       buffering: false,
@@ -145,6 +228,7 @@ export function PreviewPanel() {
     orderedElements,
     minZIndex,
     maxZIndex,
+    mediaById,
     previewStore,
   ]);
 

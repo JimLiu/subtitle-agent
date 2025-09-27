@@ -22,7 +22,6 @@ import {
   TimelineElement,
   VideoElement,
 } from "@/types/timeline";
-import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { PreviewExportRuntime } from './export-runtime';
 import { getSegmentEndTime, getSegmentDuration } from '../deps/segment-helpers';
 
@@ -317,20 +316,6 @@ async function decodeWithMediabunny(blob: Blob): Promise<AudioBuffer | null> {
 }
 
 async function getSegmentBlob(segment: MediaElement): Promise<Blob | null> {
-  if (segment.mediaId) {
-    try {
-      const database = await openEchowaveDatabase();
-      const transaction = database.transaction(['files'], 'readonly');
-      const store = transaction.objectStore('files');
-      const blob = await getFileFromStore(store, segment.mediaId);
-      if (blob) {
-        return blob;
-      }
-    } catch (error) {
-      console.warn('无法读取 IndexedDB 中的媒体文件', error);
-    }
-  }
-
   if (segment.remoteSource) {
     try {
       const response = await fetch(segment.remoteSource);
@@ -340,6 +325,10 @@ async function getSegmentBlob(segment: MediaElement): Promise<Blob | null> {
     } catch (error) {
       console.warn('读取远程媒体资源失败', error);
     }
+  }
+
+  if (segment.mediaId) {
+    console.warn(`Missing remote source for media segment ${segment.id}`);
   }
 
   return null;

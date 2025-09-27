@@ -20,7 +20,6 @@ import { createProgressBarRenderer } from '../renderers/progress-bar';
 import { createWaveRenderer } from '../renderers/wave';
 import { createVideoRenderer, VideoRenderer } from '../renderers/video';
 import { createAudioRenderer } from '../renderers/audio';
-import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
 import { SAMPLE_RATE } from '../deps/constants';
 import { getSegmentEndTime } from '../deps/segment-helpers';
@@ -198,24 +197,13 @@ export class PreviewExportRuntime {
       return cached;
     }
 
-    if (segment.mediaId) {
-      try {
-        const database = await openEchowaveDatabase();
-        const transaction = database.transaction(['files'], 'readonly');
-        const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.mediaId);
-        if (blob) {
-          this.videoSources.set(segment.id, blob);
-          return blob;
-        }
-      } catch (error) {
-        console.warn(`Failed to load video blob for ${segment.id}:`, error);
-      }
-    }
-
     if (segment.remoteSource) {
       this.videoSources.set(segment.id, segment.remoteSource);
       return segment.remoteSource;
+    }
+
+    if (segment.mediaId) {
+      console.warn(`Missing remote source for video segment ${segment.id}`);
     }
 
     return null;

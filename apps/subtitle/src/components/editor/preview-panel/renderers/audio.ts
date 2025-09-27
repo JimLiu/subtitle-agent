@@ -2,7 +2,6 @@ import Konva from 'konva';
 
 import { AudioElement } from "@/types/timeline";
 
-import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
 import { BaseRenderer, BaseRendererOptions } from './base';
 
@@ -89,7 +88,7 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
   }
 
   private getSourceKey(segment: AudioElement): string | null {
-    return segment.mediaId ?? segment.remoteSource ?? null;
+    return segment.remoteSource ?? segment.mediaId ?? null;
   }
 
   private async ensureMediaElement(segment: AudioElement): Promise<void> {
@@ -110,53 +109,19 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
     }
 
     const audio = this.mediaElement;
-    if (!key) {
+    if (!key || !segment.remoteSource) {
       audio.pause();
       audio.removeAttribute('src');
       audio.load();
+      if (segment.mediaId && !segment.remoteSource) {
+        console.warn(`Missing remote source for audio segment ${segment.id}`);
+      }
       return;
     }
     audio.pause();
     audio.removeAttribute('src');
-
-    let sourceConfigured = false;
-
-    if (segment.mediaId) {
-      try {
-        const database = await openEchowaveDatabase();
-        const transaction = database.transaction(['files'], 'readonly');
-        const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.mediaId);
-        if (blob) {
-          await new Promise<void>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const result = event.target?.result;
-              if (typeof result === 'string') {
-                audio.src = result;
-                audio.volume = this.resolveVolume(segment.volume);
-              }
-              resolve();
-            };
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(blob);
-          });
-          sourceConfigured = true;
-        }
-      } catch (error) {
-        console.warn('Failed to load audio blob', error);
-      }
-    }
-
-    if (!sourceConfigured && segment.remoteSource) {
-      audio.src = segment.remoteSource;
-      audio.volume = this.resolveVolume(segment.volume);
-      sourceConfigured = true;
-    }
-
-    if (!sourceConfigured) {
-      audio.removeAttribute('src');
-    }
+    audio.src = segment.remoteSource;
+    audio.volume = this.resolveVolume(segment.volume);
   }
 
   private syncToTimestamp(timestamp: number, force: boolean): void {

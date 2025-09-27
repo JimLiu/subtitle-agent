@@ -4,7 +4,6 @@ import type { WrappedCanvas } from 'mediabunny';
 
 import { VideoElement } from "@/types/timeline";
 
-import { openEchowaveDatabase, getFileFromStore } from '../deps/open-echowave-db';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
 import { getSegmentEndTime } from '../deps/segment-helpers';
 import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
@@ -39,34 +38,12 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
     this.mediaElement = video;
 
     let sourceConfigured = false;
-    try {
-      if (segment.mediaId) {
-        const database = await openEchowaveDatabase();
-        const transaction = database.transaction(['files'], 'readonly');
-        const store = transaction.objectStore('files');
-        const blob = await getFileFromStore(store, segment.mediaId);
-        if (blob) {
-          await new Promise<void>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const result = event.target?.result;
-              if (typeof result === 'string') {
-                video.src = result;
-              }
-              resolve();
-            };
-            reader.readAsDataURL(blob);
-          });
-          sourceConfigured = true;
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to load video blob', error);
-    }
 
-    if (!sourceConfigured && segment.remoteSource) {
+    if (segment.remoteSource) {
       video.src = segment.remoteSource;
       sourceConfigured = true;
+    } else if (segment.mediaId) {
+      console.warn(`Missing remote source for video segment ${segment.id}`);
     }
 
     const node = new Konva.Image({
