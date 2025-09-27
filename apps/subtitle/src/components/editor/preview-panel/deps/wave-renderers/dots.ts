@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 点阵式波形：按等距圆点表现幅值大小
 export const DotsWaveRenderer: WaveRenderer = {
   id: 'dots',
   name: 'Dots',

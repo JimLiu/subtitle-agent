@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 堆叠线条波形：将幅值映射为多条水平线段的密度/高度
 export const StackWaveRenderer: WaveRenderer = {
   id: 'stack',
   name: 'Stack',

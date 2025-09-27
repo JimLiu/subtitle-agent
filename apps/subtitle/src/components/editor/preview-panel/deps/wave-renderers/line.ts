@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 折线/平滑曲线波形：基于均匀采样点构建一条平滑路径
 function slope(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return (b.y - a.y) / (b.x - a.x);
 }

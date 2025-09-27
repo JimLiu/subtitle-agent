@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 中轴对称的条形波形：以画布中线为对称轴上下同时绘制
 function drawRoundedRect(
   context: CanvasRenderingContext2D,
   x: number,

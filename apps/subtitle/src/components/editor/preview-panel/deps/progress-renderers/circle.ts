@@ -1,5 +1,6 @@
 import { ProgressRenderer } from './types';
 
+// 圆形进度：底环（未完成）+ 前环（已完成），支持线宽
 export const CircleProgressRenderer: ProgressRenderer = {
   id: 'circle',
   name: 'Circle',

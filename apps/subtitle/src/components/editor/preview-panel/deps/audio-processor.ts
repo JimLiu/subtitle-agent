@@ -7,6 +7,12 @@ type PlainObject = Record<string, unknown>;
 
 const IGNORED_KEYS = ['id', 'name', 'properties', 'displays', 'effects'];
 
+/**
+ * 可配置的音频处理器基类：
+ * - 统一管理 id/name/properties 与启用状态；
+ * - 提供 update/序列化等通用能力；
+ * - 由具体子类（如 SpectrumAnalyzer/FftParser）继承实现。
+ */
 export default class AudioProcessor<TProperties extends PlainObject = PlainObject> {
   public id: number;
 

@@ -16,12 +16,19 @@ import { createPreviewPanelStore } from "./preview-panel-store";
 import type { PreviewPanelStore, PreviewPanelStoreData, PreviewSize } from "./preview-panel-store";
 import { getRatioKey } from "./ratio-utils";
 
+// 为排序与分层计算而构造的元素元数据
 type ElementMeta = {
   element: TimelineElement;
   trackId: string;
   fallbackZ: number;
 };
 
+/**
+ * 预览面板容器：
+ * - 从 project/timeline/media/playback 等全局 store 汇集渲染所需数据；
+ * - 组装并提供 PreviewPanelStore（Zustand）给视图层；
+ * - 将视图层产生的交互回传到各业务 store（如更新元素属性、选择/删除/复制等）。
+ */
 export function PreviewPanelContainer() {
   const tracks = useTimelineStore((state) => state.tracks);
   const selectedElements = useTimelineStore((state) => state.selectedElements);
@@ -48,6 +55,7 @@ export function PreviewPanelContainer() {
   const play = usePlaybackStore((state) => state.play);
   const pause = usePlaybackStore((state) => state.pause);
 
+  // 计算与缓存：按 zIndex（或回退顺序）排序后的元素列表与辅助映射
   const segmentsMeta = useMemo(() => {
     const entries: ElementMeta[] = [];
     const elementMap: Record<string, TimelineElement> = {};
@@ -89,6 +97,7 @@ export function PreviewPanelContainer() {
 
   const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = segmentsMeta;
 
+  // 根据媒体 id 快速获取媒体文件对象
   const mediaById = useMemo(() => {
     const map = new Map<string, MediaFile>();
     mediaFiles.forEach((item) => {
@@ -97,6 +106,7 @@ export function PreviewPanelContainer() {
     return map;
   }, [mediaFiles]);
 
+  // 计算当前选中的元素 id（若全局选择已失效/被删除则置空）
   const selectedSegmentId = useMemo(() => {
     const currentId = selectedElements[0]?.elementId;
     if (!currentId) {
@@ -107,6 +117,7 @@ export function PreviewPanelContainer() {
 
   const projectId = activeProject?.id;
 
+  // 预览尺寸：支持按预设比例或原始尺寸计算
   const previewSize: PreviewSize | null = useMemo(() => {
     if (!activeProject) {
       return null;
@@ -125,13 +136,15 @@ export function PreviewPanelContainer() {
     };
   }, [activeProject]);
 
-  const previewStoreRef = useRef<PreviewPanelStore>();
+  // 创建并持有 PreviewPanelStore 的单例引用
+  const previewStoreRef = useRef<PreviewPanelStore>(null);
   if (!previewStoreRef.current) {
     previewStoreRef.current = createPreviewPanelStore();
   }
   const previewStore = previewStoreRef.current;
   const objectUrlCacheRef = useRef<Map<string, string>>(new Map());
 
+  // 组件卸载时释放在浏览器内生成的 Object URL，避免内存泄漏
   useEffect(() => {
     return () => {
       objectUrlCacheRef.current.forEach((url) => {
@@ -141,6 +154,7 @@ export function PreviewPanelContainer() {
     };
   }, []);
 
+  // 当项目、尺寸或时间线发生变化时，准备具有 remoteSource 的片段副本并更新 store
   useEffect(() => {
     if (!activeProject || !previewSize) {
       return;
@@ -150,6 +164,7 @@ export function PreviewPanelContainer() {
     const nextCache = new Map<string, string>();
     const segmentCache = new Map<string, TimelineElement>();
 
+    // 解析媒体资源的远端地址：优先使用已有 url，其次使用浏览器生成的 Object URL
     const resolveRemoteSource = (mediaId: string): string | null => {
       const media = mediaById.get(mediaId);
       if (!media) {
@@ -176,6 +191,7 @@ export function PreviewPanelContainer() {
       return null;
     };
 
+    // 深拷贝单个元素并填充 remoteSource（如可用）
     const getSegmentClone = (segment: TimelineElement): TimelineElement => {
       const existing = segmentCache.get(segment.id);
       if (existing) {
@@ -207,6 +223,7 @@ export function PreviewPanelContainer() {
     });
     objectUrlCacheRef.current = nextCache;
 
+    // 批量更新预览 store 的可渲染状态
     previewStore.getState().patch({
       backgroundColor: activeProject.backgroundColor ?? "#000000",
       size: previewSize,
@@ -227,6 +244,7 @@ export function PreviewPanelContainer() {
     previewStore,
   ]);
 
+  // 播放状态、时间戳、与选中元素的同步
   useEffect(() => {
     if (!previewSize) {
       return;
@@ -239,6 +257,7 @@ export function PreviewPanelContainer() {
     } as Partial<PreviewPanelStoreData>);
   }, [isPlaying, currentTime, selectedSegmentId, previewSize, previewStore]);
 
+  // 代理播放/暂停到全局 playback store
   const setPlaying = useCallback(
     (shouldPlay: boolean) => {
       if (shouldPlay) {
@@ -250,6 +269,7 @@ export function PreviewPanelContainer() {
     [pause, play]
   );
 
+  // 变更选中元素：根据 id 找到对应轨道并使用全局 timeline store 的选择逻辑
   const setSelectedSegment = useCallback(
     (id: string | null) => {
       if (!id) {
@@ -266,6 +286,7 @@ export function PreviewPanelContainer() {
     [clearSelectedElements, elementTrackMap, selectElement]
   );
 
+  // 将视图中的增量修改同步到时间线元素（updateElementProperties）
   const updateSegment = useCallback(
     async (payload: Partial<TimelineElement> & { id: string }) => {
       const trackId = elementTrackMap.get(payload.id);
@@ -276,6 +297,7 @@ export function PreviewPanelContainer() {
     [elementTrackMap, updateElementProperties]
   );
 
+  // 删除元素并自动 ripple（补齐时间线间隙）
   const deleteSegment = useCallback(
     async (id: string) => {
       const trackId = elementTrackMap.get(id);
@@ -285,6 +307,7 @@ export function PreviewPanelContainer() {
     [elementTrackMap, removeElementFromTrackWithRipple]
   );
 
+  // 复制元素（保持同一轨道）
   const duplicateSegment = useCallback(
     async ({ id }: { id: string }) => {
       const trackId = elementTrackMap.get(id);
@@ -294,6 +317,7 @@ export function PreviewPanelContainer() {
     [duplicateElement, elementTrackMap]
   );
 
+  // 预留：预览面板工具切换（当前容器无需处理）
   const handleActiveToolChange = useCallback((tool: string | null) => {
     void tool;
   }, []);

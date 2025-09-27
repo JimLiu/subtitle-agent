@@ -10,6 +10,7 @@ interface ShadowProps {
   opacity: number;
 }
 
+// 解析 #RRGGBBAA 形式的阴影颜色，返回纯色与透明度两部分
 function parseShadowColor(value?: string): ShadowProps | null {
   if (!value || value.length < 9) {
     return null;
@@ -74,6 +75,7 @@ export class TextRenderer extends BaseRenderer<TextElement> {
     if (!(node instanceof Konva.Text)) {
       return;
     }
+    // 双击进入 DOM 文本编辑模式
     node.on('dblclick dbltap', this.handleTextEdit);
   }
 
@@ -164,6 +166,7 @@ export class TextRenderer extends BaseRenderer<TextElement> {
   }
 
   private loadFont(family: string): void {
+    // 通过 WebFontLoader 异步加载字体，失败时回退到通用字体
     WebFont.load({
       google: { families: [family] },
       active: () => {
@@ -210,6 +213,7 @@ export class TextRenderer extends BaseRenderer<TextElement> {
   }
 
   private handleTextEdit = () => {
+    // 将 Konva 文本节点转换为可编辑 textarea（定位于同一屏幕位置）
     const node = this.node as Konva.Text | null;
     if (!node) {
       return;

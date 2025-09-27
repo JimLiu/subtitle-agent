@@ -1,19 +1,24 @@
-
-import Konva from 'konva';
-import cloneDeep from 'lodash/cloneDeep';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { createStore } from 'zustand/vanilla';
-import type { Mutate, StoreApi } from 'zustand/vanilla';
+import Konva from "konva";
+import cloneDeep from "lodash/cloneDeep";
+import { subscribeWithSelector } from "zustand/middleware";
+import { createStore } from "zustand/vanilla";
+import type { Mutate, StoreApi } from "zustand/vanilla";
 
 import { TimelineElement } from "@/types/timeline";
 
-import { SpectrumAnalyzer } from './deps/spectrum-analyzer';
+import { SpectrumAnalyzer } from "./deps/spectrum-analyzer";
 
+/** 右键菜单的屏幕坐标。 */
 export interface ContextMenuPosition {
   x: number;
   y: number;
 }
 
+/**
+ * 预览尺寸：
+ * - ratio: 预设比例键（如 16:9）或 'original'；
+ * - original: 项目原始的画布宽高。
+ */
 export interface PreviewSize {
   ratio: string;
   original: {
@@ -22,6 +27,9 @@ export interface PreviewSize {
   };
 }
 
+/**
+ * Konva 舞台态与运行时 UI 状态（不包含业务段落数据）。
+ */
 export interface PreviewPanelState {
   konvaInit: boolean;
   stage: Konva.Stage | null;
@@ -59,6 +67,13 @@ export interface PreviewPanelState {
   stageAnimation: Konva.Animation | null;
 }
 
+/**
+ * 预览面板的完整数据：
+ * - selectedSegment/segments/orderedSegments：时间线元素与选中态；
+ * - backgroundColor/size：画布背景与比例；
+ * - currentTimestamp/playing/buffering：播放控制；
+ * - minZIndex/maxZIndex：当前 zIndex 范围。
+ */
 export interface PreviewPanelStoreData extends PreviewPanelState {
   selectedSegment: string | null;
   segments: Record<string, TimelineElement>;
@@ -72,6 +87,7 @@ export interface PreviewPanelStoreData extends PreviewPanelState {
   maxZIndex: number;
 }
 
+/** Store 对外暴露的便捷方法。 */
 export interface PreviewPanelStoreActions {
   patch(partial: Partial<PreviewPanelStoreData>): void;
   getSegmentsClone(): Record<string, TimelineElement>;
@@ -83,10 +99,10 @@ export type PreviewPanelStoreState = PreviewPanelStoreData & PreviewPanelStoreAc
 export type PreviewPanelStore = Mutate<StoreApi<PreviewPanelStoreState>, [['zustand/subscribeWithSelector', never]]>;
 
 function getWindowDimensions(): { width: number; height: number } {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return { width: 0, height: 0 };
   }
-  const element = document.getElementById('stage');
+  const element = document.getElementById("stage");
   return {
     width: element ? element.offsetWidth : window.innerWidth,
     height: element ? element.offsetHeight : window.innerHeight,
@@ -126,16 +142,16 @@ function createDefaultState(): PreviewPanelStoreData {
     showContextMenu: false,
     contextMenuPosition: { x: 0, y: 0 },
     screenshotInterval: null,
-    isDarkMode: typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
+    isDarkMode: typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
     mutationObserver: null,
     resizeObserver: null,
     stageAnimation: null,
     selectedSegment: null,
     segments: {},
     orderedSegments: [],
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
     size: {
-      ratio: 'original',
+      ratio: "original",
       original: { width: 1920, height: 1080 },
     },
     currentTimestamp: 0,
@@ -146,6 +162,11 @@ function createDefaultState(): PreviewPanelStoreData {
   };
 }
 
+/**
+ * 创建 PreviewPanel 的 Zustand 原始 store。
+ * - 包含 patch、getSegmentsClone、getSegmentById 三个便捷方法；
+ * - 使用 subscribeWithSelector 以便外部订阅局部状态。
+ */
 export function createPreviewPanelStore(initialState: Partial<PreviewPanelStoreData> = {}): PreviewPanelStore {
   return createStore(
     subscribeWithSelector<PreviewPanelStoreState>((set, get) => ({

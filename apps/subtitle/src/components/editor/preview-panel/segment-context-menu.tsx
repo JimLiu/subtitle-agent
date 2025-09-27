@@ -8,6 +8,7 @@ interface SegmentContextMenuProps {
   onRemove: () => void;
 }
 
+// 预览画布右键菜单：提供复制/置顶/置底/删除等快捷操作
 export const SegmentContextMenu: React.FC<SegmentContextMenuProps> = (props: SegmentContextMenuProps) => {
   const { x, y, onClose, onDuplicate, onBringToFront, onSendToBack, onRemove } = props;
 

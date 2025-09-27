@@ -10,6 +10,7 @@ export interface WaveRendererData {
   placeholderFftData?: number[];
 }
 
+/** 波形渲染器接口：定义绘制所需的输入数据与尺寸。 */
 export interface WaveRenderer {
   id: string;
   name: string;

@@ -1,5 +1,11 @@
 import type { FC } from "react";
 
+/**
+ * 预览播放控制条：
+ * - 播放/暂停、复位按钮；
+ * - 当前时间与总时长展示；
+ * - 支持缓冲中文案提示。
+ */
 interface PreviewPlaybackControlsProps {
   playing: boolean;
   buffering: boolean;
@@ -9,6 +15,7 @@ interface PreviewPlaybackControlsProps {
   onReset(): void;
 }
 
+/** 将秒数格式化为 mm:ss.cc（分:秒.厘秒） */
 const formatTimestamp = (seconds: number): string => {
   const wholeSeconds = Math.floor(seconds);
   const minutes = Math.floor(wholeSeconds / 60);

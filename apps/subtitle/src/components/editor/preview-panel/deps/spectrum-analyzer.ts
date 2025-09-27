@@ -13,6 +13,11 @@ export interface SpectrumAnalyzerProperties {
   smoothingTimeConstant: number;
 }
 
+/**
+ * 频谱分析器：
+ * - 包装 WebAudio 的 AnalyserNode，提供统一的时域/频域数据读取接口；
+ * - 支持 Blackman 窗函数、平滑处理与混音输入缓冲。
+ */
 export class SpectrumAnalyzer extends AudioProcessor<SpectrumAnalyzerProperties> {
   public readonly audioContext: AudioContext;
 

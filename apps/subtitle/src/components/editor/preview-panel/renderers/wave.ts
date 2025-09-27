@@ -13,6 +13,12 @@ export interface WaveRendererOptions extends BaseRendererOptions<WaveElement> {
   analyzer?: SpectrumAnalyzer;
 }
 
+/**
+ * 波形渲染器：
+ * - 若提供 audioContext/analyzer，则实时解析 FFT 数据并绘制；
+ * - 否则使用占位数据渲染静态形态；
+ * - 实际绘制由具体的 waveRenderers 实现（bar/line/circle 等）。
+ */
 export class WaveRenderer extends BaseRenderer<WaveElement> {
   private analyzer?: SpectrumAnalyzer;
   private parser?: FftParser;

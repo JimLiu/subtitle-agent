@@ -2,6 +2,10 @@ import Konva from "konva";
 
 import type { TimelineElement } from "@/types/timeline";
 
+/**
+ * 计算舞台与所有元素的对齐参考线（上下左右与中心线）。
+ * 返回垂直/水平两组候选线，用于后续的吸附对齐判断。
+ */
 export function getLineGuideStops(
   node: Konva.Node,
   stage: Konva.Stage,
@@ -42,6 +46,9 @@ export function getLineGuideStops(
   };
 }
 
+/**
+ * 计算当前拖拽对象的 3 条垂直边与 3 条水平边（start/center/end）的参考信息。
+ */
 export function getObjectSnappingEdges(node: Konva.Node, container: Konva.Group) {
   const rect = node.getClientRect({ relativeTo: container });
   const position = node.position();
@@ -59,6 +66,10 @@ export function getObjectSnappingEdges(node: Konva.Node, container: Konva.Group)
   };
 }
 
+/**
+ * 根据所有候选的参考线与当前对象边缘，筛选在偏移阈值内的最佳匹配，
+ * 最终返回需要绘制的对齐线集合（最多水平/垂直各一条）。
+ */
 export function getGuides(
   stops: { vertical: number[]; horizontal: number[] },
   edges: ReturnType<typeof getObjectSnappingEdges>,
@@ -111,6 +122,9 @@ export function getGuides(
   return result;
 }
 
+/**
+ * 绘制对齐辅助线（虚线）。
+ */
 export function drawGuides(
   guides: Array<{ lineGuide: number; orientation: "V" | "H"; snap: string; offset: number }>,
   container: Konva.Group,

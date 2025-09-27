@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 多重正弦曲线波形：叠加多条相位不同的曲线，营造“丝滑”效果
 const RESOLUTION = 4;
 const ATTENUATION = 0.8;
 let phaseOffset = 1;

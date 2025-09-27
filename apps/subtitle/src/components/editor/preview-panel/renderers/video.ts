@@ -13,6 +13,13 @@ export interface VideoRendererOptions extends BaseRendererOptions<VideoElement> 
   analyzer: SpectrumAnalyzer | null;
 }
 
+/**
+ * 视频渲染器：
+ * - 使用 HTMLVideoElement 作为源，绑定到 Konva.Image；
+ * - 在预览时依据 playing/时间戳进行播放或静态 seek；
+ * - 若存在音频上下文，则将媒体元素连接到频谱分析器用于波形/频谱可视化；
+ * - 导出流程中结合 videoCache 提供逐帧渲染能力。
+ */
 export class VideoRenderer extends BaseRenderer<VideoElement> {
   private audioContext: AudioContext | null;
   private analyzer: SpectrumAnalyzer | null;
@@ -180,6 +187,7 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
     }
   }
 
+  /** 将缓存的视频帧画面作为 CanvasSource 赋予 Konva.Image，用于导出逐帧渲染。 */
   applyCachedFrame(frame: WrappedCanvas): void {
     const node = this.node as Konva.Image | null;
     if (!node) {
@@ -233,6 +241,12 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
     }
   }
 
+  /**
+   * 将 <video> seek 到对应时间（相对段落起始 + trimStart）。
+   * - 兼容元数据未就绪的情况；
+   * - 避免过小差值导致的无意义 seek；
+   * - 在旧环境降级等待两帧 RAF 代替 requestVideoFrameCallback。
+   */
   private async seekToTimestamp(timestamp: number): Promise<void> {
     const video = this.mediaElement;
     if (!video) {

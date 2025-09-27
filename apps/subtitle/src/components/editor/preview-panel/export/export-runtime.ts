@@ -24,6 +24,7 @@ import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
 import { SAMPLE_RATE } from '../deps/constants';
 import { getSegmentEndTime } from '../deps/segment-helpers';
 
+// 预览导出运行时：隐藏在 DOM 中的最小舞台环境，用于逐帧渲染
 interface ManagedRenderer {
   renderer: BaseRenderer<TimelineElement>;
   segment: TimelineElement;

@@ -5,6 +5,7 @@ import { ProgressBarElement } from "@/types/timeline";
 import { progressRenderers } from '../deps/progress-renderers';
 import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
 
+/** 进度条渲染器：支持 bar/circle 等样式，按本地进度百分比绘制。 */
 export class ProgressBarRenderer extends BaseRenderer<ProgressBarElement> {
   protected createNode(): Konva.Rect {
     const segment = this.segment;

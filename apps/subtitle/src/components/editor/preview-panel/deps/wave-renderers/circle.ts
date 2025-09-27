@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 环形辐射波形：以中心为原点向外绘制脉冲线段
 export const CircleWaveRenderer: WaveRenderer = {
   id: 'circle',
   name: 'Circle',

@@ -16,10 +16,18 @@ import {
 } from "./preview-panel-store";
 import { PreviewPlaybackControls } from "./preview-playback-controls";
 
+// 动态加载 Konva 渲染器类，避免首次渲染的包体膨胀。
 type PreviewPanelKonvaModule = typeof import("./preview-panel-konva");
 type PreviewPanelKonvaClass = PreviewPanelKonvaModule["PreviewPanelKonva"];
 type PreviewPanelKonvaInstance = InstanceType<PreviewPanelKonvaClass>;
 
+/**
+ * 预览视图层组件（无全局耦合）：
+ * - 接收外部注入的 store 与各项回调；
+ * - 创建并管理 PreviewPanelKonva 实例；
+ * - 提供播放控件、右键菜单与快捷键；
+ * - 对帧推进使用 requestAnimationFrame，在 playing 为 true 时更新 currentTimestamp。
+ */
 interface PreviewPanelViewProps {
   store?: PreviewPanelStore;
   className?: string;
@@ -61,6 +69,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     onDuplicateSegment,
   } = props;
 
+  // 渲染容器引用：用于挂载 Konva 舞台
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null);
   const setContainerRef = useCallback((node: HTMLDivElement | null) => {
     setContainerElement(node);
@@ -72,6 +81,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
   const lastFrameTimestampRef = useRef<number | null>(null);
   const storeRef = useRef<PreviewPanelStore>(providedStore ?? createPreviewPanelStore());
 
+  // 若外部传入 store 发生变化，替换内部引用
   useEffect(() => {
     if (providedStore && providedStore !== storeRef.current) {
       storeRef.current = providedStore;
@@ -91,6 +101,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
 
   const duration = useMemo(() => getDurationFromSegments(segments), [segments]);
 
+  // 便捷 patch：写回到 store
   const patch = useCallback(
     (partial: Partial<PreviewPanelStoreState>) => {
       storeApi.getState().patch(partial);
@@ -98,6 +109,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     [storeApi],
   );
 
+  // 设置播放：必要时恢复 AudioContext；暂停时重置帧时间起点
   const handleSetPlaying = useCallback(
     (value: boolean) => {
       if (value) {
@@ -136,6 +148,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     [onActiveToolChange],
   );
 
+  // 合并更新指定段落（先本地更新，再通知外部）
   const handleUpdateSegment = useCallback(
     async (payload: Partial<TimelineElement> & { id: string }) => {
       const state = storeApi.getState();
@@ -162,6 +175,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     [onPreviewThumbnailChange],
   );
 
+  // 删除指定段落（先本地、再外部）
   const handleDeleteSegment = useCallback(
     async (segmentId: string) => {
       const state = storeApi.getState();
@@ -176,6 +190,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     [onDeleteSegment, patch, storeApi],
   );
 
+  // 复制段落：生成新 id，提升 zIndex
   const handleDuplicateSegment = useCallback(
     async (payload: { id: string }) => {
       const state = storeApi.getState();
@@ -242,11 +257,13 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
 
   const latestActionsRef = useRef<PreviewPanelKonvaActions>(actionCallbacks);
 
+  // 同步最新的 action 回调到 Konva 实例
   useEffect(() => {
     latestActionsRef.current = actionCallbacks;
     konvaRef.current?.updateActions(actionCallbacks);
   }, [actionCallbacks]);
 
+  // 懒加载 Konva 渲染类
   useEffect(() => {
     let isCancelled = false;
 
@@ -266,6 +283,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     };
   }, []);
 
+  // 创建/销毁 Konva 实例：容器或构造器变化时重建
   useEffect(() => {
     if (!containerElement || !previewPanelKonvaCtor) {
       return;
@@ -296,6 +314,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     };
   }, [containerElement, previewPanelKonvaCtor, storeApi]);
 
+  // 播放帧推进循环（requestAnimationFrame）
   useEffect(() => {
     if (!playing) {
       if (rafRef.current) {
@@ -343,6 +362,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     };
   }, [duration, handleSetPlaying, patch, playing, storeApi]);
 
+  // 当停止播放或时长为 0 时，修正 currentTimestamp 到合法范围
   useEffect(() => {
     const state = storeApi.getState();
     if (!state.playing && state.currentTimestamp > duration) {
@@ -358,6 +378,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     return className ? `${base} ${className}` : base;
   }, [className]);
 
+  // 播放/暂停切换：若已在尾帧，重置到 0
   const handleTogglePlayback = useCallback(() => {
     const state = storeApi.getState();
     const nextValue = !state.playing;
@@ -367,6 +388,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     handleSetPlaying(nextValue);
   }, [duration, handleSetPlaying, patch, storeApi]);
 
+  // 时间轴复位到 0
   const handleReset = useCallback(() => {
     patch({ currentTimestamp: 0 });
   }, [patch]);

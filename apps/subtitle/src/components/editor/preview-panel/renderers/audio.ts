@@ -10,6 +10,7 @@ export interface AudioRendererOptions extends BaseRendererOptions<AudioElement> 
   analyzer: SpectrumAnalyzer;
 }
 
+// 音频渲染器：隐藏的 HTMLAudioElement 用于播放与时间同步，连接频谱分析器以供可视化。
 export class AudioRenderer extends BaseRenderer<AudioElement> {
   private readonly audioContext: AudioContext;
   private readonly analyzer: SpectrumAnalyzer;

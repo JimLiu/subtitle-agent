@@ -1,3 +1,8 @@
+/**
+ * 基于基二 Cooley–Tukey FFT 的模长计算（只返回一半频谱的幅值）。
+ * - 输入长度需为 2 的幂；
+ * - 返回归一化幅值数组（size / 2）。
+ */
 export function computeFftMagnitudes(input: Float32Array, target?: number[]): number[] {
   if (!input) {
     throw new Error('Input waveform is not provided, pass input array.');

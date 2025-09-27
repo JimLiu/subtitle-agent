@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// 柱状波形：按等宽条绘制 FFT 幅值
 function drawRoundedRect(
   context: CanvasRenderingContext2D,
   x: number,

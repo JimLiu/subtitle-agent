@@ -5,6 +5,10 @@ import { drawGuides, getGuides, getLineGuideStops, getObjectSnappingEdges } from
 import type { RendererManager } from "./renderer-manager";
 import type { PreviewPanelContext } from "./types";
 
+/**
+ * 舞台管理器：负责初始化 Konva 舞台/图层/分组/变换器、绑定事件与观察者、
+ * 截图与暗色模式适配、以及预览裁剪与缩放的计算。
+ */
 export class StageManager {
   private readonly context: PreviewPanelContext;
   private readonly rendererManager: RendererManager;
@@ -15,6 +19,7 @@ export class StageManager {
     this.rendererManager = rendererManager;
   }
 
+  /** 初始化舞台、图层、背景、内容容器、变换器与悬浮辅助文本等 UI 元素。 */
   initialize(): void {
     const previewContainer = this.context.container.querySelector("#preview-container");
     if (!previewContainer) {
@@ -214,6 +219,13 @@ export class StageManager {
     this.context.patch({ stageAnimation, konvaInit: true });
   }
 
+  /**
+   * 初始化全局与元素观察：
+   * - 监听 window 的 click/blur 以隐藏右键菜单；
+   * - 监听 documentElement.class 变化以适配暗色模式；
+   * - 监听预览容器的尺寸变化以重算裁剪；
+   * - 定时刷新缩略图。
+   */
   initializeObservers(): void {
     window.addEventListener("click", this.handleWindowClick);
     window.addEventListener("blur", this.handleWindowBlur);
@@ -260,6 +272,7 @@ export class StageManager {
     this.updateDarkMode(document.documentElement.classList.contains("dark"));
   }
 
+  /** 释放所有监听与 Konva 资源。 */
   destroy(): void {
     const state = this.context.getState();
 
@@ -301,6 +314,12 @@ export class StageManager {
     this.stageClipFunc = null;
   }
 
+  /**
+   * 更新变换器挂载目标与锚点：
+   * - 根据选中与 hover 的图形更新对应的 Transformer；
+   * - 文本元素仅允许水平缩放；其它元素允许九点缩放；
+   * - 更新选中工具与浮动辅助文本（角度）。
+   */
   updateTransformer(forceSelect = false): void {
     const state = this.context.getState();
     const { stage, transformer, hoverTransformer } = state;
@@ -382,6 +401,7 @@ export class StageManager {
     }
   }
 
+  /** 根据页面暗色/亮色模式切换舞台背景、锚点与辅助线的样式。 */
   updateDarkMode(isDark: boolean): void {
     this.context.patch({ isDarkMode: isDark });
     const state = this.context.getState();
@@ -404,6 +424,11 @@ export class StageManager {
     state.layer?.batchDraw();
   }
 
+  /**
+   * 更新预览缩略图：
+   * - 临时取消 clip 以获取完整内容后恢复；
+   * - 隐藏 Transformer，避免遮挡。
+   */
   async updateThumbnail(): Promise<void> {
     const state = this.context.getState();
     const { stage, backgroundGroup, maskingGroup } = state;
@@ -422,6 +447,11 @@ export class StageManager {
     state.transformer?.show();
   }
 
+  /**
+   * 绑定拖拽对齐线与右键菜单：
+   * - dragmove 根据所有元素的边/中心计算吸附指南；
+   * - contextmenu 打开自定义菜单，并基于舞台坐标定位。
+   */
   private bindVideoGroupEvents(): void {
     const { videoGroup, stage } = this.context.getState();
     if (!videoGroup || !stage) {
@@ -501,6 +531,7 @@ export class StageManager {
     });
   }
 
+  /** 舞台鼠标按下：处理取消选中/选择图形的逻辑。 */
   private handleStageMouseDown = (event: Konva.KonvaEventObject<Event>): void => {
     if (event.evt && "touches" in event.evt) {
       return;
@@ -520,6 +551,7 @@ export class StageManager {
     this.updateTransformer();
   };
 
+  /** 触屏点击：用于触控场景下的选中与取消选中。 */
   private handleStageTap = (event: Konva.KonvaEventObject<Event>): void => {
     if (event.target === event.target.getStage()) {
       this.context.patch({ selectedShapeName: null });
@@ -594,6 +626,13 @@ export class StageManager {
     this.context.patch({ rotationTextTimeout });
   }
 
+  /**
+   * 根据预设比例与容器尺寸计算可视区域裁剪：
+   * - 计算 padding 以在容器内居中显示；
+   * - 同步 videoGroup 的缩放与位移；
+   * - 写回 idealWidth/idealHeight/scaleFactor 等派生状态；
+   * - 使用圆角路径构建 clip。
+   */
   private createStageClip(): (ctx: Konva.Context) => void {
     return (ctx: Konva.Context) => {
       const state = this.context.getState();
@@ -697,10 +736,12 @@ export class StageManager {
     };
   }
 
+  /** 外部触发刷新缩略图的 DOM 事件回调。 */
   private handleThumbnailUpdate = () => {
     void this.updateThumbnail();
   };
 
+  /** 点击/失焦时隐藏自定义右键菜单。 */
   private handleWindowClick = () => {
     this.context.patch({ showContextMenu: false });
   };

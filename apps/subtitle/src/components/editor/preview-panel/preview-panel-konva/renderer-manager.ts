@@ -19,6 +19,12 @@ import { createVideoRenderer, type VideoRenderer } from "../renderers/video";
 import { createWaveRenderer, type WaveRenderer } from "../renderers/wave";
 import type { PreviewPanelContext } from "./types";
 
+/**
+ * 负责根据 orderedSegments 维护各类具体渲染器（文本、图片、视频、音频、波形、形状、进度条等）。
+ * - 支持去抖/合并多次同步请求（队列化）；
+ * - 在舞台/音频上下文准备就绪后再创建渲染器；
+ * - 当 segment 消失或不可渲染时销毁对应渲染器。
+ */
 export class RendererManager {
   private readonly context: PreviewPanelContext;
   private readonly renderers: Map<string, BaseRenderer<TimelineElement>> = new Map();
@@ -60,6 +66,7 @@ export class RendererManager {
     }
   }
 
+  /** 请求同步渲染器集合：新请求会覆盖队列的目标，串行逐一执行，避免重复构建/销毁。 */
   async syncSegmentRenderers(ordered: TimelineElement[]): Promise<void> {
     this.queuedSegmentSync = ordered;
     if (this.segmentSyncInFlight) {
@@ -81,6 +88,12 @@ export class RendererManager {
     }
   }
 
+  /**
+   * 执行一次实际的同步：
+   * - 为每个需要渲染的 segment 创建或更新对应 renderer；
+   * - 不需要的 renderer 将被销毁；
+   * - 同步 zIndex、可见性与播放状态。
+   */
   private async performSegmentSync(ordered: TimelineElement[]): Promise<void> {
     const state = this.context.getState();
     const { stage, videoGroup, konvaInit, audioContext, analyzer, currentTimestamp, playing, layer } = state;
@@ -139,6 +152,7 @@ export class RendererManager {
     layer?.batchDraw();
   }
 
+  /** 根据 segment 的类型创建具体渲染器。视频/音频需要音频上下文才创建。 */
   private async createRenderer(segment: TimelineElement): Promise<BaseRenderer<TimelineElement> | null> {
     const state = this.context.getState();
     const { stage, videoGroup, audioContext, analyzer } = state;
@@ -291,6 +305,7 @@ export class RendererManager {
     }
   }
 
+  /** 判断某段落是否可渲染（视频/音频需要音频上下文和解析到的 remoteSource）。 */
   private shouldRenderSegment(segment: TimelineElement, hasAudioContext: boolean, hasAnalyzer: boolean): boolean {
     switch (segment.type) {
       case "text":

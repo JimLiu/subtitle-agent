@@ -5,6 +5,9 @@ import { TextElement } from "@/types/timeline";
 import { BaseRendererOptions, RendererFrameInfo } from './base';
 import { TextRenderer } from './text';
 
+/**
+ * 字幕渲染器：基于 TextRenderer，按当前时间匹配字幕段并切换文本显示。
+ */
 export class SubtitleRenderer extends TextRenderer {
   protected createNode(): Konva.Text {
     const node = super.createNode() as Konva.Text;

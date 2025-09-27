@@ -1,5 +1,6 @@
 import { ProgressRenderer } from './types';
 
+// 使用圆角裁剪 + 前景/背景两层色块绘制线性进度
 function clipRoundedRect(
   context: CanvasRenderingContext2D,
   x: number,

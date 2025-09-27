@@ -12,6 +12,11 @@ export interface FftParserProperties {
   maxFrequency: number;
 }
 
+/**
+ * 频域数据解析器：将 WebAudio 的频谱（Uint8Array）映射到指定频段与 bin 数量的归一化浮点数组。
+ * - 支持平滑系数（smoothingTimeConstant）；
+ * - 支持目标 bin 数与源 bin 数不一致时的聚合/插值策略。
+ */
 export class FftParser extends AudioProcessor<FftParserProperties> {
   private startBin = 0;
 

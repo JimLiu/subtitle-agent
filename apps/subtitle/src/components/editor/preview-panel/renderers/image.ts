@@ -4,6 +4,7 @@ import { ImageElement } from "@/types/timeline";
 
 import { BaseRenderer, BaseRendererOptions } from './base';
 
+/** 图片渲染器：通过 HTMLImageElement 加载媒体并绑定到 Konva.Image。 */
 export class ImageRenderer extends BaseRenderer<ImageElement> {
   private mediaElement: HTMLImageElement | null = null;
   private sourceKey: string | null = null;
@@ -75,6 +76,7 @@ export class ImageRenderer extends BaseRenderer<ImageElement> {
     }
 
     await new Promise<void>((resolve) => {
+      // 等待图片尺寸就绪后再设置到节点，避免 0x0 尺寸
       const applyDimensions = () => {
         if (this.sourceKey !== key) {
           resolve();

@@ -1,5 +1,6 @@
 import { WaveRenderer } from './types';
 
+// Siri 风格的动态曲线波形：叠加多条曲线形成柔和的视觉效果
 interface CurveDefinition {
   color: string;
   supportLine?: boolean;

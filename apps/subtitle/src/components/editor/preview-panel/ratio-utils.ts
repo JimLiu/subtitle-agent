@@ -1,4 +1,5 @@
 export function getRatioKey(width: number, height: number): string {
+  // 将宽高约分为最简比例（如 1920x1080 => 16:9）
   const safeWidth = Math.max(1, Math.round(width));
   const safeHeight = Math.max(1, Math.round(height));
   const divisor = gcd(safeWidth, safeHeight);
@@ -6,6 +7,7 @@ export function getRatioKey(width: number, height: number): string {
 }
 
 function gcd(a: number, b: number): number {
+  // 欧几里得算法
   let x = Math.abs(a);
   let y = Math.abs(b);
   while (y !== 0) {

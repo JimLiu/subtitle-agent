@@ -45,6 +45,12 @@ export abstract class BaseRenderer<T extends TimelineElement> {
 
   private animationsApplied = false;
 
+  /**
+   * 抽象渲染器基类：
+   * - 管理 Konva 节点生命周期、基础拖拽/变换事件与通用属性（位置/缩放/透明度等）；
+   * - 提供时间轴同步、逐帧更新与可见性控制；
+   * - 内置若干通用进入类动效（fade/float/scroll/wipe/spin）。
+   */
   constructor(options: BaseRendererOptions<T>) {
     this.segment = options.segment;
     this.container = options.container;
@@ -52,6 +58,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     this.updateSegmentAction = options.updateSegment;
   }
 
+  /** 创建 Konva 节点并挂载到容器，同时绑定通用事件。 */
   async initialize(): Promise<void> {
     this.wrapper = new Konva.Group({ id: this.segment.id });
     this.wrapper.addName('konvaWrapper');
@@ -75,6 +82,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     this.container.getLayer()?.batchDraw();
   }
 
+  /** 更新段落数据并刷新节点属性/动效。 */
   update(segment: T): void {
     const previous = this.segment;
     this.segment = segment;
@@ -91,6 +99,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     this.wrapper?.zIndex(index);
   }
 
+  /** 根据时间戳计算段落可见性并触发时间更新钩子。 */
   syncVisibility(timestamp: number): void {
     this.currentTimestamp = timestamp;
     const endTime = getSegmentEndTime(this.segment);
@@ -108,6 +117,12 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     this.onPlayingChange(isPlaying);
   }
 
+  /**
+   * 逐帧更新：
+   * - 计算本段落的本地时间、帧号与进度百分比；
+   * - 当播放中且可见时应用进入动效；
+   * - 调用子类 onFrame 做自定义绘制/属性更新。
+   */
   frameUpdate(context: RendererFrameContext): void {
     this.stageSize = { ...context.stageSize };
     this.stageScale = context.scale;
@@ -140,6 +155,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     });
   }
 
+  /** 销毁节点与事件监听。 */
   destroy(): void {
     this.onDestroy();
     if (this.node) {

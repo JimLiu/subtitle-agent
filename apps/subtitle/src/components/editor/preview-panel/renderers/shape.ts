@@ -4,6 +4,11 @@ import { ShapeElement } from "@/types/timeline";
 
 import { BaseRenderer, BaseRendererOptions } from './base';
 
+/**
+ * 基础形状渲染器：矩形、圆形、三角形、星形、六边形等。
+ * - 根据 segment.shapeType 创建不同 Konva.Shape；
+ * - 支持边框、圆角、半径等属性更新。
+ */
 export class ShapeRenderer extends BaseRenderer<ShapeElement> {
   protected createNode(): Konva.Shape {
     const segment = this.segment;

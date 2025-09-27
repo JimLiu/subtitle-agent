@@ -8,6 +8,7 @@ import { SiriWaveRenderer } from './siri';
 import { StackWaveRenderer } from './stack';
 import { WaveRenderer } from './types';
 
+// 音频波形多样式渲染器集合（可扩展）
 export const waveRenderers: Record<string, WaveRenderer> = {
   bar: BarWaveRenderer,
   circle: CircleWaveRenderer,

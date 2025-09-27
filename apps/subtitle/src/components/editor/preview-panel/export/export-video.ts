@@ -65,6 +65,12 @@ function resolveVolume(volume?: number): number {
   return volume > 1 ? volume / 100 : volume;
 }
 
+/**
+ * 将预览内容导出为 MP4/WebM：
+ * - 在隐藏舞台上按时间逐帧渲染画布到 CanvasSource；
+ * - 可选混音所有音视频段落为 AudioBufferSource；
+ * - 通过 mediabunny 组合为最终视频缓冲区。
+ */
 export async function exportPreviewVideo(request: PreviewExportRequest): Promise<ExportResult> {
   const { segments, settings, options } = request;
   const { width, height, backgroundColor } = settings;

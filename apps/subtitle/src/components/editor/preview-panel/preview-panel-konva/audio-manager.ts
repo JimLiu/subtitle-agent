@@ -2,6 +2,12 @@ import { SAMPLE_RATE } from "../deps/constants";
 import { SpectrumAnalyzer } from "../deps/spectrum-analyzer";
 import type { PreviewPanelContext } from "./types";
 
+/**
+ * 预览音频管理：
+ * - 等待用户首次交互后创建 AudioContext（规避自动播放限制）；
+ * - 创建并连接频谱分析器；
+ * - 管理事件监听的注册与清理。
+ */
 export class AudioManager {
   private readonly context: PreviewPanelContext;
   private firstInteractionHandler: ((event: Event) => void) | null = null;

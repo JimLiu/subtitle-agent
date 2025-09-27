@@ -7,6 +7,7 @@ export interface RatioPreset {
   };
 }
 
+// 画布比例预设：名称、理想比例与常见目标分辨率（hd 用于导出时的宽度）
 export const ratioPresets: Record<string, RatioPreset> = {
   '1:1': {
     name: 'Square',
