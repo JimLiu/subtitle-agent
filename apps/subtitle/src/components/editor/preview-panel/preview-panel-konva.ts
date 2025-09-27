@@ -51,6 +51,9 @@ export class PreviewPanelKonva {
   private readonly unsubscribeFns: Array<() => void> = [];
   private readonly renderers: Map<string, BaseRenderer<TimelineElement>> = new Map();
 
+  private segmentSyncInFlight = false;
+  private queuedSegmentSync: TimelineElement[] | null = null;
+
   private stageClipFunc: ((ctx: Konva.Context) => void) | null = null;
   private firstInteractionHandler: ((event: Event) => void) | null = null;
   private firstInteractionTarget: (HTMLElement | Document) | null = null;
@@ -1063,6 +1066,27 @@ export class PreviewPanelKonva {
   }
 
   private async syncSegmentRenderers(ordered: TimelineElement[]): Promise<void> {
+    this.queuedSegmentSync = ordered;
+    if (this.segmentSyncInFlight) {
+      return;
+    }
+
+    this.segmentSyncInFlight = true;
+    try {
+      while (this.queuedSegmentSync) {
+        const nextOrdered = this.queuedSegmentSync;
+        this.queuedSegmentSync = null;
+        if (!nextOrdered) {
+          continue;
+        }
+        await this.performSegmentSync(nextOrdered);
+      }
+    } finally {
+      this.segmentSyncInFlight = false;
+    }
+  }
+
+  private async performSegmentSync(ordered: TimelineElement[]): Promise<void> {
     const state = this.getState();
     const { stage, videoGroup, konvaInit } = state;
     if (!stage || !videoGroup || !konvaInit) {
