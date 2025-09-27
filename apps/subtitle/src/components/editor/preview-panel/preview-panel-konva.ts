@@ -1304,10 +1304,9 @@ export class PreviewPanelKonva {
       case 'wave':
         return true;
       case 'video':
-        return true;
       case 'audio': {
         const state = this.getState();
-        return Boolean(state.audioContext && state.analyzer);
+        return Boolean(state.audioContext && state.analyzer && segment.remoteSource);
       }
       default:
         return false;
