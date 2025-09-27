@@ -133,7 +133,7 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
       return;
     }
     const offset = timestamp - this.segment.startTime + this.segment.trimStart;
-    const seconds = Number.isFinite(offset) ? offset / 1000 : 0;
+    const seconds = Number.isFinite(offset) ? offset : 0;
     if (Math.abs(audio.currentTime - seconds) > 0.05) {
       audio.currentTime = seconds >= 0 ? seconds : 0;
     }

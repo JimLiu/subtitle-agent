@@ -12,7 +12,7 @@ export interface BaseRendererOptions<T extends TimelineElement> {
 }
 
 export interface RendererFrameContext {
-  timestamp: number;
+  timestamp: number; // timeline position in seconds
   playing: boolean;
   stageSize: { width: number; height: number };
   scale: number;
@@ -115,10 +115,10 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     this.playing = context.playing;
 
     const start = this.segment.startTime;
-    const duration = Math.max(getSegmentDuration(this.segment), 1);
+    const duration = Math.max(getSegmentDuration(this.segment), 0.001);
     const rawLocalTime = context.timestamp - start;
     this.localTime = rawLocalTime > 0 ? rawLocalTime : 0;
-    this.localFrame = Math.round((this.localTime / 1000) * 60);
+    this.localFrame = Math.round(this.localTime * 60);
     this.progress = Math.min(Math.max((this.localTime / duration) * 100, 0), 100);
 
     if (this.segment.animations?.length) {
@@ -296,7 +296,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.wrapper) {
       return;
     }
-    const duration = animation.duration ? animation.duration * 1000 : 350;
+    const duration = animation.duration ?? 0.35;
     const progress = Math.min(this.localTime / duration, 1);
     this.wrapper.opacity(progress);
   }
@@ -305,7 +305,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.wrapper) {
       return;
     }
-    const progress = Math.min(this.localTime / 350, 1);
+    const duration = 0.35;
+    const progress = Math.min(this.localTime / duration, 1);
     const ease = (value: number) => {
       const shifted = value - 1;
       return shifted * shifted * shifted + 1;
@@ -318,7 +319,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.wrapper) {
       return;
     }
-    const progress = Math.min(this.localTime / 350, 1);
+    const duration = 0.35;
+    const progress = Math.min(this.localTime / duration, 1);
     const ease = (value: number) => {
       const shifted = value - 1;
       return shifted * shifted * shifted + 1;
@@ -331,7 +333,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.wrapper) {
       return;
     }
-    const progress = Math.min(this.localTime / 350, 1);
+    const duration = 0.35;
+    const progress = Math.min(this.localTime / duration, 1);
     const ease = (value: number) => {
       const shifted = value - 1;
       return shifted * shifted * shifted + 1;
@@ -344,7 +347,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.wrapper) {
       return;
     }
-    const progress = Math.min(this.localTime / 350, 1);
+    const duration = 0.35;
+    const progress = Math.min(this.localTime / duration, 1);
     const ease = (value: number) => {
       const shifted = value - 1;
       return shifted * shifted * shifted + 1;
@@ -371,7 +375,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     const target = this.node as Konva.Shape;
     const width = target.width?.() ?? target.getClientRect().width;
     const height = target.height?.() ?? target.getClientRect().height;
-    const progress = Math.min(this.localTime / 2000, 1);
+    const duration = 2;
+    const progress = Math.min(this.localTime / duration, 1);
     this.wrapper.clip({ x: 0, y: 0, width: progress * width, height });
   }
 
@@ -382,7 +387,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     const target = this.node as Konva.Shape;
     const width = target.width?.() ?? target.getClientRect().width;
     const height = target.height?.() ?? target.getClientRect().height;
-    const progress = Math.min(this.localTime / 2000, 1);
+    const duration = 2;
+    const progress = Math.min(this.localTime / duration, 1);
     this.wrapper.offset({ x: width / 2, y: height / 2 });
     this.wrapper.position({ x: target.x() + width / 2, y: target.y() + height / 2 });
     this.wrapper.rotation(360 * (1 - progress));

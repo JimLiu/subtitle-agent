@@ -174,15 +174,13 @@ export class PreviewExportRuntime {
       return;
     }
 
-    const localTimeMs = context.timestamp - segmentStart + segment.trimStart;
-    if (localTimeMs < 0) {
+    const localTime = context.timestamp - segmentStart + segment.trimStart;
+    if (localTime < 0) {
       return;
     }
 
-    const localTimeSeconds = Math.max(localTimeMs / 1000, 0);
-
     try {
-      const frame = await videoCache.getFrameAt(segment.id, source, localTimeSeconds);
+      const frame = await videoCache.getFrameAt(segment.id, source, Math.max(localTime, 0));
       if (frame) {
         renderer.applyCachedFrame(frame);
       }

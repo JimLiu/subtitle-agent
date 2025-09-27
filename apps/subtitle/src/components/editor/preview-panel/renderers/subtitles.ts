@@ -19,7 +19,7 @@ export class SubtitleRenderer extends TextRenderer {
       return;
     }
     const cues = this.segment.subtitles?.segments ?? [];
-    const timestampSeconds = this.currentTimestamp / 1000;
+    const timestampSeconds = this.currentTimestamp;
     const active = cues.find((cue) => cue.start <= timestampSeconds && cue.end >= timestampSeconds);
     const nextText = active?.text ?? '';
     if (node.text() !== nextText) {

@@ -239,7 +239,7 @@ export function PreviewPanel() {
 
     previewStore.getState().patch({
       playing: isPlaying,
-      currentTimestamp: Math.max(0, currentTime) * 1000,
+      currentTimestamp: Math.max(0, currentTime),
       selectedSegment: selectedSegmentId,
     } as Partial<PreviewPanelStoreData>);
   }, [isPlaying, currentTime, selectedSegmentId, previewSize, previewStore]);

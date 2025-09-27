@@ -65,7 +65,7 @@ export interface PreviewPanelStoreData extends PreviewPanelState {
   orderedSegments: TimelineElement[];
   backgroundColor: string;
   size: PreviewSize;
-  currentTimestamp: number;
+  currentTimestamp: number; // seconds
   buffering: boolean;
   playing: boolean;
   minZIndex: number;

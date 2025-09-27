@@ -47,12 +47,14 @@ function generateSegmentId(): string {
   return `segment-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 }
 
-function formatTimestamp(milliseconds: number): string {
-  const totalSeconds = Math.floor(milliseconds / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  const centiseconds = Math.floor((milliseconds % 1000) / 10);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
+function formatTimestamp(seconds: number): string {
+  const wholeSeconds = Math.floor(seconds);
+  const minutes = Math.floor(wholeSeconds / 60);
+  const remainingSeconds = wholeSeconds % 60;
+  const centiseconds = Math.min(99, Math.max(0, Math.floor((seconds - wholeSeconds) * 100)));
+  const paddedSeconds = remainingSeconds.toString().padStart(2, '0');
+  const paddedCentiseconds = centiseconds.toString().padStart(2, '0');
+  return `${minutes}:${paddedSeconds}.${paddedCentiseconds}`;
 }
 
 export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
@@ -324,9 +326,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = (props) => {
         return;
       }
       const lastTimestamp = lastFrameTimestampRef.current ?? timestamp;
-      const delta = timestamp - lastTimestamp;
+      const deltaMs = timestamp - lastTimestamp;
+      const deltaSeconds = deltaMs / 1000;
       lastFrameTimestampRef.current = timestamp;
-      const nextTimestamp = Math.min(state.currentTimestamp + delta, duration);
+      const nextTimestamp = Math.min(state.currentTimestamp + deltaSeconds, duration);
       if (nextTimestamp !== state.currentTimestamp) {
         patch({ currentTimestamp: nextTimestamp });
       }

@@ -114,11 +114,8 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
 
     if (!this.playing) {
       const offset = timestamp - this.segment.startTime + this.segment.trimStart;
-      if (offset >= 0) {
-        const seconds = offset / 1000;
-        if (Math.abs(video.currentTime - seconds) > 0.05) {
-          video.currentTime = seconds;
-        }
+      if (offset >= 0 && Math.abs(video.currentTime - offset) > 0.05) {
+        video.currentTime = offset;
       }
     }
     
@@ -246,23 +243,18 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
 
     const segmentStart = this.segment.startTime ?? 0;
     const segmentTrim = this.segment.trimStart;
-    const offsetMs = timestamp - segmentStart + segmentTrim;
-    if (!Number.isFinite(offsetMs) || offsetMs < 0) {
-      return;
-    }
-
-    const targetSeconds = offsetMs / 1000;
-    if (!Number.isFinite(targetSeconds)) {
+    const offset = timestamp - segmentStart + segmentTrim;
+    if (!Number.isFinite(offset) || offset < 0) {
       return;
     }
 
     const current = video.currentTime;
     const ready = video.readyState >= 2;
-    if (ready && Math.abs(current - targetSeconds) <= 0.01) {
+    if (ready && Math.abs(current - offset) <= 0.01) {
       return;
     }
 
-    await this.seekVideo(video, targetSeconds);
+    await this.seekVideo(video, offset);
     // await this.waitForVideoFrame(video);
 
     const layer = this.node?.getLayer();

@@ -78,8 +78,8 @@ export async function exportPreviewVideo(request: PreviewExportRequest): Promise
     return { success: false, error: '没有可导出的内容' };
   }
 
-  const durationMs = computeDurationMs(segments);
-  if (durationMs <= 0) {
+  const durationSeconds = computeDurationSeconds(segments);
+  if (durationSeconds <= 0) {
     return { success: false, error: '时间线为空' };
   }
 
@@ -98,7 +98,7 @@ export async function exportPreviewVideo(request: PreviewExportRequest): Promise
 
     const canvas = runtime.getCanvas();
     const exportFps = optionsFps ?? settings.fps ?? DEFAULT_FPS;
-    const totalFrames = Math.ceil((durationMs / 1000) * exportFps);
+    const totalFrames = Math.ceil(durationSeconds * exportFps);
 
     const outputFormat = format === 'webm' ? new WebMOutputFormat() : new Mp4OutputFormat();
     const output = new Output({
@@ -115,7 +115,7 @@ export async function exportPreviewVideo(request: PreviewExportRequest): Promise
 
     if (includeAudio) {
       onProgress?.(0.02);
-      audioBuffer = await createAudioMixdown(segments, durationMs / 1000);
+      audioBuffer = await createAudioMixdown(segments, durationSeconds);
       if (audioBuffer) {
         audioSource = new AudioBufferSource({
           codec: format === 'webm' ? 'opus' : 'aac',
@@ -140,8 +140,7 @@ export async function exportPreviewVideo(request: PreviewExportRequest): Promise
       }
 
       const timeSeconds = frameIndex / exportFps;
-      const timestamp = timeSeconds * 1000;
-      await runtime.renderFrame(timestamp);
+      await runtime.renderFrame(timeSeconds);
 
       const frameDuration = 1 / exportFps;
       await videoSource.add(timeSeconds, frameDuration);
@@ -175,7 +174,7 @@ export async function exportPreviewVideo(request: PreviewExportRequest): Promise
   }
 }
 
-function computeDurationMs(segments: TimelineElement[]): number {
+function computeDurationSeconds(segments: TimelineElement[]): number {
   let maxEnd = 0;
   for (const segment of segments) {
     maxEnd = Math.max(maxEnd, getSegmentEndTime(segment));
@@ -338,9 +337,9 @@ function mixAudioElementIntoBuffer(element: AudioElementData, target: AudioBuffe
   const { buffer, segment } = element;
   const outputSampleRate = target.sampleRate;
 
-  const segmentStartSeconds = segment.startTime / 1000;
-  const segmentDurationSeconds = getSegmentDuration(segment) / 1000;
-  const trimSeconds = segment.trimStart / 1000;
+  const segmentStartSeconds = segment.startTime;
+  const segmentDurationSeconds = getSegmentDuration(segment);
+  const trimSeconds = segment.trimStart;
 
   if (segmentDurationSeconds <= 0 || segment.volume === 0) {
     return;
