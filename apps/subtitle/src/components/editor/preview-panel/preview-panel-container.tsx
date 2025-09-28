@@ -30,32 +30,47 @@ type ElementMeta = {
  * - 将视图层产生的交互回传到各业务 store（如更新元素属性、选择/删除/复制等）。
  */
 export function PreviewPanelContainer() {
+  // ---- Timeline Store：与时间线交互相关的状态与动作 ----
+  // tracks: 轨道及其元素的结构化数据，是组成预览层级的基础
   const tracks = useTimelineStore((state) => state.tracks);
+  // selectedElements: 当前被选中的时间线元素集合（通常只有一个，用于与视图联动）
   const selectedElements = useTimelineStore((state) => state.selectedElements);
+  // selectElement / clearSelectedElements: 控制全局的选中态，确保与其他面板一致
   const selectElement = useTimelineStore((state) => state.selectElement);
   const clearSelectedElements = useTimelineStore(
     (state) => state.clearSelectedElements
   );
+  // updateElementProperties: 依据轨道与元素 id 更新属性的原子操作
   const updateElementProperties = useTimelineStore(
     (state) => state.updateElementProperties
   );
+  // removeElementFromTrackWithRipple: 删除元素时同时执行 ripple，维持时间线紧凑
   const removeElementFromTrackWithRipple = useTimelineStore(
     (state) => state.removeElementFromTrackWithRipple
   );
+  // duplicateElement: 复制元素，保持在原轨道的正确插入位置
   const duplicateElement = useTimelineStore((state) => state.duplicateElement);
+
+  // ---- Media Store：提供媒体文件元数据，用于匹配元素的媒体资源 ----
   const mediaFiles = useMediaStore((state) => state.mediaFiles);
 
+  // ---- Project Store：项目级信息（画布尺寸、背景色、缩略图设置等） ----
   const activeProject = useProjectStore((state) => state.activeProject);
   const setPreviewThumbnail = useProjectStore(
     (state) => state.setPreviewThumbnail
   );
 
+  // ---- Playback Store：播控状态，同步预览面板的播放/暂停与时间戳 ----
   const isPlaying = usePlaybackStore((state) => state.isPlaying);
   const currentTime = usePlaybackStore((state) => state.currentTime);
   const play = usePlaybackStore((state) => state.play);
   const pause = usePlaybackStore((state) => state.pause);
 
   // 计算与缓存：按 zIndex（或回退顺序）排序后的元素列表与辅助映射
+  // 说明：
+  // 1. orderedElements 用于实际渲染顺序，优先 respect 自定义 zIndex。
+  // 2. elementMap / elementTrackMap 便于根据 id 快速读取元素及反查所在轨道。
+  // 3. fallbackZ 以 track 与 element 的索引组合，保证在缺少 zIndex 时也有稳定层级。
   const elementsMeta = useMemo(() => {
     const entries: ElementMeta[] = [];
     const elementMap: Record<string, TimelineElement> = {};
@@ -98,6 +113,8 @@ export function PreviewPanelContainer() {
   const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = elementsMeta;
 
   // 根据媒体 id 快速获取媒体文件对象
+  // 说明：预览面板渲染时需要频繁查找媒体信息（文件、预生成 url 等），
+  // 使用 Map 可以避免 O(n) 的线性扫描，提高渲染数据构建效率。
   const mediaById = useMemo(() => {
     const map = new Map<string, MediaFile>();
     mediaFiles.forEach((item) => {
@@ -107,6 +124,8 @@ export function PreviewPanelContainer() {
   }, [mediaFiles]);
 
   // 计算当前选中的元素 id（若全局选择已失效/被删除则置空）
+  // 说明：时间线 store 只保证选中状态对应的 id，元素可能因删除或撤销已不存在，
+  // 此处做一次匹配校验以避免预览面板出现“幽灵选中态”。
   const selectedElementId = useMemo(() => {
     const currentId = selectedElements[0]?.elementId;
     if (!currentId) {
@@ -118,6 +137,10 @@ export function PreviewPanelContainer() {
   const projectId = activeProject?.id;
 
   // 预览尺寸：支持按预设比例或原始尺寸计算
+  // 说明：
+  // - preset 模式下根据 ratioPresets 推导出常见比例（16:9/9:16 等）；
+  // - original 模式保持与项目画布一致的像素尺寸；
+  // 与 View 中的可视缩放结合，确保画面比例正确。
   const previewSize: PreviewSize | null = useMemo(() => {
     if (!activeProject) {
       return null;
@@ -137,6 +160,9 @@ export function PreviewPanelContainer() {
   }, [activeProject]);
 
   // 创建并持有 PreviewPanelStore 的单例引用
+  // 说明：
+  // - previewStoreRef 确保在整个组件生命周期内共享同一个 Zustand store；
+  // - 避免每次渲染新建 store 导致订阅重建或状态丢失。
   const previewStoreRef = useRef<PreviewPanelStore>(null);
   if (!previewStoreRef.current) {
     previewStoreRef.current = createPreviewPanelStore();
@@ -145,6 +171,7 @@ export function PreviewPanelContainer() {
   const objectUrlCacheRef = useRef<Map<string, string>>(new Map());
 
   // 组件卸载时释放在浏览器内生成的 Object URL，避免内存泄漏
+  // 说明：该缓存与媒体 file 字段相关，若不清理会导致浏览器内存增长。
   useEffect(() => {
     return () => {
       objectUrlCacheRef.current.forEach((url) => {
@@ -155,6 +182,10 @@ export function PreviewPanelContainer() {
   }, []);
 
   // 当项目、尺寸或时间线发生变化时，准备具有 remoteSource 的片段副本并更新 store
+  // 说明：
+  // 1. 维护一个 elementCache，保证同一元素只深拷贝一次；
+  // 2. resolveRemoteSource 根据媒体可用信息（远端 url 或本地 file）生成树；
+  // 3. Object URL 需在新一轮数据中回收冗余引用，避免泄漏。
   useEffect(() => {
     if (!activeProject || !previewSize) {
       return;
@@ -192,6 +223,7 @@ export function PreviewPanelContainer() {
     };
 
     // 深拷贝单个元素并填充 remoteSource（如可用）
+    // 说明：cloneDeep 保证不污染 store 源数据；同时在 elementCache 中复用结果。
     const getElementClone = (element: TimelineElement): TimelineElement => {
       const existing = elementCache.get(element.id);
       if (existing) {
@@ -216,6 +248,7 @@ export function PreviewPanelContainer() {
 
     const orderedWithSources = orderedElements.map((element) => getElementClone(element));
 
+    // 若上一轮缓存的 Object URL 未出现在新数据中，则释放对应引用
     currentCache.forEach((url, mediaId) => {
       if (!nextCache.has(mediaId)) {
         URL.revokeObjectURL(url);
@@ -245,6 +278,7 @@ export function PreviewPanelContainer() {
   ]);
 
   // 播放状态、时间戳、与选中元素的同步
+  // 说明：每次外部状态变化时，将关键字段写入 PreviewPanelStore，使得预览画面实时反映真实状态。
   useEffect(() => {
     if (!previewSize) {
       return;
@@ -258,6 +292,7 @@ export function PreviewPanelContainer() {
   }, [isPlaying, currentTime, selectedElementId, previewSize, previewStore]);
 
   // 代理播放/暂停到全局 playback store
+  // 说明：预览面板内的播放控制是全局的，因此直接调用全局 store 的 play/pause。
   const setPlaying = useCallback(
     (shouldPlay: boolean) => {
       if (shouldPlay) {
@@ -270,6 +305,8 @@ export function PreviewPanelContainer() {
   );
 
   // 变更选中元素：根据 id 找到对应轨道并使用全局 timeline store 的选择逻辑
+  // 说明：预览面板产生的选中事件需要与时间线保持同步，
+  // 若找不到对应轨道则视为选中失效，直接清空全局选中态。
   const setSelectedElement = useCallback(
     (id: string | null) => {
       if (!id) {
@@ -287,6 +324,7 @@ export function PreviewPanelContainer() {
   );
 
   // 将视图中的增量修改同步到时间线元素（updateElementProperties）
+  // 说明：payload 仅包含有变更的字段，利用全局 store 执行局部更新，保持响应式。
   const updateElement = useCallback(
     async (payload: Partial<TimelineElement> & { id: string }) => {
       const trackId = elementTrackMap.get(payload.id);
@@ -298,6 +336,7 @@ export function PreviewPanelContainer() {
   );
 
   // 删除元素并自动 ripple（补齐时间线间隙）
+  // 说明：预览面板删除操作沿用时间线的 ripple 策略，避免留下空白区域。
   const handleDeleteElement = useCallback(
     async (id: string) => {
       const trackId = elementTrackMap.get(id);
@@ -308,6 +347,7 @@ export function PreviewPanelContainer() {
   );
 
   // 复制元素（保持同一轨道）
+  // 说明：复制后新的元素会出现在原轨道中，遵循时间线 store 的默认排布策略。
   const handleDuplicateElement = useCallback(
     async ({ id }: { id: string }) => {
       const trackId = elementTrackMap.get(id);
