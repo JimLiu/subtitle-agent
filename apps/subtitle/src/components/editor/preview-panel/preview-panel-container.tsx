@@ -23,6 +23,16 @@ type ElementMeta = {
   fallbackZ: number;
 };
 
+type ElementsMetaResult = {
+  orderedElementsForPreview: TimelineElement[];
+  elementsWithSources: Record<string, TimelineElement>;
+  elementMap: Record<string, TimelineElement>;
+  elementTrackMap: Map<string, string>;
+  minZIndex: number;
+  maxZIndex: number;
+  objectUrlCache: Map<string, string>;
+};
+
 /**
  * 预览面板容器：
  * - 从 project/timeline/media/playback 等全局 store 汇集渲染所需数据；
@@ -66,52 +76,6 @@ export function PreviewPanelContainer() {
   const play = usePlaybackStore((state) => state.play);
   const pause = usePlaybackStore((state) => state.pause);
 
-  // 计算与缓存：按 zIndex（或回退顺序）排序后的元素列表与辅助映射
-  // 说明：
-  // 1. orderedElements 用于实际渲染顺序，优先 respect 自定义 zIndex。
-  // 2. elementMap / elementTrackMap 便于根据 id 快速读取元素及反查所在轨道。
-  // 3. fallbackZ 以 track 与 element 的索引组合，保证在缺少 zIndex 时也有稳定层级。
-  const elementsMeta = useMemo(() => {
-    const entries: ElementMeta[] = [];
-    const elementMap: Record<string, TimelineElement> = {};
-    const elementTrackMap = new Map<string, string>();
-
-    tracks.forEach((track, trackIndex) => {
-      track.elements.forEach((element, elementIndex) => {
-        const fallbackZ = trackIndex * 1000 + elementIndex;
-        entries.push({ element, trackId: track.id, fallbackZ });
-        elementMap[element.id] = element;
-        elementTrackMap.set(element.id, track.id);
-      });
-    });
-
-    const orderedElements = entries
-      .slice()
-      .sort((a, b) => {
-        const aValue = a.element.zIndex ?? a.fallbackZ;
-        const bValue = b.element.zIndex ?? b.fallbackZ;
-        if (aValue === bValue) {
-          return a.element.startTime - b.element.startTime;
-        }
-        return aValue - bValue;
-      })
-      .map((entry) => entry.element);
-
-    const zValues = entries.map((entry) => entry.element.zIndex ?? entry.fallbackZ);
-    const minZIndex = zValues.length > 0 ? Math.min(...zValues) : 0;
-    const maxZIndex = zValues.length > 0 ? Math.max(...zValues) : 0;
-
-    return {
-      orderedElements,
-      elementMap,
-      elementTrackMap,
-      minZIndex,
-      maxZIndex,
-    };
-  }, [tracks]);
-
-  const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = elementsMeta;
-
   // 根据媒体 id 快速获取媒体文件对象
   // 说明：预览面板渲染时需要频繁查找媒体信息（文件、预生成 url 等），
   // 使用 Map 可以避免 O(n) 的线性扫描，提高渲染数据构建效率。
@@ -122,6 +86,108 @@ export function PreviewPanelContainer() {
     });
     return map;
   }, [mediaFiles]);
+
+  const objectUrlCacheRef = useRef<Map<string, string>>(new Map());
+
+  // 计算与缓存：按 zIndex（或回退顺序）排序后的元素列表与辅助映射，并同步生成 remoteSource
+  // 说明：
+  // 1. orderedElementsForPreview 用于实际渲染顺序，优先 respect 自定义 zIndex。
+  // 2. elementMap / elementTrackMap 便于根据 id 快速读取元素及反查所在轨道。
+  // 3. fallbackZ 以 track 与 element 的索引组合，保证在缺少 zIndex 时也有稳定层级。
+  // 4. elementsWithSources/orderedElementsForPreview 在构建阶段即填充 remoteSource，避免额外遍历。
+  const elementsMeta: ElementsMetaResult = useMemo(() => {
+    const currentCache = objectUrlCacheRef.current;
+    const nextCache = new Map<string, string>();
+    const entries: ElementMeta[] = [];
+    const elementMap: Record<string, TimelineElement> = {};
+    const elementTrackMap = new Map<string, string>();
+    const elementsWithSources: Record<string, TimelineElement> = {};
+
+    const resolveRemoteSource = (mediaId: string): string | null => {
+      const media = mediaById.get(mediaId);
+      if (!media) {
+        console.warn(`Media asset ${mediaId} not found for preview rendering`);
+        return null;
+      }
+
+      if (media.url) {
+        return media.url;
+      }
+
+      const cachedUrl = currentCache.get(mediaId);
+      if (cachedUrl) {
+        nextCache.set(mediaId, cachedUrl);
+        return cachedUrl;
+      }
+
+      if (media.file) {
+        const url = URL.createObjectURL(media.file);
+        nextCache.set(mediaId, url);
+        return url;
+      }
+
+      return null;
+    };
+
+    tracks.forEach((track, trackIndex) => {
+      track.elements.forEach((element, elementIndex) => {
+        const fallbackZ = trackIndex * 1000 + elementIndex;
+        entries.push({ element, trackId: track.id, fallbackZ });
+        elementMap[element.id] = element;
+        elementTrackMap.set(element.id, track.id);
+
+        const clone = cloneDeep(element);
+        if (element.mediaId) {
+          const remoteSource = resolveRemoteSource(element.mediaId);
+          if (remoteSource) {
+            clone.remoteSource = remoteSource;
+          }
+        }
+        elementsWithSources[element.id] = clone;
+      });
+    });
+
+    const orderedEntries = entries
+      .slice()
+      .sort((a, b) => {
+        const aValue = a.element.zIndex ?? a.fallbackZ;
+        const bValue = b.element.zIndex ?? b.fallbackZ;
+        if (aValue === bValue) {
+          return a.element.startTime - b.element.startTime;
+        }
+        return aValue - bValue;
+      });
+
+    const orderedElementsForPreview = orderedEntries.map(
+      (entry) => elementsWithSources[entry.element.id]
+    );
+
+    const zValues = orderedEntries.map(
+      (entry) => entry.element.zIndex ?? entry.fallbackZ
+    );
+    const minZIndex = zValues.length > 0 ? Math.min(...zValues) : 0;
+    const maxZIndex = zValues.length > 0 ? Math.max(...zValues) : 0;
+
+    return {
+      orderedElementsForPreview,
+      elementsWithSources,
+      elementMap,
+      elementTrackMap,
+      minZIndex,
+      maxZIndex,
+      objectUrlCache: nextCache,
+    };
+  }, [tracks, mediaById]);
+
+  const {
+    orderedElementsForPreview,
+    elementsWithSources,
+    elementMap,
+    elementTrackMap,
+    minZIndex,
+    maxZIndex,
+    objectUrlCache: nextObjectUrlCache,
+  } = elementsMeta;
 
   // 计算当前选中的元素 id（若全局选择已失效/被删除则置空）
   // 说明：时间线 store 只保证选中状态对应的 id，元素可能因删除或撤销已不存在，
@@ -168,7 +234,6 @@ export function PreviewPanelContainer() {
     previewStoreRef.current = createPreviewPanelStore();
   }
   const previewStore = previewStoreRef.current;
-  const objectUrlCacheRef = useRef<Map<string, string>>(new Map());
 
   // 组件卸载时释放在浏览器内生成的 Object URL，避免内存泄漏
   // 说明：该缓存与媒体 file 字段相关，若不清理会导致浏览器内存增长。
@@ -183,70 +248,15 @@ export function PreviewPanelContainer() {
 
   // 当项目、尺寸或时间线发生变化时，准备具有 remoteSource 的片段副本并更新 store
   // 说明：
-  // 1. 维护一个 elementCache，保证同一元素只深拷贝一次；
-  // 2. resolveRemoteSource 根据媒体可用信息（远端 url 或本地 file）生成树；
-  // 3. Object URL 需在新一轮数据中回收冗余引用，避免泄漏。
+  // 1. elementsMeta 已预先深拷贝元素并填充 remoteSource，避免重复计算；
+  // 2. 更新 Object URL 缓存时及时回收未复用的引用，防止浏览器内存泄漏。
   useEffect(() => {
     if (!activeProject || !previewSize) {
       return;
     }
 
     const currentCache = objectUrlCacheRef.current;
-    const nextCache = new Map<string, string>();
-    const elementCache = new Map<string, TimelineElement>();
-
-    // 解析媒体资源的远端地址：优先使用已有 url，其次使用浏览器生成的 Object URL
-    const resolveRemoteSource = (mediaId: string): string | null => {
-      const media = mediaById.get(mediaId);
-      if (!media) {
-        console.warn(`Media asset ${mediaId} not found for preview rendering`);
-        return null;
-      }
-
-      if (media.url) {
-        return media.url;
-      }
-
-      const cachedUrl = currentCache.get(mediaId);
-      if (cachedUrl) {
-        nextCache.set(mediaId, cachedUrl);
-        return cachedUrl;
-      }
-
-      if (media.file) {
-        const url = URL.createObjectURL(media.file);
-        nextCache.set(mediaId, url);
-        return url;
-      }
-
-      return null;
-    };
-
-    // 深拷贝单个元素并填充 remoteSource（如可用）
-    // 说明：cloneDeep 保证不污染 store 源数据；同时在 elementCache 中复用结果。
-    const getElementClone = (element: TimelineElement): TimelineElement => {
-      const existing = elementCache.get(element.id);
-      if (existing) {
-        return existing;
-      }
-
-      const clone = cloneDeep(element);
-      if (element.mediaId) {
-        const remoteSource = resolveRemoteSource(element.mediaId);
-        if (remoteSource) {
-          clone.remoteSource = remoteSource;
-        }
-      }
-      elementCache.set(element.id, clone);
-      return clone;
-    };
-
-    const elementsWithSources: Record<string, TimelineElement> = {};
-    Object.entries(elementMap).forEach(([id, element]) => {
-      elementsWithSources[id] = getElementClone(element);
-    });
-
-    const orderedWithSources = orderedElements.map((element) => getElementClone(element));
+    const nextCache = nextObjectUrlCache;
 
     // 若上一轮缓存的 Object URL 未出现在新数据中，则释放对应引用
     currentCache.forEach((url, mediaId) => {
@@ -261,7 +271,7 @@ export function PreviewPanelContainer() {
       backgroundColor: activeProject.backgroundColor ?? "#000000",
       size: previewSize,
       elements: elementsWithSources,
-      orderedElements: orderedWithSources,
+      orderedElements: orderedElementsForPreview,
       minZIndex,
       maxZIndex,
       buffering: false,
@@ -269,12 +279,12 @@ export function PreviewPanelContainer() {
   }, [
     activeProject,
     previewSize,
-    elementMap,
-    orderedElements,
+    elementsWithSources,
+    orderedElementsForPreview,
     minZIndex,
     maxZIndex,
-    mediaById,
     previewStore,
+    nextObjectUrlCache,
   ]);
 
   // 播放状态、时间戳、与选中元素的同步
