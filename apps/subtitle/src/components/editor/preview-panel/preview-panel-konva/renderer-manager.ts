@@ -20,16 +20,16 @@ import { createWaveRenderer, type WaveRenderer } from "../renderers/wave";
 import type { PreviewPanelContext } from "./types";
 
 /**
- * 负责根据 orderedSegments 维护各类具体渲染器（文本、图片、视频、音频、波形、形状、进度条等）。
+ * 负责根据 orderedElements 维护各类具体渲染器（文本、图片、视频、音频、波形、形状、进度条等）。
  * - 支持去抖/合并多次同步请求（队列化）；
  * - 在舞台/音频上下文准备就绪后再创建渲染器；
- * - 当 segment 消失或不可渲染时销毁对应渲染器。
+ * - 当 element 消失或不可渲染时销毁对应渲染器。
  */
 export class RendererManager {
   private readonly context: PreviewPanelContext;
   private readonly renderers: Map<string, BaseRenderer<TimelineElement>> = new Map();
-  private segmentSyncInFlight = false;
-  private queuedSegmentSync: TimelineElement[] | null = null;
+  private elementSyncInFlight = false;
+  private queuedElementSync: TimelineElement[] | null = null;
 
   constructor(context: PreviewPanelContext) {
     this.context = context;
@@ -38,26 +38,26 @@ export class RendererManager {
   destroy(): void {
     this.renderers.forEach((renderer) => renderer.destroy());
     this.renderers.clear();
-    this.segmentSyncInFlight = false;
-    this.queuedSegmentSync = null;
+    this.elementSyncInFlight = false;
+    this.queuedElementSync = null;
   }
 
   forEach(callback: (renderer: BaseRenderer<TimelineElement>) => void): void {
     this.renderers.forEach(callback);
   }
 
-  handlePreviewError(segmentId: string): void {
-    console.error(`Error rendering segment ${segmentId}. Attempting recovery.`);
+  handlePreviewError(elementId: string): void {
+    console.error(`Error rendering element ${elementId}. Attempting recovery.`);
     try {
-      const segment = this.context.store.getState().getSegmentById(segmentId);
+      const element = this.context.store.getState().getElementById(elementId);
       const { stage, transformer, layer } = this.context.getState();
-      if (!segment || !stage) {
+      if (!element || !stage) {
         return;
       }
-      const node = stage.findOne(`#${segmentId}`);
+      const node = stage.findOne(`#${elementId}`);
       node?.destroy();
       layer?.batchDraw();
-      if (this.context.getState().selectedShapeName === segmentId && transformer) {
+      if (this.context.getState().selectedShapeName === elementId && transformer) {
         transformer.detach();
         transformer.forceUpdate();
       }
@@ -67,34 +67,34 @@ export class RendererManager {
   }
 
   /** 请求同步渲染器集合：新请求会覆盖队列的目标，串行逐一执行，避免重复构建/销毁。 */
-  async syncSegmentRenderers(ordered: TimelineElement[]): Promise<void> {
-    this.queuedSegmentSync = ordered;
-    if (this.segmentSyncInFlight) {
+  async syncElementRenderers(ordered: TimelineElement[]): Promise<void> {
+    this.queuedElementSync = ordered;
+    if (this.elementSyncInFlight) {
       return;
     }
 
-    this.segmentSyncInFlight = true;
+    this.elementSyncInFlight = true;
     try {
-      while (this.queuedSegmentSync) {
-        const nextOrdered = this.queuedSegmentSync;
-        this.queuedSegmentSync = null;
+      while (this.queuedElementSync) {
+        const nextOrdered = this.queuedElementSync;
+        this.queuedElementSync = null;
         if (!nextOrdered) {
           continue;
         }
-        await this.performSegmentSync(nextOrdered);
+        await this.performElementSync(nextOrdered);
       }
     } finally {
-      this.segmentSyncInFlight = false;
+      this.elementSyncInFlight = false;
     }
   }
 
   /**
    * 执行一次实际的同步：
-   * - 为每个需要渲染的 segment 创建或更新对应 renderer；
+   * - 为每个需要渲染的 element 创建或更新对应 renderer；
    * - 不需要的 renderer 将被销毁；
    * - 同步 zIndex、可见性与播放状态。
    */
-  private async performSegmentSync(ordered: TimelineElement[]): Promise<void> {
+  private async performElementSync(ordered: TimelineElement[]): Promise<void> {
     const state = this.context.getState();
     const { stage, videoGroup, konvaInit, audioContext, analyzer, currentTimestamp, playing, layer } = state;
     if (!stage || !videoGroup || !konvaInit) {
@@ -104,11 +104,11 @@ export class RendererManager {
     const frameContext = this.context.getRendererFrameContext();
     const seen = new Set<string>();
     for (let index = 0; index < ordered.length; index += 1) {
-      const segment = ordered[index];
-      const id = segment.id;
+      const element = ordered[index];
+      const id = element.id;
       seen.add(id);
 
-      if (!this.shouldRenderSegment(segment, Boolean(audioContext), Boolean(analyzer))) {
+      if (!this.shouldRenderElement(element, Boolean(audioContext), Boolean(analyzer))) {
         const existing = this.renderers.get(id);
         if (existing) {
           existing.destroy();
@@ -119,25 +119,25 @@ export class RendererManager {
 
       let renderer = this.renderers.get(id);
       if (!renderer) {
-        renderer = await this.createRenderer(segment);
+        renderer = await this.createRenderer(element);
         if (!renderer) {
           continue;
         }
         this.renderers.set(id, renderer);
         renderer.frameUpdate(frameContext);
       } else {
-        renderer.update(segment);
+        renderer.update(element);
         renderer.frameUpdate(frameContext);
       }
 
-      if (segment.type === "video" && audioContext && analyzer) {
+      if (element.type === "video" && audioContext && analyzer) {
         (renderer as VideoRenderer).ensureAudioContext?.(audioContext, analyzer);
       }
-      if (segment.type === "wave" && audioContext && analyzer) {
+      if (element.type === "wave" && audioContext && analyzer) {
         (renderer as WaveRenderer).ensureAudioContext?.(audioContext, analyzer);
       }
 
-      renderer.setZIndex(segment.zIndex ?? index);
+      renderer.setZIndex(element.zIndex ?? index);
       renderer.syncVisibility(currentTimestamp);
       renderer.handlePlayingChange(playing);
     }
@@ -152,23 +152,23 @@ export class RendererManager {
     layer?.batchDraw();
   }
 
-  /** 根据 segment 的类型创建具体渲染器。视频/音频需要音频上下文才创建。 */
-  private async createRenderer(segment: TimelineElement): Promise<BaseRenderer<TimelineElement> | null> {
+  /** 根据 element 的类型创建具体渲染器。视频/音频需要音频上下文才创建。 */
+  private async createRenderer(element: TimelineElement): Promise<BaseRenderer<TimelineElement> | null> {
     const state = this.context.getState();
     const { stage, videoGroup, audioContext, analyzer } = state;
     if (!stage || !videoGroup) {
       return null;
     }
 
-    const updateSegment = (payload: Partial<TimelineElement> & { id: string }) => this.context.actions.updateSegment(payload);
+    const updateElement = (payload: Partial<TimelineElement> & { id: string }) => this.context.actions.updateElement(payload);
 
-    switch (segment.type) {
+    switch (element.type) {
       case "text": {
         const renderer = createTextRenderer({
-          segment: segment as TextElement,
+          element: element as TextElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
         });
         try {
           await renderer.initialize();
@@ -181,10 +181,10 @@ export class RendererManager {
       }
       case "subtitles": {
         const renderer = createSubtitleRenderer({
-          segment: segment as TextElement,
+          element: element as TextElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
         });
         try {
           await renderer.initialize();
@@ -197,10 +197,10 @@ export class RendererManager {
       }
       case "image": {
         const renderer = createImageRenderer({
-          segment: segment as ImageElement,
+          element: element as ImageElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
         });
         try {
           await renderer.initialize();
@@ -213,10 +213,10 @@ export class RendererManager {
       }
       case "shape": {
         const renderer = createShapeRenderer({
-          segment: segment as ShapeElement,
+          element: element as ShapeElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
         });
         try {
           await renderer.initialize();
@@ -229,10 +229,10 @@ export class RendererManager {
       }
       case "progress_bar": {
         const renderer = createProgressBarRenderer({
-          segment: segment as ProgressBarElement,
+          element: element as ProgressBarElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
         });
         try {
           await renderer.initialize();
@@ -245,10 +245,10 @@ export class RendererManager {
       }
       case "wave": {
         const renderer = createWaveRenderer({
-          segment: segment as WaveElement,
+          element: element as WaveElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
           audioContext: audioContext ?? undefined,
           analyzer: analyzer ?? undefined,
         });
@@ -263,10 +263,10 @@ export class RendererManager {
       }
       case "video": {
         const renderer = createVideoRenderer({
-          segment: segment as VideoElement,
+          element: element as VideoElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
           audioContext,
           analyzer,
         });
@@ -284,10 +284,10 @@ export class RendererManager {
           return null;
         }
         const renderer = createAudioRenderer({
-          segment: segment as AudioElement,
+          element: element as AudioElement,
           stage,
           container: videoGroup,
-          updateSegment,
+          updateElement,
           audioContext,
           analyzer,
         });
@@ -306,8 +306,8 @@ export class RendererManager {
   }
 
   /** 判断某段落是否可渲染（视频/音频需要音频上下文和解析到的 remoteSource）。 */
-  private shouldRenderSegment(segment: TimelineElement, hasAudioContext: boolean, hasAnalyzer: boolean): boolean {
-    switch (segment.type) {
+  private shouldRenderElement(element: TimelineElement, hasAudioContext: boolean, hasAnalyzer: boolean): boolean {
+    switch (element.type) {
       case "text":
       case "subtitles":
       case "image":
@@ -317,7 +317,7 @@ export class RendererManager {
         return true;
       case "video":
       case "audio":
-        return Boolean(hasAudioContext && hasAnalyzer && segment.remoteSource);
+        return Boolean(hasAudioContext && hasAnalyzer && element.remoteSource);
       default:
         return false;
     }

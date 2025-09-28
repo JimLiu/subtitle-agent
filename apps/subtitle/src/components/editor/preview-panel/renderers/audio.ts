@@ -24,23 +24,23 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
   }
 
   protected async createNode(): Promise<Konva.Group> {
-    await this.ensureMediaElement(this.segment);
+    await this.ensureMediaElement(this.element);
     return new Konva.Group({
-      id: this.segment.id,
-      name: this.segment.id,
+      id: this.element.id,
+      name: this.element.id,
       visible: false,
       listening: false,
     });
   }
 
-  protected onSegmentUpdated(segment: AudioElement, previous: AudioElement): void {
-    if (segment.volume !== previous.volume && this.mediaElement) {
-      this.mediaElement.volume = this.resolveVolume(segment.volume);
+  protected onElementUpdated(element: AudioElement, previous: AudioElement): void {
+    if (element.volume !== previous.volume && this.mediaElement) {
+      this.mediaElement.volume = this.resolveVolume(element.volume);
     }
 
-    const nextKey = this.getSourceKey(segment);
+    const nextKey = this.getSourceKey(element);
     if (nextKey !== this.sourceKey) {
-      void this.ensureMediaElement(segment);
+      void this.ensureMediaElement(element);
     }
   }
 
@@ -88,12 +88,12 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
     }
   }
 
-  private getSourceKey(segment: AudioElement): string | null {
-    return segment.remoteSource ?? segment.mediaId ?? null;
+  private getSourceKey(element: AudioElement): string | null {
+    return element.remoteSource ?? element.mediaId ?? null;
   }
 
-  private async ensureMediaElement(segment: AudioElement): Promise<void> {
-    const key = this.getSourceKey(segment);
+  private async ensureMediaElement(element: AudioElement): Promise<void> {
+    const key = this.getSourceKey(element);
     this.sourceKey = key;
 
     if (!this.mediaElement) {
@@ -110,19 +110,19 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
     }
 
     const audio = this.mediaElement;
-    if (!key || !segment.remoteSource) {
+    if (!key || !element.remoteSource) {
       audio.pause();
       audio.removeAttribute('src');
       audio.load();
-      if (segment.mediaId && !segment.remoteSource) {
-        console.warn(`Missing remote source for audio segment ${segment.id}`);
+      if (element.mediaId && !element.remoteSource) {
+        console.warn(`Missing remote source for audio element ${element.id}`);
       }
       return;
     }
     audio.pause();
     audio.removeAttribute('src');
-    audio.src = segment.remoteSource;
-    audio.volume = this.resolveVolume(segment.volume);
+    audio.src = element.remoteSource;
+    audio.volume = this.resolveVolume(element.volume);
   }
 
   private syncToTimestamp(timestamp: number, force: boolean): void {
@@ -133,7 +133,7 @@ export class AudioRenderer extends BaseRenderer<AudioElement> {
     if (this.playing && !force) {
       return;
     }
-    const offset = timestamp - this.segment.startTime + this.segment.trimStart;
+    const offset = timestamp - this.element.startTime + this.element.trimStart;
     const seconds = Number.isFinite(offset) ? offset : 0;
     if (Math.abs(audio.currentTime - seconds) > 0.05) {
       audio.currentTime = seconds >= 0 ? seconds : 0;

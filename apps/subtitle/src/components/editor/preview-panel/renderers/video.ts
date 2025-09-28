@@ -5,7 +5,7 @@ import type { WrappedCanvas } from 'mediabunny';
 import { VideoElement } from "@/types/timeline";
 
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
-import { getSegmentEndTime } from '../deps/segment-helpers';
+import { getElementEndTime } from '../deps/element-helpers';
 import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
 
 export interface VideoRendererOptions extends BaseRendererOptions<VideoElement> {
@@ -34,30 +34,30 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
   }
 
   protected async createNode(): Promise<Konva.Image> {
-    const segment = this.segment;
+    const element = this.element;
 
     const video = document.createElement('video');
     video.crossOrigin = 'anonymous';
     video.preload = 'auto';
     video.loop = true;
-    video.volume = this.resolveVolume(segment.volume);
+    video.volume = this.resolveVolume(element.volume);
 
     this.mediaElement = video;
 
     let sourceConfigured = false;
 
-    if (segment.remoteSource) {
-      video.src = segment.remoteSource;
+    if (element.remoteSource) {
+      video.src = element.remoteSource;
       sourceConfigured = true;
-    } else if (segment.mediaId) {
-      console.warn(`Missing remote source for video segment ${segment.id}`);
+    } else if (element.mediaId) {
+      console.warn(`Missing remote source for video element ${element.id}`);
     }
 
     const node = new Konva.Image({
       image: video,
-      cornerRadius: segment.cornerRadius ?? 0,
-      id: segment.id,
-      name: segment.id,
+      cornerRadius: element.cornerRadius ?? 0,
+      id: element.id,
+      name: element.id,
     });
 
     if (sourceConfigured) {
@@ -86,17 +86,17 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
     return node;
   }
 
-  protected onSegmentUpdated(segment: VideoElement, _previous: VideoElement): void {
+  protected onElementUpdated(element: VideoElement, _previous: VideoElement): void {
     const node = this.node as Konva.Image | null;
     if (!node) {
       return;
     }
     const video = this.mediaElement;
-    if (segment.cornerRadius !== undefined) {
-      node.cornerRadius(segment.cornerRadius ?? 0);
+    if (element.cornerRadius !== undefined) {
+      node.cornerRadius(element.cornerRadius ?? 0);
     }
-    if (video && segment.volume !== undefined) {
-      video.volume = this.resolveVolume(segment.volume);
+    if (video && element.volume !== undefined) {
+      video.volume = this.resolveVolume(element.volume);
     }
   }
 
@@ -120,7 +120,7 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
     }
 
     if (!this.playing) {
-      const offset = timestamp - this.segment.startTime + this.segment.trimStart;
+      const offset = timestamp - this.element.startTime + this.element.trimStart;
       if (offset >= 0 && Math.abs(video.currentTime - offset) > 0.05) {
         video.currentTime = offset;
       }
@@ -219,8 +219,8 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
     if (!this.mediaElement) {
       return;
     }
-    const endTime = getSegmentEndTime(this.segment);
-    if (timestamp < this.segment.startTime || timestamp > endTime) {
+    const endTime = getElementEndTime(this.element);
+    if (timestamp < this.element.startTime || timestamp > endTime) {
       return;
     }
     await this.seekToTimestamp(timestamp);
@@ -255,9 +255,9 @@ export class VideoRenderer extends BaseRenderer<VideoElement> {
 
     await this.ensureMetadata(video);
 
-    const segmentStart = this.segment.startTime ?? 0;
-    const segmentTrim = this.segment.trimStart;
-    const offset = timestamp - segmentStart + segmentTrim;
+    const elementStart = this.element.startTime ?? 0;
+    const elementTrim = this.element.trimStart;
+    const offset = timestamp - elementStart + elementTrim;
     if (!Number.isFinite(offset) || offset < 0) {
       return;
     }

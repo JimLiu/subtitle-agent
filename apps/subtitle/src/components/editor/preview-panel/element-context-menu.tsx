@@ -1,4 +1,4 @@
-interface SegmentContextMenuProps {
+interface ElementContextMenuProps {
   x: number;
   y: number;
   onClose: () => void;
@@ -9,7 +9,7 @@ interface SegmentContextMenuProps {
 }
 
 // 预览画布右键菜单：提供复制/置顶/置底/删除等快捷操作
-export const SegmentContextMenu: React.FC<SegmentContextMenuProps> = (props: SegmentContextMenuProps) => {
+export const ElementContextMenu: React.FC<ElementContextMenuProps> = (props: ElementContextMenuProps) => {
   const { x, y, onClose, onDuplicate, onBringToFront, onSendToBack, onRemove } = props;
 
   return (

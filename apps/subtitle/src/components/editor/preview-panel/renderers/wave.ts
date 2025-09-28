@@ -35,24 +35,24 @@ export class WaveRenderer extends BaseRenderer<WaveElement> {
   }
 
   protected createNode(): Konva.Rect {
-    const segment = this.segment;
+    const element = this.element;
 
     const node = new Konva.Rect({
-      id: segment.id,
-      name: segment.id,
-      x: segment.x ?? 0,
-      y: segment.y ?? 0,
-      fill: segment.color ?? '#000000',
-      opacity: segment.opacity,
-      rotation: segment.rotation,
-      scaleX: segment.scale?.x ?? 1,
-      scaleY: segment.scale?.y ?? 1,
-      width: segment.width ?? 100,
-      height: segment.height ?? 100,
-      bars: segment.bars ?? 64,
-      corners: segment.corners ?? 20,
+      id: element.id,
+      name: element.id,
+      x: element.x ?? 0,
+      y: element.y ?? 0,
+      fill: element.color ?? '#000000',
+      opacity: element.opacity,
+      rotation: element.rotation,
+      scaleX: element.scale?.x ?? 1,
+      scaleY: element.scale?.y ?? 1,
+      width: element.width ?? 100,
+      height: element.height ?? 100,
+      bars: element.bars ?? 64,
+      corners: element.corners ?? 20,
       fftData: [],
-      waveType: segment.wave ?? 'bar',
+      waveType: element.wave ?? 'bar',
       draggable: true,
       listening: true,
       sceneFunc: (context, shape) => {
@@ -127,29 +127,29 @@ export class WaveRenderer extends BaseRenderer<WaveElement> {
     });
   }
 
-  protected onSegmentUpdated(segment: WaveElement, previous: WaveElement): void {
+  protected onElementUpdated(element: WaveElement, previous: WaveElement): void {
     const node = this.node as Konva.Rect | null;
     if (!node) {
       return;
     }
 
-    if (segment.width !== previous.width && segment.width) {
-      node.width(segment.width);
+    if (element.width !== previous.width && element.width) {
+      node.width(element.width);
     }
-    if (segment.height !== previous.height && segment.height) {
-      node.height(segment.height);
+    if (element.height !== previous.height && element.height) {
+      node.height(element.height);
     }
-    if (segment.bars !== previous.bars && segment.bars !== undefined) {
-      node.setAttr('bars', segment.bars);
+    if (element.bars !== previous.bars && element.bars !== undefined) {
+      node.setAttr('bars', element.bars);
     }
-    if (segment.corners !== previous.corners && segment.corners !== undefined) {
-      node.setAttr('corners', segment.corners);
+    if (element.corners !== previous.corners && element.corners !== undefined) {
+      node.setAttr('corners', element.corners);
     }
-    if (segment.wave !== previous.wave && segment.wave) {
-      node.setAttr('waveType', segment.wave);
+    if (element.wave !== previous.wave && element.wave) {
+      node.setAttr('waveType', element.wave);
     }
 
-    const nextColor = segment.color;
+    const nextColor = element.color;
     const prevColor = previous.color;
     if (nextColor && nextColor !== prevColor) {
       node.fill(nextColor);

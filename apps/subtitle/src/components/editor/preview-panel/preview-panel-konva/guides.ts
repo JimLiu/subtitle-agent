@@ -11,7 +11,7 @@ export function getLineGuideStops(
   stage: Konva.Stage,
   idealWidth: number,
   idealHeight: number,
-  segments: TimelineElement[],
+  elements: TimelineElement[],
   container: Konva.Group,
 ) {
   const vertical: number[] = [0, idealWidth / 2, idealWidth];
@@ -21,16 +21,16 @@ export function getLineGuideStops(
     wrapper = wrapper.getParent();
   }
 
-  segments.forEach((segment) => {
-    stage.find(`#${segment.id}`).forEach((shape) => {
-      if (wrapper.id && wrapper.id() === segment.id) {
+  elements.forEach((element) => {
+    stage.find(`#${element.id}`).forEach((shape) => {
+      if (wrapper.id && wrapper.id() === element.id) {
         return;
       }
       const rect = shape.getClientRect({ relativeTo: container });
       const width = rect.width;
       const height = rect.height;
-      const positionX = segment.x ?? 0;
-      const positionY = segment.y ?? 0;
+      const positionX = element.x ?? 0;
+      const positionY = element.y ?? 0;
       vertical.push(positionX);
       vertical.push(positionX + width);
       vertical.push(positionX + width / 2);

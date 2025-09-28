@@ -8,21 +8,21 @@ import { BaseRenderer, BaseRendererOptions, RendererFrameInfo } from './base';
 /** 进度条渲染器：支持 bar/circle 等样式，按本地进度百分比绘制。 */
 export class ProgressBarRenderer extends BaseRenderer<ProgressBarElement> {
   protected createNode(): Konva.Rect {
-    const segment = this.segment;
+    const element = this.element;
     return new Konva.Rect({
-      id: segment.id,
-      name: segment.id,
-      x: segment.x ?? 0,
-      y: segment.y ?? 0,
-      fill: segment.color ?? '#FFFFFF',
-      opacity: segment.opacity,
-      rotation: segment.rotation,
-      scaleX: segment.scale?.x ?? 1,
-      scaleY: segment.scale?.y ?? 1,
-      width: segment.width ?? 100,
-      height: segment.height ?? 20,
-      barType: segment.barType,
-      options: segment.options,
+      id: element.id,
+      name: element.id,
+      x: element.x ?? 0,
+      y: element.y ?? 0,
+      fill: element.color ?? '#FFFFFF',
+      opacity: element.opacity,
+      rotation: element.rotation,
+      scaleX: element.scale?.x ?? 1,
+      scaleY: element.scale?.y ?? 1,
+      width: element.width ?? 100,
+      height: element.height ?? 20,
+      barType: element.barType,
+      options: element.options,
       draggable: true,
       sceneFunc: (context, shape) => {
         const barType = (shape.getAttr('barType') as string) ?? 'bar';
@@ -49,26 +49,26 @@ export class ProgressBarRenderer extends BaseRenderer<ProgressBarElement> {
     node.setAttr('progress', info.progress);
   }
 
-  protected onSegmentUpdated(segment: ProgressBarElement, previous: ProgressBarElement): void {
+  protected onElementUpdated(element: ProgressBarElement, previous: ProgressBarElement): void {
     const node = this.node as Konva.Rect | null;
     if (!node) {
       return;
     }
 
-    if (segment.width !== previous.width && segment.width) {
-      node.width(segment.width);
+    if (element.width !== previous.width && element.width) {
+      node.width(element.width);
     }
-    if (segment.height !== previous.height && segment.height) {
-      node.height(segment.height);
+    if (element.height !== previous.height && element.height) {
+      node.height(element.height);
     }
-    if (segment.barType !== previous.barType && segment.barType) {
-      node.setAttr('barType', segment.barType);
+    if (element.barType !== previous.barType && element.barType) {
+      node.setAttr('barType', element.barType);
     }
-    if (segment.options && segment.options !== previous.options) {
-      node.setAttr('options', segment.options);
+    if (element.options && element.options !== previous.options) {
+      node.setAttr('options', element.options);
     }
 
-    const nextColor = segment.color;
+    const nextColor = element.color;
     const prevColor = previous.color;
     if (nextColor && nextColor !== prevColor) {
       node.fill(nextColor);

@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cloneDeep from "lodash/cloneDeep";
 import { useStore } from "zustand";
 
-import { SegmentContextMenu } from "./segment-context-menu";
+import { ElementContextMenu } from "./element-context-menu";
 import { TimelineElement } from "@/types/timeline";
 
-import { getSegmentEndTime } from "./deps/segment-helpers";
+import { getElementEndTime } from "./deps/element-helpers";
 import type { PreviewPanelKonvaActions } from "./preview-panel-konva";
 import {
   PreviewPanelStore,
@@ -32,28 +32,28 @@ interface PreviewPanelViewProps {
   store?: PreviewPanelStore;
   className?: string;
   onPlayingChange?: (value: boolean) => void;
-  onSelectedSegmentChange?: (segmentId: string | null) => void;
+  onSelectedElementChange?: (elementId: string | null) => void;
   onActiveToolChange?: (tool: string | null) => void;
-  onSegmentUpdate?: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
+  onElementUpdate?: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
   onPreviewThumbnailChange?: (path: string) => void | Promise<void>;
-  onDeleteSegment?: (segmentId: string) => void | Promise<void>;
-  onDuplicateSegment?: (payload: { id: string }) => void | Promise<void>;
+  onDeleteElement?: (elementId: string) => void | Promise<void>;
+  onDuplicateElement?: (payload: { id: string }) => void | Promise<void>;
 }
 
-function getDurationFromSegments(segments: PreviewPanelStoreState["segments"]): number {
-  return Object.values(segments).reduce((acc, segment) => {
-    if (!segment) {
+function getDurationFromElements(elements: PreviewPanelStoreState["elements"]): number {
+  return Object.values(elements).reduce((acc, element) => {
+    if (!element) {
       return acc;
     }
-    return Math.max(acc, getSegmentEndTime(segment));
+    return Math.max(acc, getElementEndTime(element));
   }, 0);
 }
 
-function generateSegmentId(): string {
+function generateElementId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-  return `segment-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+  return `element-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 }
 
 export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
@@ -61,12 +61,12 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     store: providedStore,
     className,
     onPlayingChange,
-    onSelectedSegmentChange,
+    onSelectedElementChange,
     onActiveToolChange,
-    onSegmentUpdate,
+    onElementUpdate,
     onPreviewThumbnailChange,
-    onDeleteSegment,
-    onDuplicateSegment,
+    onDeleteElement,
+    onDuplicateElement,
   } = props;
 
   // 渲染容器引用：用于挂载 Konva 舞台
@@ -92,14 +92,14 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
   const playing = useStore(storeApi, (state) => state.playing);
   const konvaInit = useStore(storeApi, (state) => state.konvaInit);
   const currentTimestamp = useStore(storeApi, (state) => state.currentTimestamp);
-  const segments = useStore(storeApi, (state) => state.segments);
+  const elements = useStore(storeApi, (state) => state.elements);
   const buffering = useStore(storeApi, (state) => state.buffering);
-  const selectedSegment = useStore(storeApi, (state) => state.selectedSegment);
+  const selectedElement = useStore(storeApi, (state) => state.selectedElement);
   const showContextMenu = useStore(storeApi, (state) => state.showContextMenu);
   const contextMenuPosition = useStore(storeApi, (state) => state.contextMenuPosition);
-  const shouldShowContextMenu = showContextMenu && Boolean(selectedSegment);
+  const shouldShowContextMenu = showContextMenu && Boolean(selectedElement);
 
-  const duration = useMemo(() => getDurationFromSegments(segments), [segments]);
+  const duration = useMemo(() => getDurationFromElements(elements), [elements]);
 
   // 便捷 patch：写回到 store
   const patch = useCallback(
@@ -129,12 +129,12 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
     [onPlayingChange, patch, storeApi],
   );
 
-  const handleSetSelectedSegment = useCallback(
-    (segmentId: string | null) => {
-      patch({ selectedSegment: segmentId });
-      onSelectedSegmentChange?.(segmentId);
+  const handleSetSelectedElement = useCallback(
+    (elementId: string | null) => {
+      patch({ selectedElement: elementId });
+      onSelectedElementChange?.(elementId);
     },
-    [onSelectedSegmentChange, patch],
+    [onSelectedElementChange, patch],
   );
 
   const handleRemoveActiveTool = useCallback(() => {
@@ -149,23 +149,23 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
   );
 
   // 合并更新指定段落（先本地更新，再通知外部）
-  const handleUpdateSegment = useCallback(
+  const handleUpdateElement = useCallback(
     async (payload: Partial<TimelineElement> & { id: string }) => {
       const state = storeApi.getState();
-      const existing = state.segments[payload.id];
+      const existing = state.elements[payload.id];
       if (!existing) {
         return;
       }
       const updated: TimelineElement = { ...existing, ...cloneDeep(payload) } as TimelineElement;
       patch({
-        segments: {
-          ...state.segments,
+        elements: {
+          ...state.elements,
           [payload.id]: updated,
         },
       });
-      await onSegmentUpdate?.(payload);
+      await onElementUpdate?.(payload);
     },
-    [onSegmentUpdate, patch, storeApi],
+    [onElementUpdate, patch, storeApi],
   );
 
   const handleSetPreviewThumbnail = useCallback(
@@ -176,40 +176,40 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
   );
 
   // 删除指定段落（先本地、再外部）
-  const handleDeleteSegment = useCallback(
-    async (segmentId: string) => {
+  const handleDeleteElement = useCallback(
+    async (elementId: string) => {
       const state = storeApi.getState();
-      if (!state.segments[segmentId]) {
+      if (!state.elements[elementId]) {
         return;
       }
-      const nextSegments = { ...state.segments };
-      delete nextSegments[segmentId];
-      patch({ segments: nextSegments });
-      await onDeleteSegment?.(segmentId);
+      const nextElements = { ...state.elements };
+      delete nextElements[elementId];
+      patch({ elements: nextElements });
+      await onDeleteElement?.(elementId);
     },
-    [onDeleteSegment, patch, storeApi],
+    [onDeleteElement, patch, storeApi],
   );
 
   // 复制段落：生成新 id，提升 zIndex
-  const handleDuplicateSegment = useCallback(
+  const handleDuplicateElement = useCallback(
     async (payload: { id: string }) => {
       const state = storeApi.getState();
-      const segment = state.segments[payload.id];
-      if (!segment) {
+      const element = state.elements[payload.id];
+      if (!element) {
         return;
       }
-      const cloned = cloneDeep(segment);
-      const newId = generateSegmentId();
+      const cloned = cloneDeep(element);
+      const newId = generateElementId();
       cloned.id = newId;
       cloned.zIndex = (state.maxZIndex ?? 0) + 1;
-      const nextSegments = {
-        ...state.segments,
+      const nextElements = {
+        ...state.elements,
         [newId]: cloned,
       };
-      patch({ segments: nextSegments });
-      await onDuplicateSegment?.(payload);
+      patch({ elements: nextElements });
+      await onDuplicateElement?.(payload);
     },
-    [onDuplicateSegment, patch, storeApi],
+    [onDuplicateElement, patch, storeApi],
   );
 
   const handleContextMenuClose = useCallback(() => {
@@ -235,23 +235,23 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
   const actionCallbacks = useMemo<PreviewPanelKonvaActions>(
     () => ({
       setPlaying: handleSetPlaying,
-      setSelectedSegment: handleSetSelectedSegment,
+      setSelectedElement: handleSetSelectedElement,
       removeActiveTool: handleRemoveActiveTool,
       setActiveTool: handleSetActiveTool,
-      updateSegment: handleUpdateSegment,
+      updateElement: handleUpdateElement,
       setPreviewThumbnail: handleSetPreviewThumbnail,
-      deleteSegment: handleDeleteSegment,
-      duplicateSegment: handleDuplicateSegment,
+      deleteElement: handleDeleteElement,
+      duplicateElement: handleDuplicateElement,
     }),
     [
-      handleDeleteSegment,
-      handleDuplicateSegment,
+      handleDeleteElement,
+      handleDuplicateElement,
       handleRemoveActiveTool,
       handleSetActiveTool,
       handleSetPlaying,
       handleSetPreviewThumbnail,
-      handleSetSelectedSegment,
-      handleUpdateSegment,
+      handleSetSelectedElement,
+      handleUpdateElement,
     ],
   );
 
@@ -418,7 +418,7 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
       </div>
 
       {shouldShowContextMenu ? (
-        <SegmentContextMenu
+        <ElementContextMenu
           x={contextMenuPosition.x}
           y={contextMenuPosition.y}
           onClose={handleContextMenuClose}

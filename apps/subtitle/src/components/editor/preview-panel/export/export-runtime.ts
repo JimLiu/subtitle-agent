@@ -22,26 +22,26 @@ import { createVideoRenderer, VideoRenderer } from '../renderers/video';
 import { createAudioRenderer } from '../renderers/audio';
 import { SpectrumAnalyzer } from '../deps/spectrum-analyzer';
 import { SAMPLE_RATE } from '../deps/constants';
-import { getSegmentEndTime } from '../deps/segment-helpers';
+import { getElementEndTime } from '../deps/element-helpers';
 
 // 预览导出运行时：隐藏在 DOM 中的最小舞台环境，用于逐帧渲染
 interface ManagedRenderer {
   renderer: BaseRenderer<TimelineElement>;
-  segment: TimelineElement;
+  element: TimelineElement;
 }
 
 export interface PreviewExportRuntimeConfig {
   width: number;
   height: number;
   backgroundColor: string;
-  segments: TimelineElement[];
+  elements: TimelineElement[];
 }
 
 export class PreviewExportRuntime {
   private readonly width: number;
   private readonly height: number;
   private readonly backgroundColor: string;
-  private readonly segments: TimelineElement[];
+  private readonly elements: TimelineElement[];
 
   private container: HTMLDivElement | null = null;
   private stage: Konva.Stage | null = null;
@@ -56,7 +56,7 @@ export class PreviewExportRuntime {
     this.width = config.width;
     this.height = config.height;
     this.backgroundColor = config.backgroundColor;
-    this.segments = config.segments;
+    this.elements = config.elements;
   }
 
   async initialize(): Promise<void> {
@@ -131,11 +131,11 @@ export class PreviewExportRuntime {
     const baseContext = this.createFrameContext(timestamp);
 
     for (const managed of this.managedRenderers) {
-      const { renderer, segment } = managed;
+      const { renderer, element } = managed;
 
-      const segmentStart = segment.startTime;
-      const segmentEnd = getSegmentEndTime(segment);
-      const isActive = timestamp >= segmentStart && timestamp <= segmentEnd;
+      const elementStart = element.startTime;
+      const elementEnd = getElementEndTime(element);
+      const isActive = timestamp >= elementStart && timestamp <= elementEnd;
 
       const frameContext: RendererFrameContext = {
         ...baseContext,
@@ -147,8 +147,8 @@ export class PreviewExportRuntime {
       if (isActive) {
         await renderer.prepareForFrame(timestamp);
       }
-      if (segment.type === 'video' && renderer instanceof VideoRenderer) {
-        await this.renderVideoSegmentFrame(renderer, segment as VideoElement, frameContext);
+      if (element.type === 'video' && renderer instanceof VideoRenderer) {
+        await this.renderVideoElementFrame(renderer, element as VideoElement, frameContext);
       } else {
         renderer.frameUpdate(frameContext);
       }
@@ -157,52 +157,52 @@ export class PreviewExportRuntime {
     this.layer.batchDraw();
   }
 
-  private async renderVideoSegmentFrame(
+  private async renderVideoElementFrame(
     renderer: VideoRenderer,
-    segment: VideoElement,
+    element: VideoElement,
     context: RendererFrameContext
   ): Promise<void> {
     renderer.frameUpdate(context);
 
-    const segmentStart = segment.startTime;
-    const segmentEnd = getSegmentEndTime(segment);
-    if (context.timestamp < segmentStart || context.timestamp > segmentEnd) {
+    const elementStart = element.startTime;
+    const elementEnd = getElementEndTime(element);
+    if (context.timestamp < elementStart || context.timestamp > elementEnd) {
       return;
     }
 
-    const source = await this.resolveVideoSource(segment);
+    const source = await this.resolveVideoSource(element);
     if (!source) {
       return;
     }
 
-    const localTime = context.timestamp - segmentStart + segment.trimStart;
+    const localTime = context.timestamp - elementStart + element.trimStart;
     if (localTime < 0) {
       return;
     }
 
     try {
-      const frame = await videoCache.getFrameAt(segment.id, source, Math.max(localTime, 0));
+      const frame = await videoCache.getFrameAt(element.id, source, Math.max(localTime, 0));
       if (frame) {
         renderer.applyCachedFrame(frame);
       }
     } catch (error) {
-      console.warn(`Failed to render video frame for ${segment.id}:`, error);
+      console.warn(`Failed to render video frame for ${element.id}:`, error);
     }
   }
 
-  private async resolveVideoSource(segment: VideoElement): Promise<File | Blob | string | null> {
-    const cached = this.videoSources.get(segment.id);
+  private async resolveVideoSource(element: VideoElement): Promise<File | Blob | string | null> {
+    const cached = this.videoSources.get(element.id);
     if (cached) {
       return cached;
     }
 
-    if (segment.remoteSource) {
-      this.videoSources.set(segment.id, segment.remoteSource);
-      return segment.remoteSource;
+    if (element.remoteSource) {
+      this.videoSources.set(element.id, element.remoteSource);
+      return element.remoteSource;
     }
 
-    if (segment.mediaId) {
-      console.warn(`Missing remote source for video segment ${segment.id}`);
+    if (element.mediaId) {
+      console.warn(`Missing remote source for video element ${element.id}`);
     }
 
     return null;
@@ -210,9 +210,9 @@ export class PreviewExportRuntime {
 
   destroy(): void {
     for (const managed of this.managedRenderers) {
-      if (managed.segment.type === 'video') {
-        videoCache.clearVideo(managed.segment.id);
-        this.videoSources.delete(managed.segment.id);
+      if (managed.element.type === 'video') {
+        videoCache.clearVideo(managed.element.id);
+        this.videoSources.delete(managed.element.id);
       }
       managed.renderer.destroy();
     }
@@ -263,73 +263,73 @@ export class PreviewExportRuntime {
       throw new Error('Preview export runtime stage is not ready');
     }
 
-    for (const segment of this.segments) {
-      const renderer = await this.createRenderer(segment);
+    for (const element of this.elements) {
+      const renderer = await this.createRenderer(element);
       if (!renderer) {
         continue;
       }
-      this.managedRenderers.push({ renderer: renderer as BaseRenderer<TimelineElement>, segment });
+      this.managedRenderers.push({ renderer: renderer as BaseRenderer<TimelineElement>, element });
     }
   }
 
-  private async createRenderer(segment: TimelineElement): Promise<BaseRenderer<TimelineElement> | null> {
+  private async createRenderer(element: TimelineElement): Promise<BaseRenderer<TimelineElement> | null> {
     if (!this.stage || !this.contentGroup) {
       return null;
     }
 
     const noopUpdate = async () => undefined;
 
-    switch (segment.type) {
+    switch (element.type) {
       case 'text':
         return this.initialiseRenderer(createTextRenderer({
-          segment: segment as TextElement,
+          element: element as TextElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
         })) as Promise<BaseRenderer<TimelineElement>>;
       case 'subtitles':
         return this.initialiseRenderer(createSubtitleRenderer({
-          segment: segment as TextElement,
+          element: element as TextElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
         })) as Promise<BaseRenderer<TimelineElement>>;
       case 'image':
         return this.initialiseRenderer(createImageRenderer({
-          segment: segment as ImageElement,
+          element: element as ImageElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
         })) as Promise<BaseRenderer<TimelineElement>>;
       case 'shape':
         return this.initialiseRenderer(createShapeRenderer({
-          segment: segment as ShapeElement,
+          element: element as ShapeElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
         })) as Promise<BaseRenderer<TimelineElement>>;
       case 'progress_bar':
         return this.initialiseRenderer(createProgressBarRenderer({
-          segment: segment as ProgressBarElement,
+          element: element as ProgressBarElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
         })) as Promise<BaseRenderer<TimelineElement>>;
       case 'wave':
         return this.initialiseRenderer(createWaveRenderer({
-          segment: segment as WaveElement,
+          element: element as WaveElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
           audioContext: this.audioContext ?? undefined,
           analyzer: this.analyzer ?? undefined,
         })) as Promise<BaseRenderer<TimelineElement>>;
       case 'video': {
         const renderer = createVideoRenderer({
-          segment: segment as VideoElement,
+          element: element as VideoElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
           audioContext: this.audioContext,
           analyzer: this.analyzer,
         });
@@ -344,10 +344,10 @@ export class PreviewExportRuntime {
           return null;
         }
         return this.initialiseRenderer(createAudioRenderer({
-          segment: segment as AudioElement,
+          element: element as AudioElement,
           stage: this.stage,
           container: this.contentGroup,
-          updateSegment: noopUpdate,
+          updateElement: noopUpdate,
           audioContext: this.audioContext,
           analyzer: this.analyzer,
         })) as Promise<BaseRenderer<TimelineElement>>;
@@ -364,8 +364,8 @@ export class PreviewExportRuntime {
   }
 
   private async ensureAudioInfrastructure(): Promise<void> {
-    const requiresAudio = this.segments.some((segment) =>
-      segment.type === 'wave' || segment.type === 'video' || segment.type === 'audio'
+    const requiresAudio = this.elements.some((element) =>
+      element.type === 'wave' || element.type === 'video' || element.type === 'audio'
     );
     if (!requiresAudio) {
       return;

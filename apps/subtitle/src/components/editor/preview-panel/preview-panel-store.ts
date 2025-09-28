@@ -69,15 +69,15 @@ export interface PreviewPanelState {
 
 /**
  * 预览面板的完整数据：
- * - selectedSegment/segments/orderedSegments：时间线元素与选中态；
+ * - selectedElement/elements/orderedElements：时间线元素与选中态；
  * - backgroundColor/size：画布背景与比例；
  * - currentTimestamp/playing/buffering：播放控制；
  * - minZIndex/maxZIndex：当前 zIndex 范围。
  */
 export interface PreviewPanelStoreData extends PreviewPanelState {
-  selectedSegment: string | null;
-  segments: Record<string, TimelineElement>;
-  orderedSegments: TimelineElement[];
+  selectedElement: string | null;
+  elements: Record<string, TimelineElement>;
+  orderedElements: TimelineElement[];
   backgroundColor: string;
   size: PreviewSize;
   currentTimestamp: number; // seconds
@@ -90,8 +90,8 @@ export interface PreviewPanelStoreData extends PreviewPanelState {
 /** Store 对外暴露的便捷方法。 */
 export interface PreviewPanelStoreActions {
   patch(partial: Partial<PreviewPanelStoreData>): void;
-  getSegmentsClone(): Record<string, TimelineElement>;
-  getSegmentById(id: string): TimelineElement | null;
+  getElementsClone(): Record<string, TimelineElement>;
+  getElementById(id: string): TimelineElement | null;
 }
 
 export type PreviewPanelStoreState = PreviewPanelStoreData & PreviewPanelStoreActions;
@@ -146,9 +146,9 @@ function createDefaultState(): PreviewPanelStoreData {
     mutationObserver: null,
     resizeObserver: null,
     stageAnimation: null,
-    selectedSegment: null,
-    segments: {},
-    orderedSegments: [],
+    selectedElement: null,
+    elements: {},
+    orderedElements: [],
     backgroundColor: "#000000",
     size: {
       ratio: "original",
@@ -164,7 +164,7 @@ function createDefaultState(): PreviewPanelStoreData {
 
 /**
  * 创建 PreviewPanel 的 Zustand 原始 store。
- * - 包含 patch、getSegmentsClone、getSegmentById 三个便捷方法；
+ * - 包含 patch、getElementsClone、getElementById 三个便捷方法；
  * - 使用 subscribeWithSelector 以便外部订阅局部状态。
  */
 export function createPreviewPanelStore(initialState: Partial<PreviewPanelStoreData> = {}): PreviewPanelStore {
@@ -175,12 +175,12 @@ export function createPreviewPanelStore(initialState: Partial<PreviewPanelStoreD
       patch(partial) {
         set(partial as Partial<PreviewPanelStoreState>);
       },
-      getSegmentsClone() {
-        return cloneDeep(get().segments);
+      getElementsClone() {
+        return cloneDeep(get().elements);
       },
-      getSegmentById(id) {
-        const segment = get().segments[id];
-        return segment ?? null;
+      getElementById(id) {
+        const element = get().elements[id];
+        return element ?? null;
       },
     })),
   );

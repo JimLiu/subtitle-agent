@@ -16,8 +16,8 @@ import { StageManager } from "./stage-manager";
 import {
   computeMaxZIndex,
   computeMinZIndex,
-  computeOrderedSegments,
-} from "./segment-utils";
+  computeOrderedElements,
+} from "./element-utils";
 import type {
   PreviewPanelActionHandlers,
   PreviewPanelContext,
@@ -72,8 +72,8 @@ export class PreviewPanelKonva {
     if (actions.setPlaying) {
       this.actions.setPlaying = actions.setPlaying;
     }
-    if (actions.setSelectedSegment) {
-      this.actions.setSelectedSegment = actions.setSelectedSegment;
+    if (actions.setSelectedElement) {
+      this.actions.setSelectedElement = actions.setSelectedElement;
     }
     if (actions.removeActiveTool) {
       this.actions.removeActiveTool = actions.removeActiveTool;
@@ -81,17 +81,17 @@ export class PreviewPanelKonva {
     if (actions.setActiveTool) {
       this.actions.setActiveTool = actions.setActiveTool;
     }
-    if (actions.updateSegment) {
-      this.actions.updateSegment = actions.updateSegment;
+    if (actions.updateElement) {
+      this.actions.updateElement = actions.updateElement;
     }
     if (actions.setPreviewThumbnail) {
       this.actions.setPreviewThumbnail = actions.setPreviewThumbnail;
     }
-    if (actions.deleteSegment) {
-      this.actions.deleteSegment = actions.deleteSegment;
+    if (actions.deleteElement) {
+      this.actions.deleteElement = actions.deleteElement;
     }
-    if (actions.duplicateSegment) {
-      this.actions.duplicateSegment = actions.duplicateSegment;
+    if (actions.duplicateElement) {
+      this.actions.duplicateElement = actions.duplicateElement;
     }
   }
 
@@ -112,7 +112,7 @@ export class PreviewPanelKonva {
     this.stageManager.initializeObservers();
     this.bindShortcuts();
     this.setupStoreSubscriptions();
-    this.primeSegments();
+    this.primeElements();
   }
 
   /** 销毁：解绑热键、取消订阅、释放资源。 */
@@ -134,43 +134,43 @@ export class PreviewPanelKonva {
 
   /** 删除当前选中元素，并清理选中/工具状态。 */
   remove(): void {
-    const { selectedSegment } = this.getState();
-    if (!selectedSegment) {
+    const { selectedElement } = this.getState();
+    if (!selectedElement) {
       return;
     }
-    const removedId = selectedSegment;
+    const removedId = selectedElement;
     this.patch({ selectedShapeName: null, hoverShapeName: null });
     this.actions.removeActiveTool();
-    this.actions.setSelectedSegment(null);
-    this.actions.deleteSegment(removedId);
+    this.actions.setSelectedElement(null);
+    this.actions.deleteElement(removedId);
     this.stageManager.updateTransformer();
   }
 
   /** 将当前选中元素置于最上层（zIndex = maxZ + 1）。 */
   bringToFront(): void {
-    const { selectedSegment, maxZIndex } = this.getState();
-    if (!selectedSegment) {
+    const { selectedElement, maxZIndex } = this.getState();
+    if (!selectedElement) {
       return;
     }
-    this.actions.updateSegment({ id: selectedSegment, zIndex: maxZIndex + 1 });
+    this.actions.updateElement({ id: selectedElement, zIndex: maxZIndex + 1 });
   }
 
   /** 将当前选中元素置于最下层（zIndex = minZ - 1）。 */
   sendToBack(): void {
-    const { selectedSegment, minZIndex } = this.getState();
-    if (!selectedSegment) {
+    const { selectedElement, minZIndex } = this.getState();
+    if (!selectedElement) {
       return;
     }
-    this.actions.updateSegment({ id: selectedSegment, zIndex: minZIndex - 1 });
+    this.actions.updateElement({ id: selectedElement, zIndex: minZIndex - 1 });
   }
 
   /** 复制当前选中元素。 */
   duplicate(): void {
-    const { selectedSegment } = this.getState();
-    if (!selectedSegment) {
+    const { selectedElement } = this.getState();
+    if (!selectedElement) {
       return;
     }
-    this.actions.duplicateSegment({ id: selectedSegment });
+    this.actions.duplicateElement({ id: selectedElement });
   }
 
   /**
@@ -187,9 +187,9 @@ export class PreviewPanelKonva {
     }
 
     const state = this.getState();
-    const ordered = state.orderedSegments.length
-      ? state.orderedSegments.map((segment) => cloneDeep(segment))
-      : computeOrderedSegments(state.segments);
+    const ordered = state.orderedElements.length
+      ? state.orderedElements.map((element) => cloneDeep(element))
+      : computeOrderedElements(state.elements);
 
     if (!ordered.length) {
       return { success: false, error: "没有可导出的内容" };
@@ -200,7 +200,7 @@ export class PreviewPanelKonva {
     const backgroundColor = state.backgroundColor ?? "#000000";
 
     return exportPreviewVideo({
-      segments: ordered,
+      elements: ordered,
       settings: {
         width,
         height,
@@ -211,8 +211,8 @@ export class PreviewPanelKonva {
   }
 
   /** 外部通知 Konva：某个段落渲染失败，尝试自愈处理。 */
-  handlePreviewError(segmentId: string): void {
-    this.rendererManager.handlePreviewError(segmentId);
+  handlePreviewError(elementId: string): void {
+    this.rendererManager.handlePreviewError(elementId);
   }
 
   /** 绑定通用快捷键（如 cmd/ctrl + s 触发缩略图更新）。 */
@@ -230,17 +230,17 @@ export class PreviewPanelKonva {
 
   /**
    * 订阅 store 的关键字段变化：
-   * - selectedSegment：更新选中态与变换器；
+   * - selectedElement：更新选中态与变换器；
    * - backgroundColor：更新背景色；
-   * - segments：重算排序与 zIndex 范围；
-   * - orderedSegments：同步渲染器集合；
+   * - elements：重算排序与 zIndex 范围；
+   * - orderedElements：同步渲染器集合；
    * - currentTimestamp/playing：通知每个渲染器进行时间/播放状态同步；
    * - audioContext：音频初始化完成后再次同步渲染器（使视频/波形具备音频上下文）。
    */
   private setupStoreSubscriptions(): void {
     this.unsubscribeFns.push(
       this.store.subscribe(
-        (state) => state.selectedSegment,
+        (state) => state.selectedElement,
         (selected, previous) => {
           if (selected === previous) {
             return;
@@ -269,21 +269,21 @@ export class PreviewPanelKonva {
 
     this.unsubscribeFns.push(
       this.store.subscribe(
-        (state) => state.segments,
-        (segments) => {
-          const ordered = computeOrderedSegments(segments);
-          const minZ = computeMinZIndex(segments);
-          const maxZ = computeMaxZIndex(segments);
-          this.patch({ orderedSegments: ordered, minZIndex: minZ, maxZIndex: maxZ });
+        (state) => state.elements,
+        (elements) => {
+          const ordered = computeOrderedElements(elements);
+          const minZ = computeMinZIndex(elements);
+          const maxZ = computeMaxZIndex(elements);
+          this.patch({ orderedElements: ordered, minZIndex: minZ, maxZIndex: maxZ });
         },
       ),
     );
 
     this.unsubscribeFns.push(
       this.store.subscribe(
-        (state) => state.orderedSegments,
+        (state) => state.orderedElements,
         (ordered) => {
-          void this.rendererManager.syncSegmentRenderers(ordered);
+          void this.rendererManager.syncElementRenderers(ordered);
         },
       ),
     );
@@ -315,7 +315,7 @@ export class PreviewPanelKonva {
         (state) => state.audioContext,
         (audioContext, previous) => {
           if (!previous && audioContext) {
-            void this.rendererManager.syncSegmentRenderers(this.getState().orderedSegments);
+            void this.rendererManager.syncElementRenderers(this.getState().orderedElements);
           }
         },
       ),
@@ -339,27 +339,27 @@ export class PreviewPanelKonva {
   private createActionHandlers(): PreviewPanelActionHandlers {
     return {
       setPlaying: () => undefined,
-      setSelectedSegment: () => undefined,
+      setSelectedElement: () => undefined,
       removeActiveTool: () => undefined,
       setActiveTool: () => undefined,
-      updateSegment: () => undefined,
+      updateElement: () => undefined,
       setPreviewThumbnail: () => undefined,
-      deleteSegment: () => undefined,
-      duplicateSegment: () => undefined,
+      deleteElement: () => undefined,
+      duplicateElement: () => undefined,
     };
   }
 
-  /** 初次渲染：根据已有 segments 计算排序、zIndex 范围，并同步渲染器集合。 */
-  private primeSegments(): void {
-    const initialSegments = this.getState().segments;
-    if (Object.keys(initialSegments).length) {
-      const ordered = computeOrderedSegments(initialSegments);
+  /** 初次渲染：根据已有 elements 计算排序、zIndex 范围，并同步渲染器集合。 */
+  private primeElements(): void {
+    const initialElements = this.getState().elements;
+    if (Object.keys(initialElements).length) {
+      const ordered = computeOrderedElements(initialElements);
       this.patch({
-        orderedSegments: ordered,
-        minZIndex: computeMinZIndex(initialSegments),
-        maxZIndex: computeMaxZIndex(initialSegments),
+        orderedElements: ordered,
+        minZIndex: computeMinZIndex(initialElements),
+        maxZIndex: computeMaxZIndex(initialElements),
       });
     }
-    void this.rendererManager.syncSegmentRenderers(this.getState().orderedSegments);
+    void this.rendererManager.syncElementRenderers(this.getState().orderedElements);
   }
 }

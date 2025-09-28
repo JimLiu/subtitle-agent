@@ -30,42 +30,42 @@ export class TextRenderer extends BaseRenderer<TextElement> {
 
   constructor(options: BaseRendererOptions<TextElement>) {
     super(options);
-    this.currentFontFamily = options.segment.font?.family;
+    this.currentFontFamily = options.element.font?.family;
   }
 
   protected createNode(): Konva.Text {
-    const segment = this.segment;
-    const fontFamily = segment.font?.family ?? 'Arial, sans-serif';
+    const element = this.element;
+    const fontFamily = element.font?.family ?? 'Arial, sans-serif';
     this.loadFont(fontFamily);
 
-    const shadow = parseShadowColor(segment.options?.shadowColor);
+    const shadow = parseShadowColor(element.options?.shadowColor);
 
     return new Konva.Text({
-      id: segment.id,
-      text: segment.content ?? '',
-      x: segment.x ?? 0,
-      y: segment.y ?? 0,
-      fill: segment.color ?? '#ffffff',
-      opacity: segment.opacity,
-      rotation: segment.rotation,
-      scaleX: segment.scale?.x ?? 1,
-      scaleY: segment.scale?.y ?? 1,
-      width: segment.width ?? 100,
-      fontSize: segment.fontSize ?? 20,
-      letterSpacing: segment.letterSpacing ?? 0,
-      align: segment.textAlign ?? 'left',
-      lineHeight: segment.lineHeight ?? 1,
+      id: element.id,
+      text: element.content ?? '',
+      x: element.x ?? 0,
+      y: element.y ?? 0,
+      fill: element.color ?? '#ffffff',
+      opacity: element.opacity,
+      rotation: element.rotation,
+      scaleX: element.scale?.x ?? 1,
+      scaleY: element.scale?.y ?? 1,
+      width: element.width ?? 100,
+      fontSize: element.fontSize ?? 20,
+      letterSpacing: element.letterSpacing ?? 0,
+      align: element.textAlign ?? 'left',
+      lineHeight: element.lineHeight ?? 1,
       fontFamily,
-      strokeWidth: segment.strokeWidth ?? 0,
-      stroke: segment.options?.stokeColor ?? '#FFFFFF',
-      shadowBlur: segment.shadowBlur ?? 0,
-      shadowOffsetX: segment.shadowOffsetX ?? 0,
-      shadowOffsetY: segment.shadowOffsetY ?? 0,
-      verticalAlign: segment.verticalAlign ?? 'middle',
+      strokeWidth: element.strokeWidth ?? 0,
+      stroke: element.options?.stokeColor ?? '#FFFFFF',
+      shadowBlur: element.shadowBlur ?? 0,
+      shadowOffsetX: element.shadowOffsetX ?? 0,
+      shadowOffsetY: element.shadowOffsetY ?? 0,
+      verticalAlign: element.verticalAlign ?? 'middle',
       shadowColor: shadow?.color,
       shadowOpacity: shadow?.opacity,
-      fontStyle: this.getFontStyle(segment),
-      textDecoration: this.getTextDecoration(segment),
+      fontStyle: this.getFontStyle(element),
+      textDecoration: this.getTextDecoration(element),
       fillAfterStrokeEnabled: true,
       lineJoin: 'round',
     });
@@ -79,69 +79,69 @@ export class TextRenderer extends BaseRenderer<TextElement> {
     node.on('dblclick dbltap', this.handleTextEdit);
   }
 
-  protected onSegmentUpdated(segment: TextElement, _previous: TextElement): void {
+  protected onElementUpdated(element: TextElement, _previous: TextElement): void {
     const node = this.node as Konva.Text | null;
     if (!node) {
       return;
     }
 
-    if (segment.content !== undefined) {
-      node.text(segment.content ?? '');
+    if (element.content !== undefined) {
+      node.text(element.content ?? '');
     }
-    if (segment.width !== undefined) {
-      node.width(segment.width ?? node.width());
+    if (element.width !== undefined) {
+      node.width(element.width ?? node.width());
     }
-    if (typeof segment.height === 'number') {
-      node.height(segment.height);
+    if (typeof element.height === 'number') {
+      node.height(element.height);
     }
-    if (segment.fontSize !== undefined) {
-      node.fontSize(segment.fontSize ?? node.fontSize());
+    if (element.fontSize !== undefined) {
+      node.fontSize(element.fontSize ?? node.fontSize());
     }
-    if (segment.letterSpacing !== undefined) {
-      node.letterSpacing(segment.letterSpacing ?? 0);
+    if (element.letterSpacing !== undefined) {
+      node.letterSpacing(element.letterSpacing ?? 0);
     }
-    if (segment.textAlign !== undefined) {
-      node.align(segment.textAlign ?? 'left');
+    if (element.textAlign !== undefined) {
+      node.align(element.textAlign ?? 'left');
     }
-    if (segment.lineHeight !== undefined) {
-      node.lineHeight(segment.lineHeight ?? 1);
+    if (element.lineHeight !== undefined) {
+      node.lineHeight(element.lineHeight ?? 1);
     }
-    if (segment.strokeWidth !== undefined) {
-      node.strokeWidth(segment.strokeWidth ?? 0);
+    if (element.strokeWidth !== undefined) {
+      node.strokeWidth(element.strokeWidth ?? 0);
     }
-    if (segment.shadowBlur !== undefined) {
-      node.shadowBlur(segment.shadowBlur ?? 0);
+    if (element.shadowBlur !== undefined) {
+      node.shadowBlur(element.shadowBlur ?? 0);
     }
-    if (segment.shadowOffsetX !== undefined) {
-      node.shadowOffsetX(segment.shadowOffsetX ?? 0);
+    if (element.shadowOffsetX !== undefined) {
+      node.shadowOffsetX(element.shadowOffsetX ?? 0);
     }
-    if (segment.shadowOffsetY !== undefined) {
-      node.shadowOffsetY(segment.shadowOffsetY ?? 0);
+    if (element.shadowOffsetY !== undefined) {
+      node.shadowOffsetY(element.shadowOffsetY ?? 0);
     }
-    if (segment.verticalAlign !== undefined) {
-      node.verticalAlign(segment.verticalAlign ?? node.verticalAlign());
+    if (element.verticalAlign !== undefined) {
+      node.verticalAlign(element.verticalAlign ?? node.verticalAlign());
     }
 
-    const shadow = parseShadowColor(segment.options?.shadowColor);
+    const shadow = parseShadowColor(element.options?.shadowColor);
     if (shadow) {
       node.shadowColor(shadow.color);
       node.shadowOpacity(shadow.opacity);
-    } else if (!segment.options?.shadowColor) {
+    } else if (!element.options?.shadowColor) {
       node.shadowOpacity(0);
     }
 
-    if (segment.options && Object.prototype.hasOwnProperty.call(segment.options, 'stokeColor')) {
-      node.stroke(segment.options.stokeColor ?? '#FFFFFF');
+    if (element.options && Object.prototype.hasOwnProperty.call(element.options, 'stokeColor')) {
+      node.stroke(element.options.stokeColor ?? '#FFFFFF');
     }
 
-    if (segment.color) {
-      node.fill(segment.color ?? '#ffffff');
+    if (element.color) {
+      node.fill(element.color ?? '#ffffff');
     }
 
-    node.fontStyle(this.getFontStyle(segment));
-    node.textDecoration(this.getTextDecoration(segment));
+    node.fontStyle(this.getFontStyle(element));
+    node.textDecoration(this.getTextDecoration(element));
 
-    const nextFont = segment.font?.family;
+    const nextFont = element.font?.family;
     if (nextFont && nextFont !== this.currentFontFamily) {
       this.currentFontFamily = nextFont;
       this.loadFont(nextFont);
@@ -156,7 +156,7 @@ export class TextRenderer extends BaseRenderer<TextElement> {
     const width = Math.max(node.width() * node.scaleX(), 30);
     const height = Math.max(node.height() * node.scaleY(), 30);
     node.setAttrs({ width, height, scaleX: 1, scaleY: 1 });
-    this.updateSegment({ width, height });
+    this.updateElement({ width, height });
     return false;
   }
 
@@ -187,12 +187,12 @@ export class TextRenderer extends BaseRenderer<TextElement> {
     });
   }
 
-  private getFontStyle(segment: TextElement): string {
+  private getFontStyle(element: TextElement): string {
     const parts: string[] = [];
-    if (segment.fontStyle === 'italic') {
+    if (element.fontStyle === 'italic') {
       parts.push('italic');
     }
-    if (segment.fontWeight === 'bold') {
+    if (element.fontWeight === 'bold') {
       parts.push('bold');
     }
     if (!parts.length) {
@@ -201,8 +201,8 @@ export class TextRenderer extends BaseRenderer<TextElement> {
     return parts.join(' ');
   }
 
-  private getTextDecoration(segment: TextElement): string {
-    const decoration = segment.textDecoration ?? 'none';
+  private getTextDecoration(element: TextElement): string {
+    const decoration = element.textDecoration ?? 'none';
     if (decoration === 'underline-line-through') {
       return 'underline line-through';
     }
@@ -272,7 +272,7 @@ export class TextRenderer extends BaseRenderer<TextElement> {
     const commitIfChanged = () => {
       const nextValue = textarea.value;
       if (nextValue !== node.text()) {
-        this.updateSegment({ content: nextValue });
+        this.updateElement({ content: nextValue });
       }
     };
 

@@ -12,7 +12,7 @@ export class SubtitleRenderer extends TextRenderer {
   protected createNode(): Konva.Text {
     const node = super.createNode() as Konva.Text;
     node.text('');
-    node.verticalAlign(this.segment.verticalAlign ?? 'bottom');
+    node.verticalAlign(this.element.verticalAlign ?? 'bottom');
     return node;
   }
 
@@ -21,7 +21,7 @@ export class SubtitleRenderer extends TextRenderer {
     if (!node) {
       return;
     }
-    const cues = this.segment.subtitles?.segments ?? [];
+    const cues = this.element.subtitles?.elements ?? [];
     const timestampSeconds = this.currentTimestamp;
     const active = cues.find((cue) => cue.start <= timestampSeconds && cue.end >= timestampSeconds);
     const nextText = active?.text ?? '';
@@ -30,14 +30,14 @@ export class SubtitleRenderer extends TextRenderer {
     }
   }
 
-  protected onSegmentUpdated(segment: TextElement, previous: TextElement): void {
-    super.onSegmentUpdated(segment, previous);
+  protected onElementUpdated(element: TextElement, previous: TextElement): void {
+    super.onElementUpdated(element, previous);
     const node = this.node as Konva.Text | null;
     if (!node) {
       return;
     }
-    if (segment.verticalAlign !== previous.verticalAlign && segment.verticalAlign) {
-      node.verticalAlign(segment.verticalAlign);
+    if (element.verticalAlign !== previous.verticalAlign && element.verticalAlign) {
+      node.verticalAlign(element.verticalAlign);
     }
   }
 }

@@ -11,28 +11,28 @@ export class ImageRenderer extends BaseRenderer<ImageElement> {
 
   protected async createNode(): Promise<Konva.Image> {
     const node = new Konva.Image({
-      id: this.segment.id,
-      name: this.segment.id,
-      cornerRadius: this.segment.cornerRadius ?? 0,
+      id: this.element.id,
+      name: this.element.id,
+      cornerRadius: this.element.cornerRadius ?? 0,
     });
 
-    await this.loadImage(this.segment, node);
+    await this.loadImage(this.element, node);
     return node;
   }
 
-  protected onSegmentUpdated(segment: ImageElement, previous: ImageElement): void {
+  protected onElementUpdated(element: ImageElement, previous: ImageElement): void {
     const node = this.node as Konva.Image | null;
     if (!node) {
       return;
     }
 
-    if (segment.cornerRadius !== previous.cornerRadius) {
-      node.cornerRadius(segment.cornerRadius ?? 0);
+    if (element.cornerRadius !== previous.cornerRadius) {
+      node.cornerRadius(element.cornerRadius ?? 0);
     }
 
-    const nextKey = this.getSourceKey(segment);
+    const nextKey = this.getSourceKey(element);
     if (nextKey !== this.sourceKey) {
-      void this.loadImage(segment, node);
+      void this.loadImage(element, node);
     }
   }
 
@@ -43,12 +43,12 @@ export class ImageRenderer extends BaseRenderer<ImageElement> {
     }
   }
 
-  private getSourceKey(segment: ImageElement): string | null {
-    return segment.remoteSource ?? segment.mediaId ?? null;
+  private getSourceKey(element: ImageElement): string | null {
+    return element.remoteSource ?? element.mediaId ?? null;
   }
 
-  private async loadImage(segment: ImageElement, node: Konva.Image): Promise<void> {
-    const key = this.getSourceKey(segment);
+  private async loadImage(element: ImageElement, node: Konva.Image): Promise<void> {
+    const key = this.getSourceKey(element);
     this.sourceKey = key;
 
     if (!this.mediaElement) {
@@ -60,11 +60,11 @@ export class ImageRenderer extends BaseRenderer<ImageElement> {
     image.crossOrigin = 'anonymous';
     let sourceConfigured = false;
 
-    if (segment.remoteSource) {
-      image.src = segment.remoteSource;
+    if (element.remoteSource) {
+      image.src = element.remoteSource;
       sourceConfigured = true;
-    } else if (segment.mediaId) {
-      console.warn(`Missing remote source for image segment ${segment.id}`);
+    } else if (element.mediaId) {
+      console.warn(`Missing remote source for image element ${element.id}`);
       image.src = '';
     } else {
       image.src = '';

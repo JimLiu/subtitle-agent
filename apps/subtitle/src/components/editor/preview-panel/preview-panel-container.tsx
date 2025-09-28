@@ -56,7 +56,7 @@ export function PreviewPanelContainer() {
   const pause = usePlaybackStore((state) => state.pause);
 
   // 计算与缓存：按 zIndex（或回退顺序）排序后的元素列表与辅助映射
-  const segmentsMeta = useMemo(() => {
+  const elementsMeta = useMemo(() => {
     const entries: ElementMeta[] = [];
     const elementMap: Record<string, TimelineElement> = {};
     const elementTrackMap = new Map<string, string>();
@@ -95,7 +95,7 @@ export function PreviewPanelContainer() {
     };
   }, [tracks]);
 
-  const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = segmentsMeta;
+  const { orderedElements, elementMap, elementTrackMap, minZIndex, maxZIndex } = elementsMeta;
 
   // 根据媒体 id 快速获取媒体文件对象
   const mediaById = useMemo(() => {
@@ -107,7 +107,7 @@ export function PreviewPanelContainer() {
   }, [mediaFiles]);
 
   // 计算当前选中的元素 id（若全局选择已失效/被删除则置空）
-  const selectedSegmentId = useMemo(() => {
+  const selectedElementId = useMemo(() => {
     const currentId = selectedElements[0]?.elementId;
     if (!currentId) {
       return null;
@@ -162,7 +162,7 @@ export function PreviewPanelContainer() {
 
     const currentCache = objectUrlCacheRef.current;
     const nextCache = new Map<string, string>();
-    const segmentCache = new Map<string, TimelineElement>();
+    const elementCache = new Map<string, TimelineElement>();
 
     // 解析媒体资源的远端地址：优先使用已有 url，其次使用浏览器生成的 Object URL
     const resolveRemoteSource = (mediaId: string): string | null => {
@@ -192,29 +192,29 @@ export function PreviewPanelContainer() {
     };
 
     // 深拷贝单个元素并填充 remoteSource（如可用）
-    const getSegmentClone = (segment: TimelineElement): TimelineElement => {
-      const existing = segmentCache.get(segment.id);
+    const getElementClone = (element: TimelineElement): TimelineElement => {
+      const existing = elementCache.get(element.id);
       if (existing) {
         return existing;
       }
 
-      const clone = cloneDeep(segment);
-      if (segment.mediaId) {
-        const remoteSource = resolveRemoteSource(segment.mediaId);
+      const clone = cloneDeep(element);
+      if (element.mediaId) {
+        const remoteSource = resolveRemoteSource(element.mediaId);
         if (remoteSource) {
           clone.remoteSource = remoteSource;
         }
       }
-      segmentCache.set(segment.id, clone);
+      elementCache.set(element.id, clone);
       return clone;
     };
 
-    const segmentsWithSources: Record<string, TimelineElement> = {};
-    Object.entries(elementMap).forEach(([id, segment]) => {
-      segmentsWithSources[id] = getSegmentClone(segment);
+    const elementsWithSources: Record<string, TimelineElement> = {};
+    Object.entries(elementMap).forEach(([id, element]) => {
+      elementsWithSources[id] = getElementClone(element);
     });
 
-    const orderedWithSources = orderedElements.map((segment) => getSegmentClone(segment));
+    const orderedWithSources = orderedElements.map((element) => getElementClone(element));
 
     currentCache.forEach((url, mediaId) => {
       if (!nextCache.has(mediaId)) {
@@ -227,8 +227,8 @@ export function PreviewPanelContainer() {
     previewStore.getState().patch({
       backgroundColor: activeProject.backgroundColor ?? "#000000",
       size: previewSize,
-      segments: segmentsWithSources,
-      orderedSegments: orderedWithSources,
+      elements: elementsWithSources,
+      orderedElements: orderedWithSources,
       minZIndex,
       maxZIndex,
       buffering: false,
@@ -253,9 +253,9 @@ export function PreviewPanelContainer() {
     previewStore.getState().patch({
       playing: isPlaying,
       currentTimestamp: Math.max(0, currentTime),
-      selectedSegment: selectedSegmentId,
+      selectedElement: selectedElementId,
     } as Partial<PreviewPanelStoreData>);
-  }, [isPlaying, currentTime, selectedSegmentId, previewSize, previewStore]);
+  }, [isPlaying, currentTime, selectedElementId, previewSize, previewStore]);
 
   // 代理播放/暂停到全局 playback store
   const setPlaying = useCallback(
@@ -270,7 +270,7 @@ export function PreviewPanelContainer() {
   );
 
   // 变更选中元素：根据 id 找到对应轨道并使用全局 timeline store 的选择逻辑
-  const setSelectedSegment = useCallback(
+  const setSelectedElement = useCallback(
     (id: string | null) => {
       if (!id) {
         clearSelectedElements();
@@ -287,7 +287,7 @@ export function PreviewPanelContainer() {
   );
 
   // 将视图中的增量修改同步到时间线元素（updateElementProperties）
-  const updateSegment = useCallback(
+  const updateElement = useCallback(
     async (payload: Partial<TimelineElement> & { id: string }) => {
       const trackId = elementTrackMap.get(payload.id);
       if (!trackId) return;
@@ -298,7 +298,7 @@ export function PreviewPanelContainer() {
   );
 
   // 删除元素并自动 ripple（补齐时间线间隙）
-  const deleteSegment = useCallback(
+  const handleDeleteElement = useCallback(
     async (id: string) => {
       const trackId = elementTrackMap.get(id);
       if (!trackId) return;
@@ -308,7 +308,7 @@ export function PreviewPanelContainer() {
   );
 
   // 复制元素（保持同一轨道）
-  const duplicateSegment = useCallback(
+  const handleDuplicateElement = useCallback(
     async ({ id }: { id: string }) => {
       const trackId = elementTrackMap.get(id);
       if (!trackId) return;
@@ -330,12 +330,12 @@ export function PreviewPanelContainer() {
     <PreviewPanelView
       store={previewStore}
       onPlayingChange={setPlaying}
-      onSelectedSegmentChange={setSelectedSegment}
+      onSelectedElementChange={setSelectedElement}
       onActiveToolChange={handleActiveToolChange}
-      onSegmentUpdate={updateSegment}
+      onElementUpdate={updateElement}
       onPreviewThumbnailChange={setPreviewThumbnail}
-      onDeleteSegment={deleteSegment}
-      onDuplicateSegment={duplicateSegment}
+      onDeleteElement={handleDeleteElement}
+      onDuplicateElement={handleDuplicateElement}
     />
   );
 }

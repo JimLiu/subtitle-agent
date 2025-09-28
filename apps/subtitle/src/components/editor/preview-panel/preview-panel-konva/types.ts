@@ -8,13 +8,13 @@ import type { RendererFrameContext } from "../renderers/base";
  */
 export interface PreviewPanelKonvaActions {
   setPlaying?(value: boolean): void;
-  setSelectedSegment?(id: string | null): void;
+  setSelectedElement?(id: string | null): void;
   removeActiveTool?(): void;
   setActiveTool?(tool: string): void;
-  updateSegment?(payload: Partial<TimelineElement> & { id: string }): void | Promise<void>;
+  updateElement?(payload: Partial<TimelineElement> & { id: string }): void | Promise<void>;
   setPreviewThumbnail?(path: string): Promise<void> | void;
-  deleteSegment?(id: string): void | Promise<void>;
-  duplicateSegment?(payload: { id: string }): void | Promise<void>;
+  deleteElement?(id: string): void | Promise<void>;
+  duplicateElement?(payload: { id: string }): void | Promise<void>;
 }
 
 /**
@@ -31,13 +31,13 @@ export interface PreviewPanelKonvaConfig {
  */
 export interface PreviewPanelActionHandlers {
   setPlaying(value: boolean): void;
-  setSelectedSegment(id: string | null): void;
+  setSelectedElement(id: string | null): void;
   removeActiveTool(): void;
   setActiveTool(tool: string): void;
-  updateSegment(payload: Partial<TimelineElement> & { id: string }): void | Promise<void>;
+  updateElement(payload: Partial<TimelineElement> & { id: string }): void | Promise<void>;
   setPreviewThumbnail(path: string): Promise<void> | void;
-  deleteSegment(id: string): void | Promise<void>;
-  duplicateSegment(payload: { id: string }): void | Promise<void>;
+  deleteElement(id: string): void | Promise<void>;
+  duplicateElement(payload: { id: string }): void | Promise<void>;
 }
 
 /**

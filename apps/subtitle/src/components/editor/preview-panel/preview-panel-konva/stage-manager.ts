@@ -344,8 +344,8 @@ export class StageManager {
 
     if (selectedNode && selectedNode !== transformer.nodes()[0]) {
       this.context.patch({ transformerActive: true });
-      const segment = state.selectedShapeName ? this.context.store.getState().getSegmentById(state.selectedShapeName) : null;
-      if (segment && segment.type === "text") {
+      const element = state.selectedShapeName ? this.context.store.getState().getElementById(state.selectedShapeName) : null;
+      if (element && element.type === "text") {
         transformer.enabledAnchors(["middle-left", "middle-right"]);
       } else {
         transformer.enabledAnchors([
@@ -361,18 +361,18 @@ export class StageManager {
       }
       transformer.nodes([selectedNode]);
       if (state.selectedShapeName) {
-        if (state.selectedSegment !== state.selectedShapeName) {
-          this.context.patch({ selectedSegment: state.selectedShapeName });
+        if (state.selectedElement !== state.selectedShapeName) {
+          this.context.patch({ selectedElement: state.selectedShapeName });
         }
-        this.context.actions.setSelectedSegment(state.selectedShapeName);
+        this.context.actions.setSelectedElement(state.selectedShapeName);
       }
       if (window.innerWidth >= 768) {
         this.context.actions.setActiveTool("Details");
       }
       transformer.on("transform", (event) => {
         const target = event.target;
-        const segmentRotation = this.context.store.getState().getSegmentById(state.selectedShapeName ?? "")?.rotation ?? 0;
-        if (target.attrs.rotation.toFixed(2) !== segmentRotation.toFixed(2)) {
+        const elementRotation = this.context.store.getState().getElementById(state.selectedShapeName ?? "")?.rotation ?? 0;
+        if (target.attrs.rotation.toFixed(2) !== elementRotation.toFixed(2)) {
           const angle = target.rotation();
           requestAnimationFrame(() => {
             this.updateFloatingHelpText(angle);
@@ -390,8 +390,8 @@ export class StageManager {
         this.positionFloatingHelpText();
       });
     } else if (!selectedNode) {
-      if (state.selectedSegment !== null) {
-        this.context.patch({ selectedSegment: null });
+      if (state.selectedElement !== null) {
+        this.context.patch({ selectedElement: null });
       }
       this.context.patch({ transformerActive: false });
       transformer.detach();
@@ -470,7 +470,7 @@ export class StageManager {
         currentState.stage,
         currentState.idealWidth,
         currentState.idealHeight,
-        currentState.orderedSegments,
+        currentState.orderedElements,
         currentState.videoGroup,
       );
       const snappingEdges = getObjectSnappingEdges(event.target, currentState.videoGroup);
@@ -506,11 +506,11 @@ export class StageManager {
       if (!shapeName) {
         return;
       }
-      const segment = this.context.getState().segments[shapeName];
-      if (!segment) {
+      const element = this.context.getState().elements[shapeName];
+      if (!element) {
         return;
       }
-      this.context.actions.setSelectedSegment(shapeName);
+      this.context.actions.setSelectedElement(shapeName);
       this.context.patch({ selectedShapeName: shapeName });
       this.updateTransformer();
       const containerRect = stage.container().getBoundingClientRect();
@@ -546,8 +546,8 @@ export class StageManager {
       return;
     }
     const name = event.target.name();
-    const segment = name ? this.context.store.getState().getSegmentsClone()[name] : null;
-    this.context.patch({ selectedShapeName: name && segment ? name : null });
+    const element = name ? this.context.store.getState().getElementsClone()[name] : null;
+    this.context.patch({ selectedShapeName: name && element ? name : null });
     this.updateTransformer();
   };
 
@@ -562,9 +562,9 @@ export class StageManager {
       return;
     }
     const name = event.target.name();
-    const segment = name ? this.context.store.getState().getSegmentsClone()[name] : null;
+    const element = name ? this.context.store.getState().getElementsClone()[name] : null;
     const current = this.context.getState().selectedShapeName;
-    if (name && segment) {
+    if (name && element) {
       if (current === name) {
         this.updateTransformer(true);
       } else {
@@ -587,8 +587,8 @@ export class StageManager {
       return;
     }
     const name = event.target.name();
-    const segment = name ? this.context.store.getState().getSegmentsClone()[name] : null;
-    this.context.patch({ hoverShapeName: name && segment ? name : null });
+    const element = name ? this.context.store.getState().getElementsClone()[name] : null;
+    this.context.patch({ hoverShapeName: name && element ? name : null });
     this.updateTransformer();
   };
 

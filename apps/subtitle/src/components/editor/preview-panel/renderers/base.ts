@@ -2,13 +2,13 @@ import Konva from 'konva';
 
 import { TimelineElement, TimelineElementAnimation, Scale } from "@/types/timeline";
 
-import { getSegmentDuration, getSegmentEndTime } from '../deps/segment-helpers';
+import { getElementDuration, getElementEndTime } from '../deps/element-helpers';
 
 export interface BaseRendererOptions<T extends TimelineElement> {
-  segment: T;
+  element: T;
   container: Konva.Group;
   stage: Konva.Stage;
-  updateSegment: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
+  updateElement: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
 }
 
 export interface RendererFrameContext {
@@ -27,10 +27,10 @@ export interface RendererFrameInfo {
 }
 
 export abstract class BaseRenderer<T extends TimelineElement> {
-  protected segment: T;
+  protected element: T;
   protected readonly container: Konva.Group;
   protected readonly stage: Konva.Stage;
-  protected readonly updateSegmentAction: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
+  protected readonly updateElementAction: (payload: Partial<TimelineElement> & { id: string }) => void | Promise<void>;
 
   protected wrapper: Konva.Group | null = null;
   protected node: Konva.Node | null = null;
@@ -52,22 +52,22 @@ export abstract class BaseRenderer<T extends TimelineElement> {
    * - 内置若干通用进入类动效（fade/float/scroll/wipe/spin）。
    */
   constructor(options: BaseRendererOptions<T>) {
-    this.segment = options.segment;
+    this.element = options.element;
     this.container = options.container;
     this.stage = options.stage;
-    this.updateSegmentAction = options.updateSegment;
+    this.updateElementAction = options.updateElement;
   }
 
   /** 创建 Konva 节点并挂载到容器，同时绑定通用事件。 */
   async initialize(): Promise<void> {
-    this.wrapper = new Konva.Group({ id: this.segment.id });
+    this.wrapper = new Konva.Group({ id: this.element.id });
     this.wrapper.addName('konvaWrapper');
     this.container.add(this.wrapper);
 
     const node = await this.createNode();
     this.node = node;
-    node.id(this.segment.id);
-    node.name(this.segment.id);
+    node.id(this.element.id);
+    node.name(this.element.id);
     node.draggable(true);
     node.on('dragend', this.handleDragEnd);
     node.on('transform', this.handleTransform);
@@ -83,14 +83,14 @@ export abstract class BaseRenderer<T extends TimelineElement> {
   }
 
   /** 更新段落数据并刷新节点属性/动效。 */
-  update(segment: T): void {
-    const previous = this.segment;
-    this.segment = segment;
+  update(element: T): void {
+    const previous = this.element;
+    this.element = element;
     if (this.node) {
       this.applyBaseProperties();
-      this.onSegmentUpdated(segment, previous);
+      this.onElementUpdated(element, previous);
     }
-    if (this.animationsChanged(previous, segment)) {
+    if (this.animationsChanged(previous, element)) {
       this.resetAnimations();
     }
   }
@@ -102,8 +102,8 @@ export abstract class BaseRenderer<T extends TimelineElement> {
   /** 根据时间戳计算段落可见性并触发时间更新钩子。 */
   syncVisibility(timestamp: number): void {
     this.currentTimestamp = timestamp;
-    const endTime = getSegmentEndTime(this.segment);
-    const shouldBeVisible = timestamp >= this.segment.startTime && timestamp <= endTime;
+    const endTime = getElementEndTime(this.element);
+    const shouldBeVisible = timestamp >= this.element.startTime && timestamp <= endTime;
     if (shouldBeVisible && !this.visible) {
       this.show();
     } else if (!shouldBeVisible && this.visible) {
@@ -129,14 +129,14 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     this.currentTimestamp = context.timestamp;
     this.playing = context.playing;
 
-    const start = this.segment.startTime;
-    const duration = Math.max(getSegmentDuration(this.segment), 0.001);
+    const start = this.element.startTime;
+    const duration = Math.max(getElementDuration(this.element), 0.001);
     const rawLocalTime = context.timestamp - start;
     this.localTime = rawLocalTime > 0 ? rawLocalTime : 0;
     this.localFrame = Math.round(this.localTime * 60);
     this.progress = Math.min(Math.max((this.localTime / duration) * 100, 0), 100);
 
-    if (this.segment.animations?.length) {
+    if (this.element.animations?.length) {
       if (context.playing && this.visible) {
         this.applyAnimations();
         this.animationsApplied = true;
@@ -173,7 +173,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
 
   protected onNodeReady(_node: Konva.Node): void {}
 
-  protected onSegmentUpdated(_segment: T, _previous: T): void {}
+  protected onElementUpdated(_element: T, _previous: T): void {}
 
   protected onTimeUpdate(_timestamp: number): void {}
 
@@ -224,23 +224,23 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.node) {
       return;
     }
-    const { scale, rotation, opacity } = this.segment;
-    this.node.position({ x: this.segment.x ?? 0, y: this.segment.y ?? 0 });
+    const { scale, rotation, opacity } = this.element;
+    this.node.position({ x: this.element.x ?? 0, y: this.element.y ?? 0 });
     const effectiveScale: Scale = scale ?? { x: 1, y: 1 };
     this.node.scale({ x: effectiveScale.x ?? 1, y: effectiveScale.y ?? 1 });
     this.node.rotation(rotation ?? 0);
     this.node.opacity(opacity ?? 1);
   }
 
-  protected updateSegment(values: Partial<TimelineElement>): void {
-    void this.updateSegmentAction({ id: this.segment.id, ...values });
+  protected updateElement(values: Partial<TimelineElement>): void {
+    void this.updateElementAction({ id: this.element.id, ...values });
   }
 
   protected resetAnimations(): void {
     if (!this.wrapper || !this.node) {
       return;
     }
-    (this.segment.animations ?? []).forEach((animation) => {
+    (this.element.animations ?? []).forEach((animation) => {
       switch (animation.type) {
         case 'fadeIn':
           this.resetFade();
@@ -276,7 +276,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     if (!this.wrapper || !this.node) {
       return;
     }
-    (this.segment.animations ?? []).forEach((animation) => {
+    (this.element.animations ?? []).forEach((animation) => {
       switch (animation.type) {
         case 'fadeIn':
           this.applyFade(animation);
@@ -492,7 +492,7 @@ export abstract class BaseRenderer<T extends TimelineElement> {
       return;
     }
     const target = event.target;
-    this.updateSegment({ x: target.x(), y: target.y() });
+    this.updateElement({ x: target.x(), y: target.y() });
   };
 
   private handleTransform = (event: Konva.KonvaEventObject<Event>) => {
@@ -508,6 +508,6 @@ export abstract class BaseRenderer<T extends TimelineElement> {
     const target = event.target;
     const scale: Scale = { x: target.scaleX(), y: target.scaleY() };
     const rotation = target.rotation();
-    this.updateSegment({ x: target.x(), y: target.y(), scale, rotation });
+    this.updateElement({ x: target.x(), y: target.y(), scale, rotation });
   };
 }
