@@ -287,6 +287,32 @@ export function PreviewPanelContainer() {
     nextObjectUrlCache,
   ]);
 
+  // 媒体文件更新后强制触发一次渲染器同步，确保新的 remoteSource 生效
+  useEffect(() => {
+    if (!mediaFiles.length) {
+      return;
+    }
+
+    const mediaIdSet = new Set(mediaFiles.map((file) => file.id));
+    const state = previewStore.getState();
+    if (!state.orderedElements.length) {
+      return;
+    }
+
+    const shouldResync = state.orderedElements.some((element) => {
+      return Boolean(element.mediaId && mediaIdSet.has(element.mediaId));
+    });
+
+    if (!shouldResync) {
+      return;
+    }
+
+    const refreshedOrderedElements = state.orderedElements.map((element) => cloneDeep(element));
+    previewStore.getState().patch({
+      orderedElements: refreshedOrderedElements,
+    } as Partial<PreviewPanelStoreData>);
+  }, [mediaFiles, previewStore]);
+
   // 播放状态、时间戳、与选中元素的同步
   // 说明：每次外部状态变化时，将关键字段写入 PreviewPanelStore，使得预览画面实时反映真实状态。
   useEffect(() => {
@@ -379,6 +405,7 @@ export function PreviewPanelContainer() {
   return (
     <PreviewPanelView
       store={previewStore}
+      mediaFiles={mediaFiles}
       onPlayingChange={setPlaying}
       onSelectedElementChange={setSelectedElement}
       onActiveToolChange={handleActiveToolChange}

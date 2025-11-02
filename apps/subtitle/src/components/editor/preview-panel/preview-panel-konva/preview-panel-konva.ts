@@ -1,7 +1,6 @@
 import hotkeys from "hotkeys-js";
 import cloneDeep from "lodash/cloneDeep";
 
-import type { TimelineElement } from "@/types/timeline";
 import type { ExportOptions, ExportResult } from "@/types/export";
 import { exportPreviewVideo } from "../export/export-video";
 import type {

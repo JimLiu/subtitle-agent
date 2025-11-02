@@ -14,7 +14,7 @@ import {
   PreviewPanelStoreState,
   createPreviewPanelStore,
 } from "./preview-panel-store";
-import { PreviewPlaybackControls } from "./preview-playback-controls";
+import { MediaFile } from "@/types/media";
 
 // 动态加载 Konva 渲染器类，避免首次渲染的包体膨胀。
 type PreviewPanelKonvaModule = typeof import("./preview-panel-konva");
@@ -30,6 +30,7 @@ type PreviewPanelKonvaInstance = InstanceType<PreviewPanelKonvaClass>;
  */
 interface PreviewPanelViewProps {
   store?: PreviewPanelStore;
+  mediaFiles?: MediaFile[]
   className?: string;
   onPlayingChange?: (value: boolean) => void;
   onSelectedElementChange?: (elementId: string | null) => void;
@@ -405,15 +406,6 @@ export const PreviewPanelView: React.FC<PreviewPanelViewProps> = (props) => {
         <div
           id="preview-container"
           className="preview-container relative dark:bg-gray-900 flex-1 min-h-128 w-full"
-        />
-
-        <PreviewPlaybackControls
-          playing={playing}
-          buffering={buffering}
-          currentTimestamp={currentTimestamp}
-          duration={duration}
-          onTogglePlayback={handleTogglePlayback}
-          onReset={handleReset}
         />
       </div>
 
