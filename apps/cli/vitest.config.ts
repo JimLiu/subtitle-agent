@@ -5,6 +5,7 @@ export default defineConfig({
   ...sharedConfig,
   test: {
     ...sharedConfig.test,
-    // Package-specific overrides if needed
+    // Run CLI tests in a Node environment
+    environment: "node",
   },
 });

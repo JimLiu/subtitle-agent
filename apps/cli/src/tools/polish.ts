@@ -27,7 +27,7 @@ const createParagraph = (words: Word[]): Paragraph => {
   };
 };
 
-export const polish = async (
+export const polishWords = async (
   words: Word[]
 ): Promise<{
   paragraphs: Paragraph[];
