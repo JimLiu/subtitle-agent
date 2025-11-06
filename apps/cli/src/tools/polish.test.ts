@@ -88,7 +88,7 @@ describe("polish", () => {
     id,
     start: words[0]?.start ?? 0,
     end: words[words.length - 1]?.end ?? 0,
-    text: words.map((w) => w.text).join(" "),
+    text: words.map((w) => w.text).join(""),
     words,
   });
 

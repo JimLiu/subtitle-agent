@@ -25,7 +25,7 @@ const createParagraph = (words: Word[]): Paragraph => {
     id: generateId(),
     start: words[0].start,
     end: words[words.length - 1].end,
-    text: words.map((w) => w.text).join(" "),
+    text: words.map((w) => w.text).join(""),
     words,
   };
 };

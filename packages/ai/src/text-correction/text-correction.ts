@@ -19,9 +19,9 @@ export function joinWordsText(words: Word[]): string {
 }
 
 /**
- * Corrects Chinese transcription text using LLM
+ * Corrects transcription text using LLM
  * - Fixes spelling errors
- * - Removes filler words (口癖)
+ * - Removes filler words and speech disfluencies
  * - Adds proper punctuation
  * - Adds paragraph breaks (double newlines)
  * - Does not add non-existent content
@@ -31,10 +31,10 @@ export async function correctTextWithLLM(
 ): Promise<CorrectionResult> {
   const client = createGeminiClient();
 
-  const prompt = `You are a professional Chinese text editor. Please correct the following Chinese speech transcription text:
+  const prompt = `You are a professional text editor. Please correct the following speech transcription text:
 
 1. Fix spelling errors and typos
-2. Remove filler words and speech disfluencies (口癖)
+2. Remove filler words and speech disfluencies
 3. Add proper punctuation marks
 4. Add paragraph breaks using double newlines where appropriate for logical sections
 5. Do NOT add any content that doesn't exist in the original text
