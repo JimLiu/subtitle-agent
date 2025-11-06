@@ -1,17 +1,20 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from "vitest";
 
-// Mock the AI correction module used by polish.ts
+// Mock the AI correction module used by polishWords
 vi.mock("@subtitle-agent/ai", () => ({
   correctTextWithLLM: vi.fn(),
 }));
 
-import { polishWords } from "./polish";
+import type { Word, Paragraph } from "@subtitle-agent/core";
+import type { ParagraphBuilderDraft } from "./polish";
 
 describe("polishWords", () => {
   let mockAi: typeof import("@subtitle-agent/ai");
+  let polishWords: typeof import("./polish-words")['polishWords'];
 
   beforeAll(async () => {
     mockAi = await import("@subtitle-agent/ai");
+    ({ polishWords } = await import("./polish-words"));
   });
 
   beforeEach(() => {
@@ -19,8 +22,7 @@ describe("polishWords", () => {
   });
 
   it("groups words into paragraphs based on inserted newlines and returns correctedWords", async () => {
-    // Original words (space as its own token so it can be replaced by a newline)
-    const words = [
+    const words: Word[] = [
       { id: "1", text: "hello", start: 0, end: 0.5 },
       { id: "2", text: " ", start: 0.5, end: 0.6 },
       { id: "3", text: "world", start: 0.6, end: 1.0 },
@@ -28,7 +30,6 @@ describe("polishWords", () => {
       { id: "5", text: "test", start: 1.1, end: 1.5 },
     ];
 
-    // LLM returns a newline between `world` and `test`
     mockAi.correctTextWithLLM.mockResolvedValue({
       originalText: "hello world test",
       correctedText: "hello world\ntest",
@@ -37,10 +38,7 @@ describe("polishWords", () => {
 
     const result = await polishWords(words);
 
-    // Ensure a newline token exists in corrected words
     expect(result.correctedWords.some((w) => w.text.includes("\n"))).toBe(true);
-
-    // Two paragraphs expected: ["hello world"], ["test"]
     expect(result.paragraphs.length).toBe(2);
 
     const p1Text = result.paragraphs[0].words.map((w) => w.text).join("");
@@ -48,7 +46,6 @@ describe("polishWords", () => {
     expect(p1Text).toBe("hello world");
     expect(p2Text).toBe("test");
 
-    // The newline token should not be included in paragraph words
     expect(
       result.paragraphs.flatMap((p) => p.words).some((w) => w.text.includes("\n"))
     ).toBe(false);
@@ -62,9 +59,7 @@ describe("polishWords", () => {
       error: "llm error",
     });
 
-    await expect(polishWords([])).rejects.toThrow(
-      "Failed to correct text with LLM"
-    );
+    await expect(polishWords([])).rejects.toThrow("Failed to correct text with LLM");
   });
 
   it("handles empty input words", async () => {
@@ -75,9 +70,145 @@ describe("polishWords", () => {
     });
 
     const result = await polishWords([]);
-    // One empty paragraph
     expect(result.paragraphs.length).toBe(1);
     expect(result.paragraphs[0].words.length).toBe(0);
     expect(result.correctedWords.length).toBe(0);
+  });
+});
+
+describe("polish", () => {
+  const createWord = (index: number): Word => ({
+    id: `w${index}`,
+    text: `w${index}`,
+    start: index * 0.5,
+    end: index * 0.5 + 0.4,
+  });
+
+  const makeParagraph = (id: string, words: Word[]): Paragraph => ({
+    id,
+    start: words[0]?.start ?? 0,
+    end: words[words.length - 1]?.end ?? 0,
+    text: words.map((w) => w.text).join(" "),
+    words,
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("processes chunks sequentially and defers tail paragraphs until the next chunk", async () => {
+    const words: Word[] = Array.from({ length: 10 }, (_, i) => createWord(i));
+    const chunkProgress: number[] = [];
+
+    vi.resetModules();
+    const polishWordsModule = await import("./polish-words");
+    const polishWordsStub = vi
+      .spyOn(polishWordsModule, "polishWords")
+      .mockImplementationOnce(async (chunk) => ({
+        paragraphs: [
+          makeParagraph("p0", chunk.slice(0, 2)),
+          makeParagraph("p1", chunk.slice(2)),
+        ],
+        correctedWords: chunk,
+      }))
+      .mockImplementationOnce(async (chunk) => ({
+        paragraphs: [
+          makeParagraph("p2", chunk.slice(0, 2)),
+          makeParagraph("p3", chunk.slice(2)),
+        ],
+        correctedWords: chunk,
+      }))
+      .mockImplementationOnce(async (chunk) => ({
+        paragraphs: [
+          makeParagraph("p4", chunk.slice(0, 2)),
+          makeParagraph("p5", chunk.slice(2)),
+        ],
+        correctedWords: chunk,
+      }))
+      .mockImplementationOnce(async (chunk) => ({
+        paragraphs: [
+          makeParagraph("p6", chunk.slice(0, 2)),
+          makeParagraph("p7", chunk.slice(2)),
+        ],
+        correctedWords: chunk,
+      }));
+
+    const { polish } = await import("./polish");
+
+    const draft: ParagraphBuilderDraft = {
+      words,
+      lastProcessedWordIndex: 0,
+      paragraphs: [],
+      options: {
+        maxWordsPerRequest: 4,
+        overlapWords: 1,
+      },
+    };
+
+    const onChunkResult = vi.fn(async (currentDraft: ParagraphBuilderDraft) => {
+      chunkProgress.push(currentDraft.lastProcessedWordIndex ?? 0);
+    });
+
+    const result = await polish(draft, onChunkResult);
+
+    expect(polishWordsStub).toHaveBeenCalledTimes(4);
+    expect(onChunkResult).toHaveBeenCalledTimes(4);
+    expect(chunkProgress).toEqual([2, 4, 6, 10]);
+    expect(result.lastProcessedWordIndex).toBe(words.length);
+    expect(result.paragraphs?.map((p) => p.id)).toEqual([
+      "p0",
+      "p2",
+      "p4",
+      "p6",
+      "p7",
+    ]);
+    expect(result.options).toEqual({
+      maxWordsPerRequest: 4,
+      overlapWords: 1,
+    });
+
+    polishWordsStub.mockRestore();
+  });
+
+  it("advances cursor when a chunk yields no paragraphs", async () => {
+    const words: Word[] = Array.from({ length: 5 }, (_, i) => createWord(i));
+    const chunkProgress: number[] = [];
+
+    vi.resetModules();
+    const polishWordsModule = await import("./polish-words");
+    const polishWordsStub = vi
+      .spyOn(polishWordsModule, "polishWords")
+      .mockImplementationOnce(async (chunk) => ({
+        paragraphs: [],
+        correctedWords: chunk,
+      }))
+      .mockImplementationOnce(async (chunk) => ({
+        paragraphs: [makeParagraph("final", chunk)],
+        correctedWords: chunk,
+      }));
+
+    const { polish } = await import("./polish");
+
+    const draft: ParagraphBuilderDraft = {
+      words,
+      paragraphs: [],
+      options: {
+        maxWordsPerRequest: 3,
+        overlapWords: 1,
+      },
+    };
+
+    const onChunkResult = vi.fn(async (currentDraft: ParagraphBuilderDraft) => {
+      chunkProgress.push(currentDraft.lastProcessedWordIndex ?? 0);
+    });
+
+    const result = await polish(draft, onChunkResult);
+
+    expect(polishWordsStub).toHaveBeenCalledTimes(2);
+    expect(chunkProgress).toEqual([2, 5]);
+    expect(result.lastProcessedWordIndex).toBe(words.length);
+    expect(result.paragraphs?.map((p) => p.id)).toEqual(["final"]);
+
+    polishWordsStub.mockRestore();
   });
 });
