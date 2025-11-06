@@ -12,20 +12,36 @@ export const transcribe = async (
   whisperOutputFile: string,
   options?: TranscribeOptions
 ) => {
+
+  let existingTranscription: TranscriptionOutput | null = null;
+
+  if (!options?.force) {
+    existingTranscription = await readJSON<TranscriptionOutput>(
+      whisperOutputFile
+    );
+  }
+
+  if (existingTranscription) {
+    console.log(
+      `Using existing transcription from ${whisperOutputFile}`
+    );
+    return existingTranscription;
+  }
+
+
   const transcriptionOutput = await transcribeByWhisperKit(inputFile, options);
 
   if (!transcriptionOutput) {
     throw new Error(`Failed to transcribe input file: ${inputFile}`);
   }
 
-  await writeJSON(whisperOutputFile, transcriptionOutput);
-
-  const whisperJson = await readJSON<WhisperKitOutputType>(whisperOutputFile);
   const transcription: TranscriptionOutput = {
     filename: inputFile,
-    text: whisperJson.text,
-    words: importWordsFromWhisper(whisperJson),
+    text: transcriptionOutput.text,
+    words: importWordsFromWhisper(transcriptionOutput),
   };
+
+  await writeJSON(whisperOutputFile, transcription);
 
   return transcription;
 };

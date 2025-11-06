@@ -39,12 +39,10 @@ export async function correctTextWithLLM(
 4. Add paragraph breaks using double newlines where appropriate for logical sections
 5. Do NOT add any content that doesn't exist in the original text
 6. Maintain the original meaning and context
-
-## Original text
-${text}
+7. Use \n to indicate paragraph breaks
 
 ## Output format
-Please provide only the corrected text without any explanations or additional comments:`;
+Please provide only the corrected text without any explanations or additional comments.`;
 
   try {
     console.log("[LLM Request]", {
@@ -55,7 +53,10 @@ Please provide only the corrected text without any explanations or additional co
 
     const response = await generateText({
       model: client(LLM_MODEL),
-      prompt: prompt,
+      prompt: [
+        { role: "system", content: prompt },
+        { role: "user", content: text },
+      ],
       maxRetries: 3,
     });
 

@@ -6,6 +6,7 @@
     "subtitle-agent": "dist/cli.js"
   },
   "scripts": {
+    "start": "npx tsx src/cli.ts",
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit",
