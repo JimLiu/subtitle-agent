@@ -1,5 +1,5 @@
 {
-  "id": "7jcq5w",
+  "id": "8l03sv",
   "title": "1 video",
   "filename": "/Users/jimliu/Downloads/1 video.mp4",
   "language": "en",
@@ -15,2694 +15,2176 @@
   ],
   "paragraphs": [
     {
-      "id": "fw4doq",
-      "start": 0.019999999552965164,
-      "end": 10.4399995803833,
-      "text": "I'd be crazy not to ask this question. Recently you were on 60 Minutes, and you talked about AI potentially curing all diseases within the next decade. How would that exactly work?",
+      "id": "kba8g5",
+      "start": 0.10000000149011612,
+      "end": 2.0399999618530273,
+      "text": "I would be crazy not to ask this question.",
       "words": [
         {
-          "id": "tyymrq",
-          "start": 0.019999999552965164,
-          "end": 0.36000001430511475,
-          "text": "I'd"
+          "end": 0.2800000011920929,
+          "start": 0.10000000149011612,
+          "text": "I"
         },
         {
-          "id": "gb0fgt",
-          "start": 0.36000001430511475,
-          "end": 0.4000000059604645,
-          "text": " be"
-        },
-        {
-          "id": "mdma0h",
-          "start": 0.4000000059604645,
-          "end": 0.8199999928474426,
-          "text": " crazy"
-        },
-        {
-          "id": "tqcl72",
-          "start": 0.8199999928474426,
-          "end": 1.1200000047683716,
-          "text": " not"
-        },
-        {
-          "id": "efgi6u",
-          "start": 1.1200000047683716,
-          "end": 1.340000033378601,
-          "text": " to"
-        },
-        {
-          "id": "2pi7v5",
-          "start": 1.340000033378601,
-          "end": 1.559999942779541,
-          "text": " ask"
-        },
-        {
-          "id": "lhxksa",
-          "start": 1.559999942779541,
-          "end": 1.6799999475479126,
-          "text": " this"
-        },
-        {
-          "id": "b9fmff",
-          "start": 1.6799999475479126,
-          "end": 1.9199999570846558,
-          "text": " question."
-        },
-        {
-          "id": "9vfwwg",
-          "start": 3.0399999618530273,
-          "end": 3.440000057220459,
-          "text": " Recently"
-        },
-        {
-          "id": "pidki8",
-          "start": 3.6600000858306885,
-          "end": 3.819999933242798,
-          "text": " you"
-        },
-        {
-          "id": "2o1vv5",
-          "start": 3.819999933242798,
-          "end": 3.859999895095825,
-          "text": " were"
-        },
-        {
-          "id": "3t1xm7",
-          "start": 3.859999895095825,
-          "end": 3.9200000762939453,
-          "text": " on"
-        },
-        {
-          "id": "mqxjtt",
-          "start": 3.9200000762939453,
-          "end": 4.119999885559082,
-          "text": " 60"
-        },
-        {
-          "id": "tjsfla",
-          "start": 4.119999885559082,
-          "end": 4.360000133514404,
-          "text": " Minutes,"
-        },
-        {
-          "id": "0bzato",
-          "start": 4.360000133514404,
-          "end": 4.539999961853027,
-          "text": " and"
-        },
-        {
-          "id": "przw2m",
-          "start": 4.539999961853027,
-          "end": 4.619999885559082,
-          "text": " you"
-        },
-        {
-          "id": "9gusbl",
-          "start": 4.619999885559082,
-          "end": 4.739999771118164,
-          "text": " talked"
-        },
-        {
-          "id": "lxaxry",
-          "start": 4.739999771118164,
-          "end": 5.039999961853027,
-          "text": " about"
-        },
-        {
-          "id": "jwqgrb",
-          "start": 5.039999961853027,
-          "end": 5.460000038146973,
-          "text": " AI"
-        },
-        {
-          "id": "nefn8v",
-          "start": 5.579999923706055,
-          "end": 5.760000228881836,
-          "text": " potentially"
-        },
-        {
-          "id": "y742dd",
-          "start": 5.760000228881836,
-          "end": 6.139999866485596,
-          "text": " curing"
-        },
-        {
-          "id": "5k1fag",
-          "start": 6.139999866485596,
-          "end": 6.380000114440918,
-          "text": " all"
-        },
-        {
-          "id": "wb794y",
-          "start": 6.380000114440918,
-          "end": 6.579999923706055,
-          "text": " diseases"
-        },
-        {
-          "id": "eoucjq",
-          "start": 6.579999923706055,
-          "end": 7.239999771118164,
-          "text": " within"
-        },
-        {
-          "id": "fn03jb",
-          "start": 7.239999771118164,
-          "end": 7.320000171661377,
-          "text": " the"
-        },
-        {
-          "id": "cromq8",
-          "start": 7.320000171661377,
-          "end": 7.460000038146973,
-          "text": " next"
-        },
-        {
-          "id": "btjtay",
-          "start": 7.460000038146973,
-          "end": 7.699999809265137,
-          "text": " decade."
-        },
-        {
-          "id": "rr8mpt",
-          "start": 8.380000114440918,
-          "end": 8.779999732971191,
-          "text": " How"
-        },
-        {
-          "id": "3xkp1v",
-          "start": 8.779999732971191,
-          "end": 9.079999923706055,
+          "end": 0.41999998688697815,
+          "start": 0.2800000011920929,
           "text": " would"
         },
         {
-          "id": "ygjlve",
-          "start": 9.079999923706055,
-          "end": 9.359999656677246,
-          "text": " that"
+          "end": 0.46000000834465027,
+          "start": 0.41999998688697815,
+          "text": " be"
         },
         {
-          "id": "lmgtl5",
-          "start": 9.359999656677246,
-          "end": 9.819999694824219,
-          "text": " exactly"
+          "end": 0.8600000143051147,
+          "start": 0.46000000834465027,
+          "text": " crazy"
         },
         {
-          "id": "ileyms",
-          "start": 9.819999694824219,
-          "end": 10.4399995803833,
-          "text": " work?"
+          "end": 1.2400000095367432,
+          "start": 0.8600000143051147,
+          "text": " not"
+        },
+        {
+          "end": 1.3600000143051147,
+          "start": 1.2400000095367432,
+          "text": " to"
+        },
+        {
+          "end": 1.5399999618530273,
+          "start": 1.3600000143051147,
+          "text": " ask"
+        },
+        {
+          "end": 1.7599999904632568,
+          "start": 1.5399999618530273,
+          "text": " this"
+        },
+        {
+          "end": 2.0399999618530273,
+          "start": 1.7599999904632568,
+          "text": " question."
         }
       ],
       "speakerId": "speaker_0"
     },
     {
-      "id": "ek7z99",
-      "start": 10.859999656677246,
-      "end": 39.84000015258789,
-      "text": "Regulation slow things down? Yeah. So let me just clarify what I meant by there, and you can have the scoop on this. What I was meaning was a platform that could come up with many hundreds of drugs. Now, whether or not, of course, there's all the FDA and all the other regulatory approvals and things like that, that might change over time, probably slower than a decade. So that doesn't mean those potential cures wouldn't exist in the world. Maybe it'll take another decade to get it through all the processes and regulation.",
+      "id": "ww6bln",
+      "start": 3.359999895095825,
+      "end": 7.699999809265137,
+      "text": "Recently, you were on 16 Minutes, and you talked about AI potentially curing all diseases within the next decade.",
       "words": [
         {
-          "id": "qp4qml",
-          "start": 10.859999656677246,
-          "end": 11.15999984741211,
-          "text": "Regulation"
+          "end": 3.4600000381469727,
+          "start": 3.359999895095825,
+          "text": "Recently,"
         },
         {
-          "id": "ges4w6",
-          "start": 11.15999984741211,
-          "end": 11.739999771118164,
-          "text": " slow"
-        },
-        {
-          "id": "n5b3uj",
-          "start": 11.739999771118164,
-          "end": 12.140000343322754,
-          "text": " things"
-        },
-        {
-          "id": "72nbcy",
-          "start": 12.140000343322754,
-          "end": 12.479999542236328,
-          "text": " down?"
-        },
-        {
-          "id": "v35zw6",
-          "start": 12.600000381469727,
-          "end": 12.760000228881836,
-          "text": " Yeah."
-        },
-        {
-          "id": "7ta8ny",
-          "start": 12.960000038146973,
-          "end": 13.359999656677246,
-          "text": " So"
-        },
-        {
-          "id": "l0eqma",
-          "start": 13.359999656677246,
-          "end": 13.520000457763672,
-          "text": " let"
-        },
-        {
-          "id": "s8ncua",
-          "start": 13.520000457763672,
-          "end": 13.600000381469727,
-          "text": " me"
-        },
-        {
-          "id": "szqe7q",
-          "start": 13.600000381469727,
-          "end": 13.720000267028809,
-          "text": " just"
-        },
-        {
-          "id": "if05wd",
-          "start": 13.720000267028809,
-          "end": 13.899999618530273,
-          "text": " clarify"
-        },
-        {
-          "id": "snalue",
-          "start": 13.899999618530273,
-          "end": 14.34000015258789,
-          "text": " what"
-        },
-        {
-          "id": "wczztn",
-          "start": 14.34000015258789,
-          "end": 14.4399995803833,
-          "text": " I"
-        },
-        {
-          "id": "hovl38",
-          "start": 14.4399995803833,
-          "end": 14.539999961853027,
-          "text": " meant"
-        },
-        {
-          "id": "bw9w9h",
-          "start": 14.539999961853027,
-          "end": 14.720000267028809,
-          "text": " by"
-        },
-        {
-          "id": "yolnf8",
-          "start": 14.720000267028809,
-          "end": 14.9399995803833,
-          "text": " there,"
-        },
-        {
-          "id": "u50ho9",
-          "start": 14.9399995803833,
-          "end": 15.039999961853027,
-          "text": " and"
-        },
-        {
-          "id": "i18bld",
-          "start": 15.039999961853027,
-          "end": 15.140000343322754,
+          "end": 3.859999895095825,
+          "start": 3.6600000858306885,
           "text": " you"
         },
         {
-          "id": "xkjyc9",
-          "start": 15.140000343322754,
-          "end": 15.260000228881836,
-          "text": " can"
+          "end": 3.940000057220459,
+          "start": 3.859999895095825,
+          "text": " were"
         },
         {
-          "id": "7dfu3a",
-          "start": 15.260000228881836,
-          "end": 15.399999618530273,
-          "text": " have"
-        },
-        {
-          "id": "q1vw55",
-          "start": 15.420000076293945,
-          "end": 15.5600004196167,
-          "text": " the"
-        },
-        {
-          "id": "u030hw",
-          "start": 15.5600004196167,
-          "end": 16.15999984741211,
-          "text": " scoop"
-        },
-        {
-          "id": "0ncz2d",
-          "start": 16.15999984741211,
-          "end": 16.420000076293945,
+          "end": 4,
+          "start": 3.940000057220459,
           "text": " on"
         },
         {
-          "id": "u2dg3t",
-          "start": 16.420000076293945,
-          "end": 16.559999465942383,
-          "text": " this."
+          "end": 4.199999809265137,
+          "start": 4,
+          "text": " 16"
         },
         {
-          "id": "hcuqoy",
-          "start": 16.559999465942383,
-          "end": 16.780000686645508,
-          "text": " What"
+          "end": 4.460000038146973,
+          "start": 4.199999809265137,
+          "text": " Minutes,"
         },
         {
-          "id": "rm4bdn",
-          "start": 18.540000915527344,
-          "end": 19.1200008392334,
-          "text": " I"
+          "end": 4.619999885559082,
+          "start": 4.460000038146973,
+          "text": " and"
         },
         {
-          "id": "055owh",
-          "start": 19.1200008392334,
-          "end": 19.18000030517578,
-          "text": " was"
+          "end": 4.619999885559082,
+          "start": 4.619999885559082,
+          "text": " you"
         },
         {
-          "id": "zzio70",
-          "start": 19.18000030517578,
-          "end": 19.440000534057617,
-          "text": " meaning"
+          "end": 4.840000152587891,
+          "start": 4.619999885559082,
+          "text": " talked"
         },
         {
-          "id": "k5v3e2",
-          "start": 19.440000534057617,
-          "end": 19.700000762939453,
-          "text": " was"
+          "end": 5.039999961853027,
+          "start": 4.840000152587891,
+          "text": " about"
         },
         {
-          "id": "3vw902",
-          "start": 19.700000762939453,
-          "end": 20.34000015258789,
-          "text": " a"
+          "end": 5.519999980926514,
+          "start": 5.039999961853027,
+          "text": " AI"
         },
         {
-          "id": "qs8rlg",
-          "start": 20.34000015258789,
-          "end": 21.059999465942383,
-          "text": " platform"
+          "end": 5.920000076293945,
+          "start": 5.519999980926514,
+          "text": " potentially"
         },
         {
-          "id": "uzxnt1",
-          "start": 21.059999465942383,
-          "end": 21.780000686645508,
+          "end": 6.300000190734863,
+          "start": 5.920000076293945,
+          "text": " curing"
+        },
+        {
+          "end": 6.380000114440918,
+          "start": 6.300000190734863,
+          "text": " all"
+        },
+        {
+          "end": 6.739999771118164,
+          "start": 6.380000114440918,
+          "text": " diseases"
+        },
+        {
+          "end": 7.239999771118164,
+          "start": 6.739999771118164,
+          "text": " within"
+        },
+        {
+          "end": 7.320000171661377,
+          "start": 7.239999771118164,
+          "text": " the"
+        },
+        {
+          "end": 7.460000038146973,
+          "start": 7.320000171661377,
+          "text": " next"
+        },
+        {
+          "end": 7.699999809265137,
+          "start": 7.460000038146973,
+          "text": " decade."
+        }
+      ],
+      "speakerId": "speaker_0"
+    },
+    {
+      "id": "esoq6x",
+      "start": 8.680000305175781,
+      "end": 12.479999542236328,
+      "text": "How would that exactly work? Would regulations slow things down?",
+      "words": [
+        {
+          "end": 8.9399995803833,
+          "start": 8.680000305175781,
+          "text": "How"
+        },
+        {
+          "end": 9.180000305175781,
+          "start": 8.9399995803833,
+          "text": " would"
+        },
+        {
+          "end": 9.479999542236328,
+          "start": 9.180000305175781,
           "text": " that"
         },
         {
-          "id": "2exdz0",
-          "start": 21.780000686645508,
-          "end": 22.020000457763672,
-          "text": " could"
+          "end": 10.039999961853027,
+          "start": 9.479999542236328,
+          "text": " exactly"
         },
         {
-          "id": "xbh2zb",
-          "start": 22.020000457763672,
-          "end": 22.260000228881836,
-          "text": " come"
+          "end": 10.4399995803833,
+          "start": 10.039999961853027,
+          "text": " work?"
         },
         {
-          "id": "q27pod",
-          "start": 22.260000228881836,
-          "end": 22.600000381469727,
-          "text": " up"
+          "end": 10.800000190734863,
+          "start": 10.720000267028809,
+          "text": " Would"
         },
         {
-          "id": "rl5lfy",
-          "start": 22.600000381469727,
-          "end": 22.81999969482422,
-          "text": " with"
+          "end": 11.399999618530273,
+          "start": 10.800000190734863,
+          "text": " regulations"
         },
         {
-          "id": "snm5sd",
-          "start": 22.979999542236328,
-          "end": 23.079999923706055,
-          "text": " many"
+          "end": 11.859999656677246,
+          "start": 11.399999618530273,
+          "text": " slow"
         },
         {
-          "id": "t5mtm2",
-          "start": 23.079999923706055,
-          "end": 23.540000915527344,
-          "text": " hundreds"
-        },
-        {
-          "id": "gj6zt7",
-          "start": 23.540000915527344,
-          "end": 23.780000686645508,
-          "text": " of"
-        },
-        {
-          "id": "4ndr0i",
-          "start": 23.780000686645508,
-          "end": 24.020000457763672,
-          "text": " drugs."
-        },
-        {
-          "id": "zk28rd",
-          "start": 24.719999313354492,
-          "end": 25.100000381469727,
-          "text": " Now,"
-        },
-        {
-          "id": "rmv46u",
-          "start": 25.239999771118164,
-          "end": 25.600000381469727,
-          "text": " whether"
-        },
-        {
-          "id": "7zg7ow",
-          "start": 25.600000381469727,
-          "end": 25.739999771118164,
-          "text": " or"
-        },
-        {
-          "id": "zgvmuk",
-          "start": 25.739999771118164,
-          "end": 25.860000610351562,
-          "text": " not,"
-        },
-        {
-          "id": "cm00zf",
-          "start": 25.8799991607666,
-          "end": 25.959999084472656,
-          "text": " of"
-        },
-        {
-          "id": "fn4rq8",
-          "start": 25.959999084472656,
-          "end": 26.15999984741211,
-          "text": " course,"
-        },
-        {
-          "id": "rbgxl6",
-          "start": 26.200000762939453,
-          "end": 26.440000534057617,
-          "text": " there's"
-        },
-        {
-          "id": "fjjeww",
-          "start": 26.440000534057617,
-          "end": 26.559999465942383,
-          "text": " all"
-        },
-        {
-          "id": "wp2i4c",
-          "start": 26.559999465942383,
-          "end": 26.639999389648438,
-          "text": " the"
-        },
-        {
-          "id": "4lyj57",
-          "start": 26.639999389648438,
-          "end": 26.959999084472656,
-          "text": " FDA"
-        },
-        {
-          "id": "or4k7z",
-          "start": 26.959999084472656,
-          "end": 27.239999771118164,
-          "text": " and"
-        },
-        {
-          "id": "rjyjkz",
-          "start": 27.239999771118164,
-          "end": 27.360000610351562,
-          "text": " all"
-        },
-        {
-          "id": "tp4tk2",
-          "start": 27.360000610351562,
-          "end": 27.560001373291016,
-          "text": " the"
-        },
-        {
-          "id": "q868bm",
-          "start": 27.520000457763672,
-          "end": 27.579999923706055,
-          "text": " other"
-        },
-        {
-          "id": "e2hn0q",
-          "start": 27.579999923706055,
-          "end": 27.780000686645508,
-          "text": " regulatory"
-        },
-        {
-          "id": "5xzpeb",
-          "start": 27.780000686645508,
-          "end": 28.239999771118164,
-          "text": " approvals"
-        },
-        {
-          "id": "u8mkrf",
-          "start": 28.239999771118164,
-          "end": 28.479999542236328,
-          "text": " and"
-        },
-        {
-          "id": "7dye3c",
-          "start": 28.479999542236328,
-          "end": 28.65999984741211,
+          "end": 12.15999984741211,
+          "start": 11.859999656677246,
           "text": " things"
         },
         {
-          "id": "9obt1t",
-          "start": 28.65999984741211,
-          "end": 28.780000686645508,
-          "text": " like"
+          "end": 12.479999542236328,
+          "start": 12.15999984741211,
+          "text": " down?"
+        }
+      ],
+      "speakerId": "speaker_0"
+    },
+    {
+      "id": "4792v5",
+      "start": 12.680000305175781,
+      "end": 24.020000457763672,
+      "text": "Let me clarify what I meant. You can have the scoop on this. What I meant was a platform that could come up with many hundreds of drugs.",
+      "words": [
+        {
+          "end": 12.880000114440918,
+          "start": 12.680000305175781,
+          "text": "Let"
         },
         {
-          "id": "e0ep9u",
-          "start": 28.780000686645508,
-          "end": 28.920000076293945,
-          "text": " that,"
+          "end": 13.600000381469727,
+          "start": 13.539999961853027,
+          "text": " me"
         },
         {
-          "id": "lb6cyw",
-          "start": 28.959999084472656,
-          "end": 29.079999923706055,
-          "text": " that"
+          "end": 14,
+          "start": 13.699999809265137,
+          "text": " clarify"
         },
         {
-          "id": "lccjxo",
-          "start": 29.079999923706055,
-          "end": 29.260000228881836,
-          "text": " might"
+          "end": 14.359999656677246,
+          "start": 14,
+          "text": " what"
         },
         {
-          "id": "bej7jr",
-          "start": 29.260000228881836,
-          "end": 29.5,
-          "text": " change"
+          "end": 14.4399995803833,
+          "start": 14.359999656677246,
+          "text": " I"
         },
         {
-          "id": "i4e79a",
-          "start": 29.5,
-          "end": 29.780000686645508,
-          "text": " over"
+          "end": 14.600000381469727,
+          "start": 14.4399995803833,
+          "text": " meant."
         },
         {
-          "id": "h4trqd",
-          "start": 29.780000686645508,
-          "end": 30,
-          "text": " time,"
+          "end": 14.800000190734863,
+          "start": 14.600000381469727,
+          "text": " You"
         },
         {
-          "id": "6rgsdi",
-          "start": 30.200000762939453,
-          "end": 30.940000534057617,
-          "text": " probably"
+          "end": 15.319999694824219,
+          "start": 15.15999984741211,
+          "text": " can"
         },
         {
-          "id": "h4rrvf",
-          "start": 30.940000534057617,
-          "end": 31.34000015258789,
-          "text": " slower"
+          "end": 15.460000038146973,
+          "start": 15.319999694824219,
+          "text": " have"
         },
         {
-          "id": "kvwkqx",
-          "start": 31.6200008392334,
-          "end": 31.68000030517578,
-          "text": " than"
+          "end": 15.65999984741211,
+          "start": 15.460000038146973,
+          "text": " the"
         },
         {
-          "id": "tv71s5",
-          "start": 31.68000030517578,
-          "end": 31.979999542236328,
+          "end": 16.239999771118164,
+          "start": 15.65999984741211,
+          "text": " scoop"
+        },
+        {
+          "end": 16.420000076293945,
+          "start": 16.239999771118164,
+          "text": " on"
+        },
+        {
+          "end": 16.600000381469727,
+          "start": 16.420000076293945,
+          "text": " this."
+        },
+        {
+          "end": 16.81999969482422,
+          "start": 16.719999313354492,
+          "text": " What"
+        },
+        {
+          "end": 19.1200008392334,
+          "start": 19.020000457763672,
+          "text": " I"
+        },
+        {
+          "id": "324zxh",
+          "text": " meant",
+          "start": 19.1200008392334,
+          "end": 19.1200008392334
+        },
+        {
+          "end": 19.18000030517578,
+          "start": 19.1200008392334,
+          "text": " was"
+        },
+        {
+          "end": 20.34000015258789,
+          "start": 20.30000114440918,
           "text": " a"
         },
         {
-          "id": "qsbk1s",
-          "start": 31.979999542236328,
-          "end": 32.2400016784668,
-          "text": " decade."
+          "end": 21.059999465942383,
+          "start": 20.34000015258789,
+          "text": " platform"
         },
         {
-          "id": "skxqav",
-          "start": 32.540000915527344,
-          "end": 32.97999954223633,
-          "text": " So"
-        },
-        {
-          "id": "tgd59v",
-          "start": 33.459999084472656,
-          "end": 33.619998931884766,
+          "end": 21.880001068115234,
+          "start": 21.059999465942383,
           "text": " that"
         },
         {
-          "id": "jlinrn",
-          "start": 33.619998931884766,
-          "end": 33.81999969482422,
-          "text": " doesn't"
+          "end": 22.060001373291016,
+          "start": 21.880001068115234,
+          "text": " could"
         },
         {
-          "id": "14ecfz",
-          "start": 33.81999969482422,
-          "end": 34,
-          "text": " mean"
+          "end": 22.380001068115234,
+          "start": 22.060001373291016,
+          "text": " come"
         },
         {
-          "id": "cbbqt4",
-          "start": 34,
-          "end": 34.2400016784668,
-          "text": " those"
+          "end": 22.65999984741211,
+          "start": 22.380001068115234,
+          "text": " up"
         },
         {
-          "id": "5hddds",
-          "start": 34.2400016784668,
-          "end": 34.68000030517578,
-          "text": " potential"
+          "end": 22.81999969482422,
+          "start": 22.65999984741211,
+          "text": " with"
         },
         {
-          "id": "g0haab",
-          "start": 34.68000030517578,
-          "end": 35.20000076293945,
-          "text": " cures"
+          "end": 23.15999984741211,
+          "start": 22.81999969482422,
+          "text": " many"
         },
         {
-          "id": "n9hn7b",
-          "start": 35.20000076293945,
-          "end": 35.459999084472656,
-          "text": " wouldn't"
+          "end": 23.540000915527344,
+          "start": 23.15999984741211,
+          "text": " hundreds"
         },
         {
-          "id": "7bo2wb",
-          "start": 35.459999084472656,
-          "end": 35.7599983215332,
-          "text": " exist"
+          "end": 23.780000686645508,
+          "start": 23.540000915527344,
+          "text": " of"
         },
         {
-          "id": "p0rzer",
-          "start": 35.7599983215332,
-          "end": 35.97999954223633,
-          "text": " in"
+          "end": 24.020000457763672,
+          "start": 23.780000686645508,
+          "text": " drugs."
+        }
+      ],
+      "speakerId": "speaker_1"
+    },
+    {
+      "id": "xxtnm9",
+      "start": 24.600000381469727,
+      "end": 39.94000244140625,
+      "text": "Now, whether or not there are all the FDA and other regulatory approvals and things like that, that might change over time too, probably slower than a decade. But that doesn't mean those potential cures wouldn't exist in the world. Maybe it'll take another decade to get them through all the processes and regulation.",
+      "words": [
+        {
+          "end": 24.65999984741211,
+          "start": 24.600000381469727,
+          "text": "Now,"
         },
         {
-          "id": "57tpcb",
-          "start": 35.97999954223633,
-          "end": 36.099998474121094,
-          "text": " the"
+          "end": 25.6200008392334,
+          "start": 25.5,
+          "text": " whether"
         },
         {
-          "id": "foczhu",
-          "start": 36.099998474121094,
-          "end": 36.29999923706055,
-          "text": " world."
+          "end": 25.799999237060547,
+          "start": 25.6200008392334,
+          "text": " or"
         },
         {
-          "id": "lu83l8",
-          "start": 36.91999816894531,
-          "end": 37.060001373291016,
-          "text": " Maybe"
+          "end": 25.860000610351562,
+          "start": 25.799999237060547,
+          "text": " not"
         },
         {
-          "id": "dndz0i",
-          "start": 37.060001373291016,
-          "end": 37.220001220703125,
-          "text": " it'll"
+          "end": 26.060001373291016,
+          "start": 25.979999542236328,
+          "text": " there"
         },
         {
-          "id": "ru393s",
-          "start": 37.220001220703125,
-          "end": 37.36000061035156,
-          "text": " take"
+          "end": 26.200000762939453,
+          "start": 26.060001373291016,
+          "text": " are"
         },
         {
-          "id": "5b7llx",
-          "start": 37.36000061035156,
-          "end": 37.560001373291016,
-          "text": " another"
-        },
-        {
-          "id": "x48vu8",
-          "start": 37.560001373291016,
-          "end": 37.91999816894531,
-          "text": " decade"
-        },
-        {
-          "id": "thxyrk",
-          "start": 37.91999816894531,
-          "end": 38.119998931884766,
-          "text": " to"
-        },
-        {
-          "id": "369x6p",
-          "start": 38.119998931884766,
-          "end": 38.2400016784668,
-          "text": " get"
-        },
-        {
-          "id": "c5gacw",
-          "start": 38.2400016784668,
-          "end": 38.400001525878906,
-          "text": " it"
-        },
-        {
-          "id": "p2j0fd",
-          "start": 38.400001525878906,
-          "end": 38.619998931884766,
-          "text": " through"
-        },
-        {
-          "id": "bom8rf",
-          "start": 38.619998931884766,
-          "end": 38.86000061035156,
+          "end": 26.560001373291016,
+          "start": 26.440000534057617,
           "text": " all"
         },
         {
-          "id": "7vqauq",
-          "start": 38.86000061035156,
-          "end": 38.959999084472656,
+          "end": 26.639999389648438,
+          "start": 26.560001373291016,
           "text": " the"
         },
         {
-          "id": "ewpomd",
-          "start": 38.959999084472656,
-          "end": 39.2400016784668,
-          "text": " processes"
+          "end": 27.060001373291016,
+          "start": 26.639999389648438,
+          "text": " FDA"
         },
         {
-          "id": "xylg9t",
-          "start": 39.2400016784668,
-          "end": 39.619998931884766,
+          "end": 27.299999237060547,
+          "start": 27.060001373291016,
           "text": " and"
         },
         {
-          "id": "kjggox",
-          "start": 39.619998931884766,
-          "end": 39.84000015258789,
+          "end": 27.600000381469727,
+          "start": 27.46000099182129,
+          "text": " other"
+        },
+        {
+          "end": 27.940000534057617,
+          "start": 27.600000381469727,
+          "text": " regulatory"
+        },
+        {
+          "end": 28.299999237060547,
+          "start": 27.940000534057617,
+          "text": " approvals"
+        },
+        {
+          "end": 28.5,
+          "start": 28.299999237060547,
+          "text": " and"
+        },
+        {
+          "end": 28.65999984741211,
+          "start": 28.5,
+          "text": " things"
+        },
+        {
+          "end": 28.81999969482422,
+          "start": 28.65999984741211,
+          "text": " like"
+        },
+        {
+          "end": 28.920000076293945,
+          "start": 28.81999969482422,
+          "text": " that,"
+        },
+        {
+          "end": 29.139999389648438,
+          "start": 29.079999923706055,
+          "text": " that"
+        },
+        {
+          "end": 29.31999969482422,
+          "start": 29.139999389648438,
+          "text": " might"
+        },
+        {
+          "end": 29.6200008392334,
+          "start": 29.31999969482422,
+          "text": " change"
+        },
+        {
+          "end": 29.780000686645508,
+          "start": 29.68000030517578,
+          "text": " over"
+        },
+        {
+          "end": 30,
+          "start": 29.780000686645508,
+          "text": " time"
+        },
+        {
+          "end": 30.299999237060547,
+          "start": 30,
+          "text": " too,"
+        },
+        {
+          "end": 31.079999923706055,
+          "start": 30.5,
+          "text": " probably"
+        },
+        {
+          "end": 31.440000534057617,
+          "start": 31.079999923706055,
+          "text": " slower"
+        },
+        {
+          "end": 31.799999237060547,
+          "start": 31.440000534057617,
+          "text": " than"
+        },
+        {
+          "end": 32,
+          "start": 31.799999237060547,
+          "text": " a"
+        },
+        {
+          "end": 32.26000213623047,
+          "start": 32,
+          "text": " decade."
+        },
+        {
+          "end": 33,
+          "start": 32.880001068115234,
+          "text": " But"
+        },
+        {
+          "end": 33.68000030517578,
+          "start": 33.58000183105469,
+          "text": " that"
+        },
+        {
+          "end": 33.880001068115234,
+          "start": 33.68000030517578,
+          "text": " doesn't"
+        },
+        {
+          "end": 34.040000915527344,
+          "start": 33.880001068115234,
+          "text": " mean"
+        },
+        {
+          "end": 34.41999816894531,
+          "start": 34.040000915527344,
+          "text": " those"
+        },
+        {
+          "end": 34.86000061035156,
+          "start": 34.41999816894531,
+          "text": " potential"
+        },
+        {
+          "end": 35.26000213623047,
+          "start": 34.86000061035156,
+          "text": " cures"
+        },
+        {
+          "end": 35.540000915527344,
+          "start": 35.459999084472656,
+          "text": " wouldn't"
+        },
+        {
+          "end": 35.86000061035156,
+          "start": 35.540000915527344,
+          "text": " exist"
+        },
+        {
+          "end": 36.040000915527344,
+          "start": 35.86000061035156,
+          "text": " in"
+        },
+        {
+          "end": 36.12000274658203,
+          "start": 36.040000915527344,
+          "text": " the"
+        },
+        {
+          "end": 36.44000244140625,
+          "start": 36.12000274658203,
+          "text": " world."
+        },
+        {
+          "end": 37.060001373291016,
+          "start": 36.86000061035156,
+          "text": " Maybe"
+        },
+        {
+          "end": 37.220001220703125,
+          "start": 37.060001373291016,
+          "text": " it'll"
+        },
+        {
+          "end": 37.400001525878906,
+          "start": 37.220001220703125,
+          "text": " take"
+        },
+        {
+          "end": 37.619998931884766,
+          "start": 37.400001525878906,
+          "text": " another"
+        },
+        {
+          "end": 37.92000198364258,
+          "start": 37.619998931884766,
+          "text": " decade"
+        },
+        {
+          "end": 38.13999938964844,
+          "start": 37.92000198364258,
+          "text": " to"
+        },
+        {
+          "end": 38.28000259399414,
+          "start": 38.13999938964844,
+          "text": " get"
+        },
+        {
+          "end": 38.400001525878906,
+          "start": 38.28000259399414,
+          "text": " them"
+        },
+        {
+          "end": 38.60000228881836,
+          "start": 38.400001525878906,
+          "text": " through"
+        },
+        {
+          "end": 38.880001068115234,
+          "start": 38.60000228881836,
+          "text": " all"
+        },
+        {
+          "end": 38.959999084472656,
+          "start": 38.880001068115234,
+          "text": " the"
+        },
+        {
+          "end": 39.42000198364258,
+          "start": 38.959999084472656,
+          "text": " processes"
+        },
+        {
+          "end": 39.68000030517578,
+          "start": 39.42000198364258,
+          "text": " and"
+        },
+        {
+          "end": 39.94000244140625,
+          "start": 39.68000030517578,
           "text": " regulation."
         }
       ],
       "speakerId": "speaker_1"
     },
     {
-      "id": "qcuj6u",
-      "start": 40.2599983215332,
-      "end": 84.58000183105469,
-      "text": "But on the other hand, I could imagine once those types of drugs are proven out, maybe the first five or six AI-designed drugs, we can back-test whether the predictions were right on them in terms of side effects and that kind of thing. And then you might update the regulatory to be, you know, they accept the predictions a little bit more that they're reliable or statistically know how much reliability there is in that. So I can imagine that changing over time too. But first things first, we've got to build out our biochemistry and build on top of AlphaFold and build all of our new small molecule design systems and so on, which is going very well at Isomorphic. But we've got a good few years of that to do first, and then we'll see about the next steps.",
+      "id": "g64wly",
+      "start": 40.44000244140625,
+      "end": 68.91999816894531,
+      "text": "On the other hand, I could imagine once those types of drugs are proven out—maybe the first five or six AI-designed drugs—we can back-test whether the predictions were right in terms of side effects and that kind of thing. Then you might update the regulatory protocols to accept the predictions a little bit more, that they're reliable, or statistically know how much reliability there is in that. So I can imagine that changing over time too.",
       "words": [
         {
-          "id": "skid6u",
-          "start": 40.2599983215332,
-          "end": 40.439998626708984,
-          "text": "But"
+          "end": 40.5,
+          "start": 40.44000244140625,
+          "text": "On"
         },
         {
-          "id": "55fnc7",
-          "start": 40.790000915527344,
-          "end": 40.939998626708984,
-          "text": " on"
-        },
-        {
-          "id": "cu0z0d",
-          "start": 40.939998626708984,
-          "end": 41.02000045776367,
+          "end": 41.060001373291016,
+          "start": 40.959999084472656,
           "text": " the"
         },
         {
-          "id": "27b55y",
-          "start": 41.02000045776367,
-          "end": 41.18000030517578,
+          "end": 41.20000076293945,
+          "start": 41.060001373291016,
           "text": " other"
         },
         {
-          "id": "2xl2il",
-          "start": 41.18000030517578,
-          "end": 41.380001068115234,
+          "end": 41.400001525878906,
+          "start": 41.279998779296875,
           "text": " hand,"
         },
         {
-          "id": "010922",
-          "start": 41.380001068115234,
-          "end": 41.5,
+          "end": 41.52000045776367,
+          "start": 41.400001525878906,
           "text": " I"
         },
         {
-          "id": "dxjh3b",
-          "start": 41.5,
-          "end": 41.599998474121094,
+          "end": 41.68000030517578,
+          "start": 41.52000045776367,
           "text": " could"
         },
         {
-          "id": "ok47de",
-          "start": 41.599998474121094,
           "end": 42,
+          "start": 41.68000030517578,
           "text": " imagine"
         },
         {
-          "id": "mgneh2",
+          "end": 42.84000015258789,
           "start": 42,
-          "end": 42.68000030517578,
           "text": " once"
         },
         {
-          "id": "ofcwtm",
-          "start": 42.68000030517578,
-          "end": 43.040000915527344,
+          "end": 43.02000045776367,
+          "start": 42.84000015258789,
           "text": " those"
         },
         {
-          "id": "hq4m9p",
-          "start": 43.040000915527344,
           "end": 43.34000015258789,
+          "start": 43.02000045776367,
           "text": " types"
         },
         {
-          "id": "p45d9q",
+          "end": 43.63999938964844,
           "start": 43.34000015258789,
-          "end": 43.619998931884766,
           "text": " of"
         },
         {
-          "id": "jokzpx",
-          "start": 43.619998931884766,
-          "end": 44.41999816894531,
+          "end": 44.5,
+          "start": 43.63999938964844,
           "text": " drugs"
         },
         {
-          "id": "3g54eb",
-          "start": 44.41999816894531,
-          "end": 44.63999938964844,
+          "end": 44.7400016784668,
+          "start": 44.5,
           "text": " are"
         },
         {
-          "id": "duuxro",
-          "start": 44.63999938964844,
           "end": 44.97999954223633,
+          "start": 44.7400016784668,
           "text": " proven"
         },
         {
-          "id": "rnrlf6",
+          "end": 45.380001068115234,
           "start": 44.97999954223633,
-          "end": 45.31999969482422,
-          "text": " out,"
+          "text": " out—"
         },
         {
-          "id": "37busv",
-          "start": 45.36000061035156,
-          "end": 45.86000061035156,
-          "text": " maybe"
+          "end": 45.880001068115234,
+          "start": 45.80000305175781,
+          "text": "maybe"
         },
         {
-          "id": "9qfsqp",
-          "start": 45.86000061035156,
-          "end": 46,
+          "end": 46.040000915527344,
+          "start": 45.880001068115234,
           "text": " the"
         },
         {
-          "id": "yde8t7",
-          "start": 46,
           "end": 46.220001220703125,
+          "start": 46.040000915527344,
           "text": " first"
         },
         {
-          "id": "i8qr7d",
-          "start": 46.439998626708984,
           "end": 46.5,
+          "start": 46.220001220703125,
           "text": " five"
         },
         {
-          "id": "px2gcz",
+          "end": 46.68000030517578,
           "start": 46.5,
-          "end": 46.63999938964844,
           "text": " or"
         },
         {
-          "id": "xqsntz",
-          "start": 46.63999938964844,
           "end": 46.880001068115234,
+          "start": 46.68000030517578,
           "text": " six"
         },
         {
-          "id": "4dmc4z",
-          "start": 46.880001068115234,
           "end": 47.18000030517578,
+          "start": 46.880001068115234,
           "text": " AI-designed"
         },
         {
-          "id": "qxo5xg",
-          "start": 47.459999084472656,
-          "end": 47.84000015258789,
-          "text": " drugs,"
+          "end": 47.62000274658203,
+          "start": 47.400001525878906,
+          "text": " drugs—"
         },
         {
-          "id": "h5dwcx",
-          "start": 48.02000045776367,
-          "end": 48.34000015258789,
-          "text": " we"
+          "end": 47.92000198364258,
+          "start": 47.62000274658203,
+          "text": "we"
         },
         {
-          "id": "538nau",
-          "start": 48.34000015258789,
-          "end": 48.47999954223633,
+          "end": 48.560001373291016,
+          "start": 48.44000244140625,
           "text": " can"
         },
         {
-          "id": "e828ek",
-          "start": 48.47999954223633,
-          "end": 48.939998626708984,
+          "end": 48.80000305175781,
+          "start": 48.560001373291016,
           "text": " back-test"
         },
         {
-          "id": "f0ljsj",
-          "start": 48.939998626708984,
-          "end": 49.31999969482422,
+          "end": 49.34000015258789,
+          "start": 48.94000244140625,
           "text": " whether"
         },
         {
-          "id": "zzfw8i",
-          "start": 49.31999969482422,
-          "end": 49.459999084472656,
+          "end": 49.47999954223633,
+          "start": 49.34000015258789,
           "text": " the"
         },
         {
-          "id": "7wh9gi",
-          "start": 49.459999084472656,
           "end": 49.84000015258789,
+          "start": 49.47999954223633,
           "text": " predictions"
         },
         {
-          "id": "6zzcrs",
+          "end": 50.12000274658203,
           "start": 49.84000015258789,
-          "end": 50.060001373291016,
           "text": " were"
         },
         {
-          "id": "1owhsl",
-          "start": 50.060001373291016,
-          "end": 50.2400016784668,
+          "end": 50.34000015258789,
+          "start": 50.12000274658203,
           "text": " right"
         },
         {
-          "id": "agai19",
-          "start": 50.2400016784668,
-          "end": 50.41999816894531,
-          "text": " on"
-        },
-        {
-          "id": "0i3lqx",
-          "start": 50.41999816894531,
-          "end": 50.70000076293945,
-          "text": " them"
-        },
-        {
-          "id": "sak0l0",
-          "start": 50.70000076293945,
-          "end": 50.79999923706055,
+          "end": 50.81999969482422,
+          "start": 50.65999984741211,
           "text": " in"
         },
         {
-          "id": "ofi2d2",
-          "start": 50.83000183105469,
-          "end": 50.959999084472656,
+          "end": 50.97999954223633,
+          "start": 50.81999969482422,
           "text": " terms"
         },
         {
-          "id": "bk5b77",
-          "start": 50.959999084472656,
           "end": 51.20000076293945,
+          "start": 50.97999954223633,
           "text": " of"
         },
         {
-          "id": "4ejapm",
-          "start": 51.81999969482422,
-          "end": 52.02000045776367,
+          "end": 52.18000030517578,
+          "start": 52.02000045776367,
           "text": " side"
         },
         {
-          "id": "7s5s6u",
-          "start": 52.02000045776367,
-          "end": 52.29999923706055,
+          "end": 52.44000244140625,
+          "start": 52.18000030517578,
           "text": " effects"
         },
         {
-          "id": "2pqc1d",
-          "start": 52.29999923706055,
-          "end": 52.599998474121094,
+          "end": 52.63999938964844,
+          "start": 52.44000244140625,
           "text": " and"
         },
         {
-          "id": "bopsvp",
-          "start": 52.599998474121094,
-          "end": 52.65999984741211,
+          "end": 52.7400016784668,
+          "start": 52.63999938964844,
           "text": " that"
         },
         {
-          "id": "povvwh",
-          "start": 52.65999984741211,
-          "end": 52.86000061035156,
+          "end": 52.880001068115234,
+          "start": 52.7400016784668,
           "text": " kind"
         },
         {
-          "id": "0r5trj",
-          "start": 52.86000061035156,
-          "end": 53.040000915527344,
+          "end": 53.060001373291016,
+          "start": 52.880001068115234,
           "text": " of"
         },
         {
-          "id": "n7pvgb",
-          "start": 53.040000915527344,
           "end": 53.279998779296875,
+          "start": 53.060001373291016,
           "text": " thing."
         },
         {
-          "id": "5uc9rc",
-          "start": 53.34000015258789,
-          "end": 53.720001220703125,
-          "text": " And"
+          "end": 53.7599983215332,
+          "start": 53.65999984741211,
+          "text": " Then"
         },
         {
-          "id": "khx6hx",
-          "start": 53.720001220703125,
-          "end": 53.97999954223633,
-          "text": " then"
-        },
-        {
-          "id": "pfbn7b",
-          "start": 53.97999954223633,
           "end": 54.41999816894531,
+          "start": 54.040000915527344,
           "text": " you"
         },
         {
-          "id": "5jq5gs",
+          "end": 54.720001220703125,
           "start": 54.41999816894531,
-          "end": 54.599998474121094,
           "text": " might"
         },
         {
-          "id": "rcyd2i",
-          "start": 54.599998474121094,
-          "end": 55.02000045776367,
+          "end": 55.15999984741211,
+          "start": 54.720001220703125,
           "text": " update"
         },
         {
-          "id": "1kzepy",
-          "start": 55.02000045776367,
-          "end": 56.52000045776367,
+          "end": 56.540000915527344,
+          "start": 55.15999984741211,
           "text": " the"
         },
         {
-          "id": "7f78ic",
-          "start": 56.52000045776367,
-          "end": 57.47999954223633,
+          "end": 56.959999084472656,
+          "start": 56.540000915527344,
           "text": " regulatory"
         },
         {
-          "id": "rj8h8o",
-          "start": 57.5,
-          "end": 57.7599983215332,
+          "end": 57.459999084472656,
+          "start": 56.959999084472656,
+          "text": " protocols"
+        },
+        {
+          "end": 57.86000061035156,
+          "start": 57.459999084472656,
           "text": " to"
         },
         {
-          "id": "6riw86",
-          "start": 58.41999816894531,
-          "end": 58.5,
-          "text": " be,"
-        },
-        {
-          "id": "f080rv",
-          "start": 58.560001373291016,
-          "end": 58.880001068115234,
-          "text": " you"
-        },
-        {
-          "id": "9wboj4",
-          "start": 58.880001068115234,
-          "end": 58.97999954223633,
-          "text": " know,"
-        },
-        {
-          "id": "jlkpdn",
-          "start": 59.040000915527344,
-          "end": 59.47999954223633,
-          "text": " they"
-        },
-        {
-          "id": "iqlc0n",
-          "start": 59.47999954223633,
-          "end": 59.900001525878906,
+          "end": 60.060001373291016,
+          "start": 59.52000045776367,
           "text": " accept"
         },
         {
-          "id": "cql0g5",
-          "start": 59.900001525878906,
-          "end": 60.29999923706055,
+          "end": 60.31999969482422,
+          "start": 60.060001373291016,
           "text": " the"
         },
         {
-          "id": "v0aye2",
-          "start": 60.29999923706055,
-          "end": 60.7400016784668,
+          "end": 60.76000213623047,
+          "start": 60.31999969482422,
           "text": " predictions"
         },
         {
-          "id": "3hmgx5",
-          "start": 60.7400016784668,
           "end": 61.380001068115234,
+          "start": 60.76000213623047,
           "text": " a"
         },
         {
-          "id": "i4tv9o",
+          "end": 61.52000045776367,
           "start": 61.380001068115234,
-          "end": 61.5,
           "text": " little"
         },
         {
-          "id": "8kpxqt",
-          "start": 61.5,
-          "end": 61.63999938964844,
+          "end": 61.68000030517578,
+          "start": 61.52000045776367,
           "text": " bit"
         },
         {
-          "id": "vly469",
-          "start": 61.63999938964844,
-          "end": 61.7599983215332,
-          "text": " more"
+          "end": 61.76000213623047,
+          "start": 61.68000030517578,
+          "text": " more,"
         },
         {
-          "id": "ktxk7j",
-          "start": 61.7599983215332,
-          "end": 62.060001373291016,
+          "end": 62.08000183105469,
+          "start": 61.76000213623047,
           "text": " that"
         },
         {
-          "id": "c5ylvn",
-          "start": 62.060001373291016,
-          "end": 62.279998779296875,
+          "end": 62.34000015258789,
+          "start": 62.08000183105469,
           "text": " they're"
         },
         {
-          "id": "ld5a2l",
-          "start": 62.380001068115234,
-          "end": 62.70000076293945,
-          "text": " reliable"
+          "end": 62.720001220703125,
+          "start": 62.34000015258789,
+          "text": " reliable,"
         },
         {
-          "id": "hyte5y",
-          "start": 62.70000076293945,
-          "end": 63.15999984741211,
+          "end": 63.220001220703125,
+          "start": 62.720001220703125,
           "text": " or"
         },
         {
-          "id": "r3ngfh",
-          "start": 63.15999984741211,
-          "end": 63.400001525878906,
+          "end": 63.68000030517578,
+          "start": 63.220001220703125,
           "text": " statistically"
         },
         {
-          "id": "ge94og",
-          "start": 63.400001525878906,
-          "end": 64.19999694824219,
+          "end": 64.31999969482422,
+          "start": 63.68000030517578,
           "text": " know"
         },
         {
-          "id": "yqtt16",
-          "start": 64.19999694824219,
-          "end": 64.4800033569336,
+          "end": 64.5,
+          "start": 64.31999969482422,
           "text": " how"
         },
         {
-          "id": "x30fcc",
-          "start": 64.4800033569336,
           "end": 64.76000213623047,
+          "start": 64.5,
           "text": " much"
         },
         {
-          "id": "eoyrfo",
+          "end": 65.55999755859375,
           "start": 64.76000213623047,
-          "end": 65.37999725341797,
           "text": " reliability"
         },
         {
-          "id": "hgy24z",
-          "start": 65.37999725341797,
-          "end": 65.95999908447266,
+          "end": 65.97999572753906,
+          "start": 65.55999755859375,
           "text": " there"
         },
         {
-          "id": "mu2w03",
-          "start": 65.95999908447266,
-          "end": 66.12000274658203,
+          "end": 66.19999694824219,
+          "start": 65.97999572753906,
           "text": " is"
         },
         {
-          "id": "fiztud",
-          "start": 66.12000274658203,
-          "end": 66.23999786376953,
+          "end": 66.30000305175781,
+          "start": 66.19999694824219,
           "text": " in"
         },
         {
-          "id": "rqxf5a",
-          "start": 66.23999786376953,
-          "end": 66.4000015258789,
+          "end": 66.45999908447266,
+          "start": 66.30000305175781,
           "text": " that."
         },
         {
-          "id": "odl09m",
-          "start": 66.54000091552734,
-          "end": 66.9000015258789,
+          "end": 66.91999816894531,
+          "start": 66.77000427246094,
           "text": " So"
         },
         {
-          "id": "091wq6",
-          "start": 66.9000015258789,
-          "end": 67.08000183105469,
+          "end": 67.12000274658203,
+          "start": 66.91999816894531,
           "text": " I"
         },
         {
-          "id": "9ba96d",
-          "start": 67.08000183105469,
-          "end": 67.22000122070312,
+          "end": 67.30000305175781,
+          "start": 67.12000274658203,
           "text": " can"
         },
         {
-          "id": "7ly8f7",
-          "start": 67.22000122070312,
           "end": 67.55999755859375,
+          "start": 67.30000305175781,
           "text": " imagine"
         },
         {
-          "id": "co15a9",
+          "end": 67.76000213623047,
           "start": 67.55999755859375,
-          "end": 67.73999786376953,
           "text": " that"
         },
         {
-          "id": "oftdgf",
-          "start": 67.73999786376953,
-          "end": 67.9800033569336,
+          "end": 68.0999984741211,
+          "start": 67.76000213623047,
           "text": " changing"
         },
         {
-          "id": "rp2fpk",
-          "start": 68.26000213623047,
-          "end": 68.4000015258789,
+          "end": 68.54000091552734,
+          "start": 68.0999984741211,
           "text": " over"
         },
         {
-          "id": "v9hmj4",
-          "start": 68.4000015258789,
           "end": 68.66000366210938,
+          "start": 68.54000091552734,
           "text": " time"
         },
         {
-          "id": "0hs61g",
-          "start": 68.66000366210938,
-          "end": 68.83999633789062,
+          "end": 68.91999816894531,
+          "start": 68.72999572753906,
           "text": " too."
+        }
+      ],
+      "speakerId": "speaker_1"
+    },
+    {
+      "id": "wop87q",
+      "start": 68.98999786376953,
+      "end": 84.70000457763672,
+      "text": "But first things first, we've got to build out our biochemistry and build on top of AlphaFold. We need to build all of our new small molecule design systems and so on, which is going very well at Isomorphic. We've got a good few years of that to do first, and then we'll see about the next steps.",
+      "words": [
+        {
+          "end": 69.18000030517578,
+          "start": 68.98999786376953,
+          "text": "But"
         },
         {
-          "id": "6a28zy",
-          "start": 68.95999908447266,
-          "end": 69.0999984741211,
-          "text": " But"
-        },
-        {
-          "id": "a11odr",
-          "start": 69.0999984741211,
           "end": 69.76000213623047,
+          "start": 69.58000183105469,
           "text": " first"
         },
         {
-          "id": "9pee7j",
+          "end": 69.9800033569336,
           "start": 69.76000213623047,
-          "end": 70.0199966430664,
           "text": " things"
         },
         {
-          "id": "e50bu2",
-          "start": 70.0199966430664,
           "end": 70.26000213623047,
+          "start": 69.9800033569336,
           "text": " first,"
         },
         {
-          "id": "ukoz1j",
-          "start": 70.4000015258789,
-          "end": 70.73999786376953,
+          "end": 70.84000396728516,
+          "start": 70.72000122070312,
           "text": " we've"
         },
         {
-          "id": "yr5nbw",
-          "start": 70.73999786376953,
-          "end": 70.83999633789062,
+          "end": 70.94000244140625,
+          "start": 70.84000396728516,
           "text": " got"
         },
         {
-          "id": "yllvkk",
-          "start": 70.83999633789062,
-          "end": 70.94000244140625,
+          "end": 71.02000427246094,
+          "start": 70.94000244140625,
           "text": " to"
         },
         {
-          "id": "5cjspz",
-          "start": 70.94000244140625,
           "end": 71.22000122070312,
+          "start": 71.02000427246094,
           "text": " build"
         },
         {
-          "id": "uxd6hx",
-          "start": 71.22000122070312,
           "end": 71.45999908447266,
+          "start": 71.22000122070312,
           "text": " out"
         },
         {
-          "id": "9lp7e9",
+          "end": 71.84000396728516,
           "start": 71.45999908447266,
-          "end": 71.72000122070312,
           "text": " our"
         },
         {
-          "id": "xbm7mt",
-          "start": 71.72000122070312,
-          "end": 72.69999694824219,
+          "end": 72.86000061035156,
+          "start": 71.84000396728516,
           "text": " biochemistry"
         },
         {
-          "id": "ojgbyn",
-          "start": 72.69999694824219,
-          "end": 73.18000030517578,
+          "end": 73.31999969482422,
+          "start": 73.22000122070312,
           "text": " and"
         },
         {
-          "id": "wrrvkp",
-          "start": 73.18000030517578,
           "end": 73.66000366210938,
+          "start": 73.31999969482422,
           "text": " build"
         },
         {
-          "id": "likgfb",
+          "end": 73.8800048828125,
           "start": 73.66000366210938,
-          "end": 73.77999877929688,
           "text": " on"
         },
         {
-          "id": "exuuck",
-          "start": 73.77999877929688,
-          "end": 73.91999816894531,
+          "end": 73.94000244140625,
+          "start": 73.8800048828125,
           "text": " top"
         },
         {
-          "id": "wo9frv",
-          "start": 73.91999816894531,
           "end": 74.08000183105469,
+          "start": 73.94000244140625,
           "text": " of"
         },
         {
-          "id": "dn98pe",
-          "start": 74.23999786376953,
-          "end": 74.31999969482422,
-          "text": " AlphaFold"
+          "end": 74.66000366210938,
+          "start": 74.08000183105469,
+          "text": " AlphaFold."
         },
         {
-          "id": "b0ulc4",
-          "start": 74.5999984741211,
-          "end": 74.73999786376953,
-          "text": " and"
+          "end": 74.80000305175781,
+          "start": 74.66999816894531,
+          "text": " We"
         },
         {
-          "id": "7wfbf9",
-          "start": 74.73999786376953,
-          "end": 74.94000244140625,
+          "id": "93lm4w",
+          "text": " need",
+          "start": 74.80000305175781,
+          "end": 74.80000305175781
+        },
+        {
+          "id": "jcb4qj",
+          "text": " to",
+          "start": 74.80000305175781,
+          "end": 74.80000305175781
+        },
+        {
+          "end": 74.95999908447266,
+          "start": 74.80000305175781,
           "text": " build"
         },
         {
-          "id": "j5pvc9",
-          "start": 74.94000244140625,
           "end": 75.13999938964844,
+          "start": 74.95999908447266,
           "text": " all"
         },
         {
-          "id": "5njgxs",
+          "end": 75.30000305175781,
           "start": 75.13999938964844,
-          "end": 75.26000213623047,
           "text": " of"
         },
         {
-          "id": "f66hsl",
-          "start": 75.26000213623047,
-          "end": 75.37999725341797,
+          "end": 75.41999816894531,
+          "start": 75.30000305175781,
           "text": " our"
         },
         {
-          "id": "jk09kz",
-          "start": 75.37999725341797,
           "end": 75.68000030517578,
+          "start": 75.41999816894531,
           "text": " new"
         },
         {
-          "id": "fr0qk0",
-          "start": 77.0199966430664,
           "end": 77.27999877929688,
+          "start": 75.68000030517578,
           "text": " small"
         },
         {
-          "id": "feyfy2",
+          "end": 77.63999938964844,
           "start": 77.27999877929688,
-          "end": 77.54000091552734,
           "text": " molecule"
         },
         {
-          "id": "ynsvwy",
-          "start": 77.54000091552734,
           "end": 77.95999908447266,
+          "start": 77.63999938964844,
           "text": " design"
         },
         {
-          "id": "6zmj6t",
+          "end": 78.45999908447266,
           "start": 77.95999908447266,
-          "end": 78.37999725341797,
           "text": " systems"
         },
         {
-          "id": "n3mx46",
-          "start": 78.37999725341797,
-          "end": 78.5999984741211,
+          "end": 78.63999938964844,
+          "start": 78.51000213623047,
           "text": " and"
         },
         {
-          "id": "pfbwwz",
-          "start": 78.5999984741211,
-          "end": 78.69999694824219,
+          "end": 78.77999877929688,
+          "start": 78.63999938964844,
           "text": " so"
         },
         {
-          "id": "a8f19t",
-          "start": 78.69999694824219,
-          "end": 78.80000305175781,
+          "end": 78.86000061035156,
+          "start": 78.77999877929688,
           "text": " on,"
         },
         {
-          "id": "t2xwbw",
-          "start": 78.81999969482422,
-          "end": 78.9000015258789,
+          "end": 78.94000244140625,
+          "start": 78.86000061035156,
           "text": " which"
         },
         {
-          "id": "6tjz7p",
-          "start": 78.91000366210938,
-          "end": 79,
+          "end": 79.02000427246094,
+          "start": 78.94000244140625,
           "text": " is"
         },
         {
-          "id": "tzg6k7",
-          "start": 79,
-          "end": 79.18000030517578,
+          "end": 79.20000457763672,
+          "start": 79.02000427246094,
           "text": " going"
         },
         {
-          "id": "5chfi9",
-          "start": 79.18000030517578,
-          "end": 79.37999725341797,
+          "end": 79.4000015258789,
+          "start": 79.20000457763672,
           "text": " very"
         },
         {
-          "id": "upvt1s",
-          "start": 79.37999725341797,
           "end": 79.58000183105469,
+          "start": 79.4000015258789,
           "text": " well"
         },
         {
-          "id": "seejdp",
+          "end": 79.74000549316406,
           "start": 79.58000183105469,
-          "end": 79.72000122070312,
           "text": " at"
         },
         {
-          "id": "7f4zc7",
-          "start": 79.72000122070312,
           "end": 80.41999816894531,
+          "start": 79.74000549316406,
           "text": " Isomorphic."
         },
         {
-          "id": "9zldoa",
-          "start": 80.5,
-          "end": 80.86000061035156,
-          "text": " But"
-        },
-        {
-          "id": "viqdex",
+          "end": 80.94000244140625,
           "start": 80.86000061035156,
-          "end": 81.04000091552734,
-          "text": " we've"
+          "text": " We've"
         },
         {
-          "id": "wyzyux",
-          "start": 81.04000091552734,
-          "end": 81.16000366210938,
+          "end": 81.20000457763672,
+          "start": 81.0999984741211,
           "text": " got"
         },
         {
-          "id": "6sjdj5",
-          "start": 81.16000366210938,
-          "end": 81.23999786376953,
+          "end": 81.26000213623047,
+          "start": 81.20000457763672,
           "text": " a"
         },
         {
-          "id": "2vc3sx",
-          "start": 81.23999786376953,
           "end": 81.36000061035156,
+          "start": 81.26000213623047,
           "text": " good"
         },
         {
-          "id": "ybd9il",
+          "end": 81.58000183105469,
           "start": 81.36000061035156,
-          "end": 81.5199966430664,
           "text": " few"
         },
         {
-          "id": "c41w9m",
-          "start": 81.5199966430664,
           "end": 81.77999877929688,
+          "start": 81.58000183105469,
           "text": " years"
         },
         {
-          "id": "f370re",
+          "end": 81.9800033569336,
           "start": 81.77999877929688,
-          "end": 81.9000015258789,
           "text": " of"
         },
         {
-          "id": "pwnqly",
-          "start": 81.9000015258789,
-          "end": 82.04000091552734,
+          "end": 82.08000183105469,
+          "start": 81.9800033569336,
           "text": " that"
         },
         {
-          "id": "rizyua",
-          "start": 82.04000091552734,
-          "end": 82.18000030517578,
+          "end": 82.24000549316406,
+          "start": 82.08000183105469,
           "text": " to"
         },
         {
-          "id": "y5pwwu",
-          "start": 82.18000030517578,
-          "end": 82.27999877929688,
+          "end": 82.3800048828125,
+          "start": 82.24000549316406,
           "text": " do"
         },
         {
-          "id": "gh918a",
-          "start": 82.27999877929688,
-          "end": 82.58000183105469,
+          "end": 82.66000366210938,
+          "start": 82.3800048828125,
           "text": " first,"
         },
         {
-          "id": "1f5a72",
-          "start": 83.12000274658203,
-          "end": 83.4000015258789,
+          "end": 82.86000061035156,
+          "start": 82.80000305175781,
           "text": " and"
         },
         {
-          "id": "cqlpxr",
-          "start": 83.4000015258789,
           "end": 83.54000091552734,
+          "start": 82.86000061035156,
           "text": " then"
         },
         {
-          "id": "ido1gr",
+          "end": 83.74000549316406,
           "start": 83.54000091552734,
-          "end": 83.72000122070312,
           "text": " we'll"
         },
         {
-          "id": "t5xsuv",
-          "start": 83.72000122070312,
-          "end": 83.86000061035156,
+          "end": 83.94000244140625,
+          "start": 83.74000549316406,
           "text": " see"
         },
         {
-          "id": "mde9xa",
-          "start": 83.86000061035156,
-          "end": 84.08000183105469,
+          "end": 84.18000030517578,
+          "start": 83.94000244140625,
           "text": " about"
         },
         {
-          "id": "muwakh",
-          "start": 84.08000183105469,
-          "end": 84.23999786376953,
+          "end": 84.26000213623047,
+          "start": 84.18000030517578,
           "text": " the"
         },
         {
-          "id": "rrxqrh",
-          "start": 84.23999786376953,
           "end": 84.44000244140625,
+          "start": 84.26000213623047,
           "text": " next"
         },
         {
-          "id": "azi6vr",
+          "end": 84.70000457763672,
           "start": 84.44000244140625,
-          "end": 84.58000183105469,
           "text": " steps."
         }
       ],
       "speakerId": "speaker_1"
     },
     {
-      "id": "y5rz9q",
-      "start": 85,
-      "end": 143.77999877929688,
-      "text": "So accelerating personalized treatment is really what AI will help with, I think so. And look, the thing I point back to is a lot of people are skeptical about that timeline, and they're probably, it's very reasonable to be skeptical of that because usually it takes a decade to do one drug, and you're doing well if that's the case. But it's the same thing that we were told when we started AlphaFold. You know, it takes a PhD student, rule of thumb, basically their whole PhD to crystallize and find the structure of one protein, five years on average, one protein. And now with AlphaFold, we've done all 200 million proteins known to science in one year, which is a billion years of PhD time. So we've done it once in what was thought to be a kind of uncrackable problem, a grand challenge of biology. This is harder, of course, because of the human body, but I'm optimistic it's possible, and we're going to try really, really hard to do it.",
+      "id": "n0w9r4",
+      "start": 85.30000305175781,
+      "end": 103.22000122070312,
+      "text": "So, accelerating personalized treatment is really what AI will help with. I think so. The thing I point back to is a lot of people are skeptical about that timeline, and it's very reasonable to be skeptical because usually it takes a decade to develop one drug. You're doing well if that's the case.",
       "words": [
         {
-          "id": "l9ada9",
-          "start": 85,
-          "end": 85.4000015258789,
-          "text": "So"
+          "end": 85.66000366210938,
+          "start": 85.30000305175781,
+          "text": "So,"
         },
         {
-          "id": "pttv9z",
-          "start": 85.4000015258789,
-          "end": 85.81999969482422,
+          "end": 86.02000427246094,
+          "start": 85.66000366210938,
           "text": " accelerating"
         },
         {
-          "id": "s4zs17",
-          "start": 85.81999969482422,
-          "end": 87.05999755859375,
+          "end": 87.08000183105469,
+          "start": 86.02000427246094,
           "text": " personalized"
         },
         {
-          "id": "nrstwr",
-          "start": 87.05999755859375,
-          "end": 87.80000305175781,
+          "end": 87.89999389648438,
+          "start": 87.7199935913086,
           "text": " treatment"
         },
         {
-          "id": "yup6uw",
-          "start": 87.80000305175781,
-          "end": 88.13999938964844,
+          "end": 88.2199935913086,
+          "start": 87.89999389648438,
           "text": " is"
         },
         {
-          "id": "52se0x",
-          "start": 88.13999938964844,
-          "end": 88.36000061035156,
+          "end": 88.45999908447266,
+          "start": 88.2199935913086,
           "text": " really"
         },
         {
-          "id": "01f6cf",
-          "start": 88.45999908447266,
           "end": 88.55999755859375,
+          "start": 88.45999908447266,
           "text": " what"
         },
         {
-          "id": "i1718y",
+          "end": 88.86000061035156,
           "start": 88.55999755859375,
-          "end": 88.81999969482422,
           "text": " AI"
         },
         {
-          "id": "lrsmjy",
-          "start": 88.81999969482422,
-          "end": 89.30000305175781,
+          "end": 89.36000061035156,
+          "start": 88.86000061035156,
           "text": " will"
         },
         {
-          "id": "mhv22x",
-          "start": 89.30000305175781,
           "end": 89.5,
+          "start": 89.36000061035156,
           "text": " help"
         },
         {
-          "id": "sh589z",
+          "end": 89.73999786376953,
           "start": 89.5,
-          "end": 89.66000366210938,
-          "text": " with,"
+          "text": " with."
         },
         {
-          "id": "84zz01",
+          "end": 89.91999816894531,
           "start": 89.77999877929688,
-          "end": 89.86000061035156,
           "text": " I"
         },
         {
-          "id": "u4qi14",
-          "start": 89.86000061035156,
-          "end": 90.12000274658203,
+          "end": 90.13999938964844,
+          "start": 89.91999816894531,
           "text": " think"
         },
         {
-          "id": "dwhzo0",
-          "start": 90.12000274658203,
-          "end": 90.33999633789062,
+          "end": 90.36000061035156,
+          "start": 90.13999938964844,
           "text": " so."
         },
         {
-          "id": "smmmrm",
-          "start": 90.37999725341797,
-          "end": 90.68000030517578,
-          "text": " And"
-        },
-        {
-          "id": "8nj704",
+          "end": 90.75999450683594,
           "start": 90.68000030517578,
-          "end": 91.0199966430664,
-          "text": " look,"
+          "text": " The"
         },
         {
-          "id": "gnh8ig",
-          "start": 91.30000305175781,
-          "end": 91.4000015258789,
-          "text": " the"
-        },
-        {
-          "id": "1en581",
-          "start": 91.4000015258789,
-          "end": 91.54000091552734,
+          "end": 91.57999420166016,
+          "start": 91.45999908447266,
           "text": " thing"
         },
         {
-          "id": "7btk3e",
-          "start": 91.54000091552734,
-          "end": 91.69999694824219,
+          "end": 91.7199935913086,
+          "start": 91.57999420166016,
           "text": " I"
         },
         {
-          "id": "f46mvr",
-          "start": 91.69999694824219,
-          "end": 91.77999877929688,
+          "end": 91.93999481201172,
+          "start": 91.7199935913086,
           "text": " point"
         },
         {
-          "id": "ccrrbi",
-          "start": 91.77999877929688,
-          "end": 92.08000183105469,
+          "end": 92.13999938964844,
+          "start": 92.03999328613281,
           "text": " back"
         },
         {
-          "id": "gh6uxx",
-          "start": 92.08000183105469,
-          "end": 92.33999633789062,
+          "end": 92.43999481201172,
+          "start": 92.13999938964844,
           "text": " to"
         },
         {
-          "id": "0vhtf3",
-          "start": 92.33999633789062,
-          "end": 92.66000366210938,
+          "end": 92.7199935913086,
+          "start": 92.43999481201172,
           "text": " is"
         },
         {
-          "id": "d9hs43",
-          "start": 92.66000366210938,
-          "end": 93.0199966430664,
+          "end": 93.1199951171875,
+          "start": 92.7199935913086,
           "text": " a"
         },
         {
-          "id": "75jtma",
-          "start": 93.0199966430664,
-          "end": 93.12000274658203,
+          "end": 93.19999694824219,
+          "start": 93.1199951171875,
           "text": " lot"
         },
         {
-          "id": "eo7g6l",
-          "start": 93.12000274658203,
-          "end": 93.19999694824219,
+          "end": 93.23999786376953,
+          "start": 93.19999694824219,
           "text": " of"
         },
         {
-          "id": "vn01ce",
-          "start": 93.19999694824219,
           "end": 93.37999725341797,
+          "start": 93.23999786376953,
           "text": " people"
         },
         {
-          "id": "6litwf",
-          "start": 93.41999816894531,
-          "end": 93.5199966430664,
+          "end": 93.57999420166016,
+          "start": 93.37999725341797,
           "text": " are"
         },
         {
-          "id": "6ojewk",
-          "start": 93.5199966430664,
-          "end": 93.66000366210938,
+          "end": 93.81999969482422,
+          "start": 93.57999420166016,
           "text": " skeptical"
         },
         {
-          "id": "1cbl8w",
-          "start": 93.66000366210938,
-          "end": 94.16000366210938,
+          "end": 94.25999450683594,
+          "start": 93.81999969482422,
           "text": " about"
         },
         {
-          "id": "5dr7xh",
-          "start": 94.16000366210938,
-          "end": 94.41999816894531,
+          "end": 94.39999389648438,
+          "start": 94.25999450683594,
           "text": " that"
         },
         {
-          "id": "ji1sl8",
-          "start": 94.41999816894531,
           "end": 94.81999969482422,
+          "start": 94.39999389648438,
           "text": " timeline,"
         },
         {
-          "id": "hpdwfq",
+          "end": 95.0999984741211,
           "start": 94.81999969482422,
-          "end": 95.05999755859375,
           "text": " and"
         },
         {
-          "id": "wxe1av",
-          "start": 95.05999755859375,
-          "end": 95.23999786376953,
-          "text": " they're"
-        },
-        {
-          "id": "s7mq7s",
-          "start": 95.23999786376953,
-          "end": 95.5,
-          "text": " probably,"
-        },
-        {
-          "id": "4bdfky",
-          "start": 95.91999816894531,
-          "end": 96.05999755859375,
+          "end": 96.07999420166016,
+          "start": 96,
           "text": " it's"
         },
         {
-          "id": "35faxu",
-          "start": 96.05999755859375,
-          "end": 96.19999694824219,
+          "end": 96.22000122070312,
+          "start": 96.07999420166016,
           "text": " very"
         },
         {
-          "id": "doue1f",
-          "start": 96.19999694824219,
-          "end": 96.45999908447266,
+          "end": 96.6199951171875,
+          "start": 96.22000122070312,
           "text": " reasonable"
         },
         {
-          "id": "5s0s3i",
-          "start": 96.45999908447266,
           "end": 96.77999877929688,
+          "start": 96.6199951171875,
           "text": " to"
         },
         {
-          "id": "6x80m8",
+          "end": 96.87999725341797,
           "start": 96.77999877929688,
-          "end": 96.86000061035156,
           "text": " be"
         },
         {
-          "id": "spdoe2",
-          "start": 97.0199966430664,
-          "end": 97.18000030517578,
+          "end": 97.25999450683594,
+          "start": 96.87999725341797,
           "text": " skeptical"
         },
         {
-          "id": "rnx9qw",
-          "start": 97.18000030517578,
-          "end": 97.4000015258789,
-          "text": " of"
-        },
-        {
-          "id": "1d5e3a",
-          "start": 97.4000015258789,
-          "end": 97.55999755859375,
-          "text": " that"
-        },
-        {
-          "id": "q4gbp6",
-          "start": 97.55999755859375,
           "end": 97.69999694824219,
+          "start": 97.55999755859375,
           "text": " because"
         },
         {
-          "id": "ouxc6x",
+          "end": 98.36000061035156,
           "start": 97.69999694824219,
-          "end": 98.27999877929688,
           "text": " usually"
         },
         {
-          "id": "lqlbt1",
-          "start": 98.27999877929688,
-          "end": 98.44000244140625,
+          "end": 98.57999420166016,
+          "start": 98.36000061035156,
           "text": " it"
         },
         {
-          "id": "zw1fdc",
-          "start": 98.44000244140625,
-          "end": 98.5999984741211,
+          "end": 98.69999694824219,
+          "start": 98.57999420166016,
           "text": " takes"
         },
         {
-          "id": "mrin70",
-          "start": 98.5999984741211,
-          "end": 98.77999877929688,
+          "end": 98.79999542236328,
+          "start": 98.69999694824219,
           "text": " a"
         },
         {
-          "id": "0la7sa",
-          "start": 98.77999877929688,
           "end": 99.0199966430664,
+          "start": 98.79999542236328,
           "text": " decade"
         },
         {
-          "id": "t0g2gp",
+          "end": 99.27999877929688,
           "start": 99.0199966430664,
-          "end": 99.26000213623047,
           "text": " to"
         },
         {
-          "id": "tvs3pu",
-          "start": 99.26000213623047,
-          "end": 99.4000015258789,
-          "text": " do"
+          "end": 99.39999389648438,
+          "start": 99.27999877929688,
+          "text": " develop"
         },
         {
-          "id": "tlmjbd",
-          "start": 99.4000015258789,
-          "end": 99.55999755859375,
+          "end": 99.65999603271484,
+          "start": 99.39999389648438,
           "text": " one"
         },
         {
-          "id": "qn83j8",
-          "start": 99.55999755859375,
-          "end": 99.9000015258789,
-          "text": " drug,"
+          "end": 99.93999481201172,
+          "start": 99.65999603271484,
+          "text": " drug."
         },
         {
-          "id": "o640hc",
-          "start": 100,
-          "end": 100.44000244140625,
-          "text": " and"
+          "end": 100.5199966430664,
+          "start": 100.39999389648438,
+          "text": " You're"
         },
         {
-          "id": "ul826m",
-          "start": 101.31999969482422,
-          "end": 101.72000122070312,
-          "text": " you're"
-        },
-        {
-          "id": "h371zp",
-          "start": 101.72000122070312,
           "end": 101.87999725341797,
+          "start": 101.73999786376953,
           "text": " doing"
         },
         {
-          "id": "emn6do",
-          "start": 101.95999908447266,
-          "end": 102.05999755859375,
+          "end": 102.13999938964844,
+          "start": 101.87999725341797,
           "text": " well"
         },
         {
-          "id": "iqu3bu",
-          "start": 102.19999694824219,
-          "end": 102.36000061035156,
+          "end": 102.41999816894531,
+          "start": 102.13999938964844,
           "text": " if"
         },
         {
-          "id": "2de9ow",
-          "start": 102.36000061035156,
           "end": 102.83999633789062,
+          "start": 102.41999816894531,
           "text": " that's"
         },
         {
-          "id": "r5y963",
+          "end": 102.93999481201172,
           "start": 102.83999633789062,
-          "end": 102.91999816894531,
           "text": " the"
         },
         {
-          "id": "v2nkod",
-          "start": 102.91999816894531,
-          "end": 103.16000366210938,
+          "end": 103.22000122070312,
+          "start": 102.93999481201172,
           "text": " case."
+        }
+      ],
+      "speakerId": "speaker_1"
+    },
+    {
+      "id": "mci3b5",
+      "start": 103.5999984741211,
+      "end": 143.8400115966797,
+      "text": "But it's the same thing we were told when, as a rule of thumb, most people spent their whole PhD to crystallize and find the structure of one protein—five years on average for one protein. And now with AlphaFold, we've done all 200 million proteins known to science in one year, which is a billion years of PhD time. So we've done it once in what was thought to be an uncrackable problem and a grand challenge of biology. This is harder, of course, because it involves the human body, but I'm optimistic it's possible, and we're going to try really, really hard to do it.",
+      "words": [
+        {
+          "end": 103.73999786376953,
+          "start": 103.5999984741211,
+          "text": "But"
         },
         {
-          "id": "i3em79",
-          "start": 103.27999877929688,
-          "end": 103.66000366210938,
-          "text": " But"
-        },
-        {
-          "id": "q0ruu4",
-          "start": 103.66000366210938,
-          "end": 103.9000015258789,
+          "end": 103.89999389648438,
+          "start": 103.73999786376953,
           "text": " it's"
         },
         {
-          "id": "yxgvij",
-          "start": 103.9000015258789,
-          "end": 103.95999908447266,
+          "end": 104.0199966430664,
+          "start": 103.89999389648438,
           "text": " the"
         },
         {
-          "id": "up2skg",
-          "start": 103.95999908447266,
-          "end": 104.16000366210938,
+          "end": 104.22000122070312,
+          "start": 104.0199966430664,
           "text": " same"
         },
         {
-          "id": "fyijfw",
-          "start": 104.16000366210938,
-          "end": 104.41999816894531,
+          "end": 104.47999572753906,
+          "start": 104.22000122070312,
           "text": " thing"
         },
         {
-          "id": "q1potv",
-          "start": 104.41999816894531,
-          "end": 104.63999938964844,
-          "text": " that"
-        },
-        {
-          "id": "lbl1zz",
-          "start": 104.63999938964844,
-          "end": 104.87999725341797,
+          "end": 104.95999908447266,
+          "start": 104.72000122070312,
           "text": " we"
         },
         {
-          "id": "ueo0ju",
-          "start": 104.87999725341797,
-          "end": 105.04000091552734,
+          "end": 105.0999984741211,
+          "start": 104.95999908447266,
           "text": " were"
         },
         {
-          "id": "i0i8xy",
-          "start": 105.04000091552734,
           "end": 105.37999725341797,
+          "start": 105.0999984741211,
           "text": " told"
         },
         {
-          "id": "a6bpde",
+          "end": 105.63999938964844,
           "start": 105.37999725341797,
-          "end": 105.62000274658203,
-          "text": " when"
+          "text": " when,"
         },
         {
-          "id": "ttfqgr",
-          "start": 105.62000274658203,
           "end": 105.81999969482422,
-          "text": " we"
+          "start": 105.63999938964844,
+          "text": " as"
         },
         {
-          "id": "uvs59p",
+          "id": "haobt5",
+          "text": " a",
           "start": 105.81999969482422,
-          "end": 106.12000274658203,
-          "text": " started"
+          "end": 106.56399993896484
         },
         {
-          "id": "cteeyw",
-          "start": 106.12000274658203,
-          "end": 106.73999786376953,
-          "text": " AlphaFold."
-        },
-        {
-          "id": "9enggi",
-          "start": 107.27999877929688,
-          "end": 107.33999633789062,
-          "text": " You"
-        },
-        {
-          "id": "h4l7zp",
-          "start": 107.33999633789062,
-          "end": 107.41999816894531,
-          "text": " know,"
-        },
-        {
-          "id": "8ysgxq",
-          "start": 107.5,
-          "end": 107.63999938964844,
-          "text": " it"
-        },
-        {
-          "id": "npduq5",
-          "start": 107.63999938964844,
-          "end": 108,
-          "text": " takes"
-        },
-        {
-          "id": "ugxfh6",
-          "start": 108,
-          "end": 108.23999786376953,
-          "text": " a"
-        },
-        {
-          "id": "cvotdw",
-          "start": 108.23999786376953,
-          "end": 108.5999984741211,
-          "text": " PhD"
-        },
-        {
-          "id": "tzu8si",
-          "start": 108.5999984741211,
-          "end": 109.08000183105469,
-          "text": " student,"
-        },
-        {
-          "id": "jdtecw",
-          "start": 109.27999877929688,
-          "end": 109.9000015258789,
+          "end": 109.91999816894531,
+          "start": 109.54000091552734,
           "text": " rule"
         },
         {
-          "id": "9etp4j",
-          "start": 109.9000015258789,
-          "end": 110.08000183105469,
+          "end": 110.0999984741211,
+          "start": 109.91999816894531,
           "text": " of"
         },
         {
-          "id": "zjr5gv",
-          "start": 110.08000183105469,
-          "end": 110.33999633789062,
+          "end": 110.37999725341797,
+          "start": 110.0999984741211,
           "text": " thumb,"
         },
         {
-          "id": "jmpm4c",
+          "end": 111.36000061035156,
           "start": 111.26000213623047,
-          "end": 111.63999938964844,
-          "text": " basically"
+          "text": " most"
         },
         {
-          "id": "lroo0e",
-          "start": 111.63999938964844,
-          "end": 111.94000244140625,
+          "end": 111.76000213623047,
+          "start": 111.36000061035156,
+          "text": " people"
+        },
+        {
+          "id": "d0p26z",
+          "text": " spent",
+          "start": 111.76000213623047,
+          "end": 111.76000213623047
+        },
+        {
+          "end": 111.9800033569336,
+          "start": 111.76000213623047,
           "text": " their"
         },
         {
-          "id": "4hxvz1",
-          "start": 111.94000244140625,
-          "end": 112.0999984741211,
+          "end": 112.13999938964844,
+          "start": 111.9800033569336,
           "text": " whole"
         },
         {
-          "id": "l7ule2",
-          "start": 112.0999984741211,
-          "end": 112.41999816894531,
+          "end": 112.54000091552734,
+          "start": 112.13999938964844,
           "text": " PhD"
         },
         {
-          "id": "pc0q8u",
-          "start": 112.41999816894531,
-          "end": 112.86000061035156,
+          "end": 113,
+          "start": 112.54000091552734,
           "text": " to"
         },
         {
-          "id": "49lzf9",
-          "start": 113.39999389648438,
-          "end": 113.87999725341797,
+          "end": 113.94000244140625,
+          "start": 113,
           "text": " crystallize"
         },
         {
-          "id": "yezgng",
-          "start": 113.87999725341797,
-          "end": 114.05999755859375,
+          "end": 114.12000274658203,
+          "start": 113.94000244140625,
           "text": " and"
         },
         {
-          "id": "n2ry34",
-          "start": 114.05999755859375,
-          "end": 114.54000091552734,
+          "end": 114.55999755859375,
+          "start": 114.12000274658203,
           "text": " find"
         },
         {
-          "id": "cqwud7",
-          "start": 114.54000091552734,
-          "end": 114.76000213623047,
+          "end": 114.87999725341797,
+          "start": 114.55999755859375,
           "text": " the"
         },
         {
-          "id": "qca0r7",
-          "start": 115.41999816894531,
-          "end": 115.73999786376953,
+          "end": 115.62000274658203,
+          "start": 114.87999725341797,
           "text": " structure"
         },
         {
-          "id": "aias0i",
+          "id": "coiakg",
           "text": " of",
-          "start": 115.73999786376953,
-          "end": 115.73999786376953
+          "start": 115.62000274658203,
+          "end": 115.68000210032744
         },
         {
-          "id": "psxrf5",
-          "start": 115.73999786376953,
-          "end": 115.95999908447266,
+          "end": 116.05999755859375,
+          "start": 115.95999908447266,
           "text": " one"
         },
         {
-          "id": "bqfoqa",
-          "start": 115.95999908447266,
           "end": 116.37999725341797,
-          "text": " protein,"
+          "start": 116.05999755859375,
+          "text": " protein—"
         },
         {
-          "id": "2vd5m7",
-          "start": 116.94000244140625,
-          "end": 117.16000366210938,
-          "text": " five"
+          "end": 117,
+          "start": 116.87999725341797,
+          "text": "five"
         },
         {
-          "id": "169gp0",
-          "start": 117.16000366210938,
-          "end": 117.54000091552734,
+          "end": 117.63999938964844,
+          "start": 117.23999786376953,
           "text": " years"
         },
         {
-          "id": "l04mmg",
-          "start": 117.54000091552734,
-          "end": 117.86000061035156,
+          "end": 117.91999816894531,
+          "start": 117.63999938964844,
           "text": " on"
         },
         {
-          "id": "y7cg3j",
-          "start": 117.86000061035156,
-          "end": 118.12000274658203,
-          "text": " average,"
+          "end": 118.27999877929688,
+          "start": 117.91999816894531,
+          "text": " average"
         },
         {
-          "id": "rqdrim",
-          "start": 118.5199966430664,
-          "end": 118.63999938964844,
+          "id": "pt7l5z",
+          "text": " for",
+          "start": 118.27999877929688,
+          "end": 118.33749961853027
+        },
+        {
+          "end": 118.69999694824219,
+          "start": 118.51000213623047,
           "text": " one"
         },
         {
-          "id": "m4ts5r",
-          "start": 118.63999938964844,
-          "end": 118.9800033569336,
+          "end": 118.97999572753906,
+          "start": 118.69999694824219,
           "text": " protein."
         },
         {
-          "id": "hx5jco",
-          "start": 119.4800033569336,
-          "end": 119.95999908447266,
+          "end": 120.02000427246094,
+          "start": 119.94000244140625,
           "text": " And"
         },
         {
-          "id": "lxr9pc",
-          "start": 119.95999908447266,
-          "end": 120.23999786376953,
+          "end": 120.30000305175781,
+          "start": 120.02000427246094,
           "text": " now"
         },
         {
-          "id": "00knd5",
-          "start": 120.23999786376953,
-          "end": 120.45999908447266,
+          "end": 120.54000091552734,
+          "start": 120.30000305175781,
           "text": " with"
         },
         {
-          "id": "n5skmw",
-          "start": 120.45999908447266,
           "end": 120.95999908447266,
+          "start": 120.54000091552734,
           "text": " AlphaFold,"
         },
         {
-          "id": "ot6drk",
-          "start": 120.9800033569336,
           "end": 121.16000366210938,
+          "start": 120.97000122070312,
           "text": " we've"
         },
         {
-          "id": "qjz5f5",
+          "end": 121.33999633789062,
           "start": 121.16000366210938,
-          "end": 121.31999969482422,
           "text": " done"
         },
         {
-          "id": "1qarvg",
-          "start": 121.31999969482422,
-          "end": 121.41999816894531,
+          "end": 121.45999908447266,
+          "start": 121.33999633789062,
           "text": " all"
         },
         {
-          "id": "k0illl",
-          "start": 121.41999816894531,
-          "end": 121.72000122070312,
+          "end": 121.83999633789062,
+          "start": 121.62000274658203,
           "text": " 200"
         },
         {
-          "id": "g65dyf",
-          "start": 121.72000122070312,
-          "end": 122.0999984741211,
+          "end": 122.12000274658203,
+          "start": 121.83999633789062,
           "text": " million"
         },
         {
-          "id": "6ooloz",
-          "start": 122.0999984741211,
-          "end": 122.5199966430664,
+          "end": 122.54000091552734,
+          "start": 122.12000274658203,
           "text": " proteins"
         },
         {
-          "id": "1bzfq9",
-          "start": 122.5199966430664,
-          "end": 122.81999969482422,
+          "end": 122.87999725341797,
+          "start": 122.54000091552734,
           "text": " known"
         },
         {
-          "id": "6uc0s9",
-          "start": 122.81999969482422,
-          "end": 123,
+          "end": 123.05999755859375,
+          "start": 122.87999725341797,
           "text": " to"
         },
         {
-          "id": "hgyyjz",
-          "start": 123,
           "end": 123.30000305175781,
+          "start": 123.05999755859375,
           "text": " science"
         },
         {
-          "id": "s2irz7",
-          "start": 123.95999908447266,
-          "end": 124.05999755859375,
+          "end": 124.12000274658203,
+          "start": 123.30000305175781,
           "text": " in"
         },
         {
-          "id": "vde3yp",
-          "start": 124.5199966430664,
           "end": 124.77999877929688,
+          "start": 124.12000274658203,
           "text": " one"
         },
         {
-          "id": "kovq68",
+          "end": 125.12000274658203,
           "start": 124.77999877929688,
-          "end": 125.08000183105469,
           "text": " year,"
         },
         {
-          "id": "adyqnv",
-          "start": 125.13999938964844,
-          "end": 125.62000274658203,
+          "end": 125.63999938964844,
+          "start": 125.44999694824219,
           "text": " which"
         },
         {
-          "id": "dirz6b",
-          "start": 125.62000274658203,
-          "end": 125.86000061035156,
+          "end": 125.80000305175781,
+          "start": 125.63999938964844,
           "text": " is"
         },
         {
-          "id": "k1imjt",
-          "start": 126.4000015258789,
-          "end": 126.5999984741211,
+          "end": 126.62000274658203,
+          "start": 126.43000030517578,
           "text": " a"
         },
         {
-          "id": "y57y46",
-          "start": 126.5999984741211,
-          "end": 126.81999969482422,
+          "end": 126.87999725341797,
+          "start": 126.62000274658203,
           "text": " billion"
         },
         {
-          "id": "aq24ki",
-          "start": 126.81999969482422,
           "end": 127.0999984741211,
+          "start": 126.87999725341797,
           "text": " years"
         },
         {
-          "id": "0wg8a0",
+          "end": 127.26000213623047,
           "start": 127.0999984741211,
-          "end": 127.23999786376953,
           "text": " of"
         },
         {
-          "id": "n5j7gv",
-          "start": 127.23999786376953,
-          "end": 127.54000091552734,
+          "end": 127.63999938964844,
+          "start": 127.26000213623047,
           "text": " PhD"
         },
         {
-          "id": "frge3q",
-          "start": 127.54000091552734,
           "end": 127.91999816894531,
+          "start": 127.63999938964844,
           "text": " time."
         },
         {
-          "id": "vls3k2",
-          "start": 128,
-          "end": 128.47999572753906,
+          "end": 128.48001098632812,
+          "start": 128.3800048828125,
           "text": " So"
         },
         {
-          "id": "8blbtp",
-          "start": 128.47999572753906,
-          "end": 129.32000732421875,
+          "end": 129.36000061035156,
+          "start": 128.48001098632812,
           "text": " we've"
         },
         {
-          "id": "05be8w",
-          "start": 129.32000732421875,
-          "end": 129.4199981689453,
+          "end": 129.48001098632812,
+          "start": 129.36000061035156,
           "text": " done"
         },
         {
-          "id": "r5589w",
-          "start": 129.4199981689453,
-          "end": 129.5399932861328,
+          "end": 129.54000854492188,
+          "start": 129.48001098632812,
           "text": " it"
         },
         {
-          "id": "uh0fkk",
-          "start": 129.5399932861328,
-          "end": 129.72000122070312,
+          "end": 129.9600067138672,
+          "start": 129.54000854492188,
           "text": " once"
         },
         {
-          "id": "fc0akh",
-          "start": 130.55999755859375,
-          "end": 130.72000122070312,
+          "end": 130.92001342773438,
+          "start": 130.63999938964844,
           "text": " in"
         },
         {
-          "id": "uwfd3a",
-          "start": 130.72000122070312,
-          "end": 131.24000549316406,
+          "end": 131.3000030517578,
+          "start": 130.92001342773438,
           "text": " what"
         },
         {
-          "id": "3bdm4s",
-          "start": 131.24000549316406,
-          "end": 131.4600067138672,
+          "end": 131.40000915527344,
+          "start": 131.3000030517578,
           "text": " was"
         },
         {
-          "id": "xitw8n",
-          "start": 131.4600067138672,
-          "end": 131.63999938964844,
+          "end": 131.74000549316406,
+          "start": 131.40000915527344,
           "text": " thought"
         },
         {
-          "id": "7gsbsp",
-          "start": 131.63999938964844,
-          "end": 131.86000061035156,
+          "end": 131.8800048828125,
+          "start": 131.74000549316406,
           "text": " to"
         },
         {
-          "id": "e994ku",
-          "start": 131.86000061035156,
-          "end": 132.0399932861328,
+          "end": 132.04000854492188,
+          "start": 131.8800048828125,
           "text": " be"
         },
         {
-          "id": "5367np",
-          "start": 132.0399932861328,
-          "end": 132.16000366210938,
-          "text": " a"
+          "end": 132.260009765625,
+          "start": 132.04000854492188,
+          "text": " an"
         },
         {
-          "id": "7dz22t",
-          "start": 132.16000366210938,
-          "end": 132.4199981689453,
-          "text": " kind"
-        },
-        {
-          "id": "z9xv83",
-          "start": 132.4199981689453,
-          "end": 132.5800018310547,
-          "text": " of"
-        },
-        {
-          "id": "wzr8wz",
+          "end": 133.16000366210938,
           "start": 132.5800018310547,
-          "end": 133.13999938964844,
           "text": " uncrackable"
         },
         {
-          "id": "iilclm",
-          "start": 133.13999938964844,
-          "end": 133.47999572753906,
-          "text": " problem,"
+          "end": 133.54000854492188,
+          "start": 133.16000366210938,
+          "text": " problem"
         },
         {
-          "id": "xldmvc",
-          "start": 134.5399932861328,
-          "end": 135.02000427246094,
-          "text": " a"
-        },
-        {
-          "id": "04bkdb",
-          "start": 135.86000061035156,
-          "end": 136.19993591308594,
-          "text": " grand"
-        },
-        {
-          "id": "8c3r0u",
-          "start": 136.22000122070312,
-          "end": 136.44000244140625,
-          "text": " challenge"
-        },
-        {
-          "id": "xxqfjc",
-          "start": 136.44000244140625,
-          "end": 136.60000610351562,
-          "text": " of"
-        },
-        {
-          "id": "1o83zv",
-          "start": 136.60000610351562,
-          "end": 136.77999877929688,
-          "text": " biology."
-        },
-        {
-          "id": "msnvgp",
-          "start": 137.22000122070312,
-          "end": 137.5800018310547,
-          "text": " This"
-        },
-        {
-          "id": "v07pft",
-          "start": 137.5800018310547,
-          "end": 137.74000549316406,
-          "text": " is"
-        },
-        {
-          "id": "iavf1j",
-          "start": 137.74000549316406,
-          "end": 138.0399932861328,
-          "text": " harder,"
-        },
-        {
-          "id": "n1w8n2",
-          "start": 138.17999267578125,
-          "end": 138.44000244140625,
-          "text": " of"
-        },
-        {
-          "id": "8eclfl",
-          "start": 138.44000244140625,
-          "end": 138.60000610351562,
-          "text": " course,"
-        },
-        {
-          "id": "s2h9tu",
-          "start": 138.6999969482422,
-          "end": 138.77999877929688,
-          "text": " because"
-        },
-        {
-          "id": "fyl7vr",
-          "text": " of",
-          "start": 138.77999877929688,
-          "end": 138.77999877929688
-        },
-        {
-          "id": "cddokx",
-          "text": " the",
-          "start": 138.77999877929688,
-          "end": 138.77999877929688
-        },
-        {
-          "id": "0wciul",
-          "start": 138.77999877929688,
-          "end": 139.02000427246094,
-          "text": " human"
-        },
-        {
-          "id": "tgrwo4",
-          "start": 139.02000427246094,
-          "end": 139.44000244140625,
-          "text": " body,"
-        },
-        {
-          "id": "u0y4e1",
-          "start": 139.55999755859375,
-          "end": 140.05999755859375,
-          "text": " but"
-        },
-        {
-          "id": "3n2l6w",
-          "start": 140.05999755859375,
-          "end": 140.63999938964844,
-          "text": " I'm"
-        },
-        {
-          "id": "xb9y1w",
-          "start": 140.63999938964844,
-          "end": 140.94000244140625,
-          "text": " optimistic"
-        },
-        {
-          "id": "j8whrl",
-          "start": 140.94000244140625,
-          "end": 141.33999633789062,
-          "text": " it's"
-        },
-        {
-          "id": "nazzvr",
-          "start": 141.36000061035156,
-          "end": 141.6199951171875,
-          "text": " possible,"
-        },
-        {
-          "id": "klx62k",
-          "start": 141.74000549316406,
-          "end": 141.9600067138672,
+          "end": 135.40000915527344,
+          "start": 134.9600067138672,
           "text": " and"
         },
         {
-          "id": "5lbl6x",
-          "start": 141.9600067138672,
-          "end": 142.44000244140625,
+          "end": 135.8400115966797,
+          "start": 135.760009765625,
+          "text": " a"
+        },
+        {
+          "end": 136.0800018310547,
+          "start": 135.98001098632812,
+          "text": " grand"
+        },
+        {
+          "end": 136.44000244140625,
+          "start": 136.0800018310547,
+          "text": " challenge"
+        },
+        {
+          "end": 136.6800079345703,
+          "start": 136.44000244140625,
+          "text": " of"
+        },
+        {
+          "end": 136.9600067138672,
+          "start": 136.6800079345703,
+          "text": " biology."
+        },
+        {
+          "end": 137.66000366210938,
+          "start": 137.54000854492188,
+          "text": " This"
+        },
+        {
+          "end": 137.72000122070312,
+          "start": 137.66000366210938,
+          "text": " is"
+        },
+        {
+          "end": 138.12001037597656,
+          "start": 137.72000122070312,
+          "text": " harder,"
+        },
+        {
+          "end": 138.52000427246094,
+          "start": 138.44000244140625,
+          "text": " of"
+        },
+        {
+          "end": 138.63999938964844,
+          "start": 138.52000427246094,
+          "text": " course,"
+        },
+        {
+          "end": 138.86000061035156,
+          "start": 138.760009765625,
+          "text": " because"
+        },
+        {
+          "id": "zlcz7z",
+          "text": " it",
+          "start": 138.86000061035156,
+          "end": 138.86000061035156
+        },
+        {
+          "id": "s7331n",
+          "text": " involves",
+          "start": 138.86000061035156,
+          "end": 138.86000061035156
+        },
+        {
+          "id": "9s29ym",
+          "text": " the",
+          "start": 138.86000061035156,
+          "end": 138.86000061035156
+        },
+        {
+          "end": 139.16000366210938,
+          "start": 138.86000061035156,
+          "text": " human"
+        },
+        {
+          "end": 139.44000244140625,
+          "start": 139.16000366210938,
+          "text": " body,"
+        },
+        {
+          "end": 140.16000366210938,
+          "start": 140,
+          "text": " but"
+        },
+        {
+          "end": 140.42001342773438,
+          "start": 140.16000366210938,
+          "text": " I'm"
+        },
+        {
+          "end": 140.8400115966797,
+          "start": 140.42001342773438,
+          "text": " optimistic"
+        },
+        {
+          "end": 141.3400115966797,
+          "start": 140.8400115966797,
+          "text": " it's"
+        },
+        {
+          "end": 141.63999938964844,
+          "start": 141.3400115966797,
+          "text": " possible,"
+        },
+        {
+          "end": 142.32000732421875,
+          "start": 142.20001220703125,
+          "text": " and"
+        },
+        {
+          "end": 142.54000854492188,
+          "start": 142.32000732421875,
           "text": " we're"
         },
         {
-          "id": "2mk525",
-          "start": 142.44000244140625,
-          "end": 142.5399932861328,
+          "end": 142.60000610351562,
+          "start": 142.54000854492188,
           "text": " going"
         },
         {
-          "id": "6vus3m",
-          "start": 142.5399932861328,
-          "end": 142.5800018310547,
+          "end": 142.62001037597656,
+          "start": 142.60000610351562,
           "text": " to"
         },
         {
-          "id": "bt080o",
-          "start": 142.5800018310547,
-          "end": 142.75999450683594,
+          "end": 142.8400115966797,
+          "start": 142.62001037597656,
           "text": " try"
         },
         {
-          "id": "r30phv",
-          "start": 142.75999450683594,
-          "end": 143.0399932861328,
+          "end": 143.0600128173828,
+          "start": 142.8400115966797,
           "text": " really,"
         },
         {
-          "id": "gmjgza",
-          "start": 143.10000610351562,
-          "end": 143.17999267578125,
+          "end": 143.24000549316406,
+          "start": 143.1800079345703,
           "text": " really"
         },
         {
-          "id": "5z58tw",
-          "start": 143.17999267578125,
-          "end": 143.4199981689453,
+          "end": 143.4600067138672,
+          "start": 143.24000549316406,
           "text": " hard"
         },
         {
-          "id": "k5ztqz",
-          "start": 143.4199981689453,
-          "end": 143.5399932861328,
+          "end": 143.54000854492188,
+          "start": 143.4600067138672,
           "text": " to"
         },
         {
-          "id": "876790",
-          "start": 143.5399932861328,
-          "end": 143.63999938964844,
+          "end": 143.6800079345703,
+          "start": 143.54000854492188,
           "text": " do"
         },
         {
-          "id": "20inhs",
-          "start": 143.63999938964844,
-          "end": 143.77999877929688,
+          "end": 143.8400115966797,
+          "start": 143.6800079345703,
           "text": " it."
         }
       ],

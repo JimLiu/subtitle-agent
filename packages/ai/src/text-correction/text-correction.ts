@@ -23,7 +23,7 @@ export function joinWordsText(words: Word[]): string {
  * - Fixes spelling errors
  * - Removes filler words and speech disfluencies
  * - Adds proper punctuation
- * - Adds paragraph breaks (double newlines)
+ * - Adds paragraph breaks (single newline between paragraphs)
  * - Does not add non-existent content
  */
 export async function correctTextWithLLM(
@@ -31,19 +31,19 @@ export async function correctTextWithLLM(
 ): Promise<CorrectionResult> {
   const client = createGeminiClient();
 
-  const prompt = `You are a professional text editor. Please correct the following speech transcription text:
+  const prompt = `You are a professional text editor focused on readable transcripts. Edit the following speech transcription text.
 
-1. Fix spelling errors and typos
-2. Remove filler words and speech disfluencies
-3. Add proper punctuation marks
-4. Add paragraph breaks using double newlines where appropriate for logical sections
-5. Do NOT add any content that doesn't exist in the original text
-6. Maintain the original meaning and context
-7. Use \n to indicate paragraph breaks
-8. Important: return plain text only. Do NOT use any HTML tags like <p> or <br>.
+Formatting and editing rules
+1. Fix spelling and grammar mistakes.
+2. Remove filler words and speech disfluencies.
+3. Add correct punctuation and casing.
+4. Paragraphing: split the text into short paragraphs of 1–4 sentences each. Start a new paragraph when the topic shifts or a sentence becomes long. Do not produce paragraphs longer than 5 sentences.
+5. Do NOT add or infer content that is not in the original.
+6. Preserve the original meaning and tone.
+7. Use a single newline character (\\n) between paragraphs. Do not use blank lines or HTML tags (no <p>, </p>, <br>, etc.).
 
-## Output format
-Please provide only the corrected text without any explanations or additional comments.`;
+Output
+- Return plain text only: just the corrected text with newline-separated short paragraphs, no explanations.`;
 
   try {
     console.log("[LLM Request]", {
@@ -78,8 +78,11 @@ Please provide only the corrected text without any explanations or additional co
       return s.trim();
     };
 
-    // Replace double newlines with single newline
-    const correctedText = stripEdgeHtml(response.text).replace(new RegExp("\\n\\n", "g"), "\n");
+    // Normalize breaks to single newline between paragraphs
+    const correctedText = stripEdgeHtml(response.text)
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/\n{2,}/g, "\n");
 
     console.log("[LLM Response]", {
       success: true,
@@ -110,4 +113,3 @@ Please provide only the corrected text without any explanations or additional co
     };
   }
 }
-
