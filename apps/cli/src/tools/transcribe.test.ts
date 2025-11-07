@@ -11,7 +11,7 @@ vi.mock("../utils/file", () => ({
 }));
 
 vi.mock("../utils/import-whisper", () => ({
-  importWordsFromWhisper: vi.fn(),
+  importSegmentsFromWhisper: vi.fn(),
 }));
 
 import { transcribe } from "./transcribe";
@@ -35,7 +35,7 @@ describe("transcribe tool", () => {
     const existing = {
       filename: "input.wav",
       text: "hello",
-      words: [],
+      segments: [],
     };
     mockFile.readJSON.mockResolvedValue(existing);
 
@@ -46,7 +46,7 @@ describe("transcribe tool", () => {
     expect(mockFile.writeJSON).not.toHaveBeenCalled();
   });
 
-  it("transcribes, converts words and writes output when no existing file", async () => {
+  it("transcribes, converts segments and writes output when no existing file", async () => {
     mockFile.readJSON.mockResolvedValue(null);
 
     const whisperOutput = {
@@ -66,30 +66,43 @@ describe("transcribe tool", () => {
     };
     mockWhisper.transcribe.mockResolvedValue(whisperOutput as any);
 
-    const convertedWords = [
-      { id: "1", text: "hello", start: 0, end: 0.5 },
-      { id: "2", text: "world", start: 1.0, end: 1.5 },
+    const convertedSegments = [
+      {
+        id: "s1",
+        text: "hello world",
+        start: 0,
+        end: 1.5,
+        words: [
+          { id: "1", text: "hello", start: 0, end: 0.5 },
+          { id: "2", text: "world", start: 1.0, end: 1.5 },
+        ],
+      },
     ];
-    mockImportWhisper.importWordsFromWhisper.mockReturnValue(convertedWords as any);
+    mockImportWhisper.importSegmentsFromWhisper.mockReturnValue(convertedSegments as any);
 
     const res = await transcribe("input.wav", "out/whisper.json", { force: true });
 
     expect(mockWhisper.transcribe).toHaveBeenCalledWith("input.wav", { force: true });
-    expect(mockImportWhisper.importWordsFromWhisper).toHaveBeenCalledWith(
+    expect(mockImportWhisper.importSegmentsFromWhisper).toHaveBeenCalledWith(
       whisperOutput
     );
     expect(mockFile.writeJSON).toHaveBeenCalledTimes(1);
-    expect(mockFile.writeJSON).toHaveBeenCalledWith("out/whisper.json", {
-      filename: "input.wav",
-      text: "hello world",
-      words: convertedWords,
-    });
+    expect(mockFile.writeJSON).toHaveBeenCalledWith(
+      "out/whisper.json",
+      expect.objectContaining({
+        filename: "input.wav",
+        text: "hello world",
+        segments: convertedSegments,
+      })
+    );
 
-    expect(res).toEqual({
-      filename: "input.wav",
-      text: "hello world",
-      words: convertedWords,
-    });
+    expect(res).toEqual(
+      expect.objectContaining({
+        filename: "input.wav",
+        text: "hello world",
+        segments: convertedSegments,
+      })
+    );
   });
 
   it("throws when whisper transcription fails", async () => {

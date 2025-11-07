@@ -1,17 +1,18 @@
 import { generateId } from "@subtitle-agent/core/utils/ids";
 import { WhisperKitOutputType } from "@subtitle-agent/core/types/whisper";
 import { updateWordsFromText } from "@subtitle-agent/core/utils/update-words-from-text";
-import { Word } from "@subtitle-agent/core/types/subtitle";
+import { Segment, Word } from "@subtitle-agent/core/types/subtitle";
 
-export const importWordsFromWhisper = (
+export const importSegmentsFromWhisper = (
   whisperJson: WhisperKitOutputType
-): Word[] => {
+): Segment[] => {
   const segments = whisperJson.segments.map(
     (segment: {
       id?: string;
       text: string;
       start: number;
       end: number;
+      speakerId?: string;
       words: Array<{
         id?: string;
         text?: string;
@@ -39,10 +40,11 @@ export const importWordsFromWhisper = (
         start: segment.start,
         end: segment.end,
         text: segment.text,
+        speakerId: segment.speakerId,
         words: updateWordsFromText(words, segment.text),
       };
     }
   );
 
-  return segments.flatMap((segment) => segment.words);
+  return segments;
 };

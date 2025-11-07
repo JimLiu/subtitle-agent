@@ -12,6 +12,7 @@ dotenv.config();
 
 
 const input = "/Volumes/Extreme SSD/Downie/The rise of Cursor꞉ The $300M ARR AI tool that engineers can’t stop using  Michael Truell.mp4";
+// const input = "/Users/jimliu/Downloads/1 video.mp4";
 
 async function main() {
   const { whisperOutputFile, subtitleFile, paragraphsDraftFile } =
@@ -27,10 +28,10 @@ async function main() {
   const draft: ParagraphBuilderDraft = existingDraft
     ? {
         ...existingDraft,
-        words: whisperResult.words,
+        segments: whisperResult.segments,
       }
     : {
-        words: whisperResult.words,
+        segments: whisperResult.segments,
       };
 
   console.log("Polishing transcription into paragraphs...");
@@ -46,6 +47,7 @@ async function main() {
     title: path.basename(whisperResult.filename, path.extname(whisperResult.filename)),
     filename: whisperResult.filename,
     language: whisperResult.language ?? "unknown",
+    speakers: whisperResult.speakers,
     paragraphs: polishedDraft.paragraphs ?? [],
   };
 

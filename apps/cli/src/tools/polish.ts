@@ -1,4 +1,4 @@
-import { Paragraph, Word } from "@subtitle-agent/core";
+import { Paragraph, Word, Segment } from "@subtitle-agent/core";
 
 import { polishWords } from "./polish-words";
 
@@ -17,10 +17,17 @@ export interface ParagraphBuilderOptions {
 
 // 润色过程中的草稿状态，用于跨块累积结果
 export interface ParagraphBuilderDraft {
-  words: Word[];
-  lastProcessedWordIndex?: number;
+  // Full list of segments from transcription
+  segments: Segment[];
+  // Aggregated polished paragraphs
   paragraphs?: Paragraph[];
+  // Chunking options
   options?: ParagraphBuilderOptions;
+  // Progress state for resumability
+  // Index of the current speaker group being processed
+  lastProcessedGroupIndex?: number;
+  // Word index within the current speaker group
+  lastProcessedWordIndex?: number;
 }
 
 // 为段落附加其在全局词序列中的起止索引，便于判断重叠区间
@@ -152,103 +159,157 @@ const ensureCursorProgress = (
   return Math.min(nextCursor, totalWords);
 };
 
-// 迭代分块润色整篇文本，并在每个区块完成后回调通知外部
+// 根据连续的 speakerId 对 segments 进行分组
+const groupSegmentsBySpeaker = (
+  segments: Segment[]
+): Array<{ speakerId?: string; words: Word[] }> => {
+  const groups: Array<{ speakerId?: string; words: Word[] }> = [];
+  let currentSpeaker: string | undefined = undefined;
+  let currentWords: Word[] = [];
+
+  const flush = () => {
+    if (currentWords.length > 0 || groups.length === 0) {
+      groups.push({ speakerId: currentSpeaker, words: currentWords });
+    }
+    currentWords = [];
+  };
+
+  for (const seg of segments) {
+    const sid = seg.speakerId;
+    if (currentWords.length === 0) {
+      currentSpeaker = sid;
+      currentWords.push(...seg.words);
+      continue;
+    }
+
+    if (sid === currentSpeaker) {
+      currentWords.push(...seg.words);
+    } else {
+      flush();
+      currentSpeaker = sid;
+      currentWords = [...seg.words];
+    }
+  }
+
+  // flush the last group
+  flush();
+
+  // 过滤掉空 words 的空组（例如原本为空输入）
+  return groups.filter((g) => g.words.length > 0);
+};
+
+// 迭代分块润色整篇文本（按 speaker 分组），并在每个区块完成后回调通知外部
 export const polish = async (
   draft: ParagraphBuilderDraft,
   onChunkResult: (draft: ParagraphBuilderDraft) => void | Promise<void>
 ): Promise<ParagraphBuilderDraft> => {
-  // 预先计算总词数并规范化选项，避免每轮重复操作
-  const totalWords = draft.words.length;
+  const groups = groupSegmentsBySpeaker(draft.segments);
+  // Debug logging removed in production
   const normalizedOptions = normalizeOptions(draft.options);
-  const wordIndexLookup = new Map<string, number>();
-  draft.words.forEach((word, index) => {
-    // 建立词 ID 到序号的映射，方便定位到全局数组
-    wordIndexLookup.set(word.id, index);
-  });
 
-  // 将规范化后的选项写回草稿，便于外部读取最终配置
+  // 写回归一化后的选项
   draft.options = normalizedOptions;
 
   if (!draft.paragraphs) {
-    // 初始化段落收集容器
     draft.paragraphs = [];
   }
 
-  // 确定初始游标，既照顾断点续跑又防止越界
-  let cursor = Math.min(
-    Math.max(draft.lastProcessedWordIndex ?? 0, 0),
-    totalWords
+  // 从断点恢复（组）
+  let groupIndex = Math.min(
+    Math.max(draft.lastProcessedGroupIndex ?? 0, 0),
+    groups.length
   );
 
-  while (cursor < totalWords) {
-    // 依据当前游标确定本轮需要处理的词区间
-    const { start, end, isLast } = computeChunkRange(
-      totalWords,
-      cursor,
-      normalizedOptions
+  // 如果已经处理完所有组，直接返回
+  if (groupIndex >= groups.length) {
+    draft.lastProcessedGroupIndex = groups.length;
+    draft.lastProcessedWordIndex = 0;
+    return draft;
+  }
+
+  for (; groupIndex < groups.length; groupIndex++) {
+    const group = groups[groupIndex];
+    const words = group.words;
+    const totalWords = words.length;
+    const wordIndexLookup = new Map<string, number>();
+    words.forEach((w, idx) => wordIndexLookup.set(w.id, idx));
+
+    // 从断点恢复（词）
+    let cursor = Math.min(
+      Math.max(draft.lastProcessedWordIndex ?? 0, 0),
+      totalWords
     );
 
-    if (end <= start) {
-      // 防御性逻辑：异常区间时推进游标并通知外部
-      cursor = ensureCursorProgress(cursor, start + 1, totalWords);
-      draft.lastProcessedWordIndex = cursor;
-      await onChunkResult(draft);
-      continue;
-    }
+    while (cursor < totalWords) {
+      const { start, end, isLast } = computeChunkRange(
+        totalWords,
+        cursor,
+        normalizedOptions
+      );
 
-    // 对当前区块执行润色，返回对应的新段落
-    const { paragraphs: chunkParagraphs } = await polishWords(
-      draft.words.slice(start, end)
-    );
+      if (end <= start) {
+        cursor = ensureCursorProgress(cursor, start + 1, totalWords);
+        draft.lastProcessedGroupIndex = groupIndex;
+        draft.lastProcessedWordIndex = cursor;
+        await onChunkResult(draft);
+        continue;
+      }
 
-    // 将段落映射回全局索引，判断稳定段与重叠段
-    const mappedParagraphs = mapParagraphsToGlobalRanges(
-      chunkParagraphs,
-      wordIndexLookup
-    );
+      const { paragraphs: chunkParagraphs } = await polishWords(
+        words.slice(start, end)
+      );
 
-    let nextCursor = end;
-    // 默认情况下认为下一次从当前区块末尾继续
-    if (!isLast && mappedParagraphs.length > 0) {
-      const tail = mappedParagraphs[mappedParagraphs.length - 1];
-      const stableParagraphs = mappedParagraphs.slice(0, -1).map((p) => p.paragraph);
-      draft.paragraphs.push(...stableParagraphs);
+      const mappedParagraphs = mapParagraphsToGlobalRanges(
+        chunkParagraphs,
+        wordIndexLookup
+      );
 
-      if (tail.firstWordIndex !== null) {
-        // 若尾段有明确覆盖范围，回退到该段首部重算
-        nextCursor = tail.firstWordIndex;
-      } else {
+      let nextCursor = end;
+      if (!isLast && mappedParagraphs.length > 0) {
+        const tail = mappedParagraphs[mappedParagraphs.length - 1];
+        const stableParagraphs = mappedParagraphs
+          .slice(0, -1)
+          .map((p) => ({ ...p.paragraph, speakerId: group.speakerId }));
+        draft.paragraphs.push(...stableParagraphs);
+
+        if (tail.firstWordIndex !== null) {
+          nextCursor = tail.firstWordIndex;
+        } else {
+          nextCursor = computeFallbackCursor(
+            start,
+            end,
+            normalizedOptions,
+            totalWords
+          );
+        }
+      } else if (!isLast && mappedParagraphs.length === 0) {
         nextCursor = computeFallbackCursor(
           start,
           end,
           normalizedOptions,
           totalWords
         );
+      } else {
+        draft.paragraphs.push(
+          ...mappedParagraphs.map((p) => ({ ...p.paragraph, speakerId: group.speakerId }))
+        );
+        nextCursor = totalWords;
       }
-    } else if (!isLast && mappedParagraphs.length === 0) {
-      // 未生成任何段落时再试一次，防止模型删空导致停滞
-      nextCursor = computeFallbackCursor(
-        start,
-        end,
-        normalizedOptions,
-        totalWords
-      );
-    } else {
-      // 已到最后区块或所有段落都稳定，直接合并入结果
-      draft.paragraphs.push(...mappedParagraphs.map((p) => p.paragraph));
-      nextCursor = totalWords;
+
+      nextCursor = ensureCursorProgress(cursor, nextCursor, totalWords);
+      draft.lastProcessedGroupIndex = groupIndex;
+      draft.lastProcessedWordIndex = nextCursor;
+      cursor = nextCursor;
+
+      await onChunkResult(draft);
     }
 
-    // 无论如何都确保游标前进到合法位置
-    nextCursor = ensureCursorProgress(cursor, nextCursor, totalWords);
-
-    draft.lastProcessedWordIndex = nextCursor;
-    cursor = nextCursor;
-
-    // 每处理完一个块便触发回调，方便增量输出或保存
-    await onChunkResult(draft);
+    // 切换到下一组，重置组内词游标
+    draft.lastProcessedWordIndex = 0;
   }
 
-  // 所有区块处理完毕后返回最终草稿
+  // 所有组处理完毕
+  draft.lastProcessedGroupIndex = groups.length;
+  draft.lastProcessedWordIndex = 0;
   return draft;
 };

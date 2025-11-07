@@ -1,11 +1,51 @@
-import { TranscriptionOutput } from "@subtitle-agent/core";
+import { TranscriptionOutput, Word, Segment } from "@subtitle-agent/core";
 import {
   transcribe as transcribeByWhisperKit,
   TranscribeOptions,
-  WhisperKitOutputType,
 } from "../lib/whisper-kit";
 import { readJSON, writeJSON } from "../utils/file";
-import { importWordsFromWhisper } from "../utils/import-whisper";
+import { importSegmentsFromWhisper } from "../utils/import-whisper";
+
+const wordsToSingleSegment = (words: Word[], text?: string): Segment[] => {
+  if (!words || words.length === 0) return [];
+  const start = words[0].start ?? 0;
+  const end = words[words.length - 1].end ?? 0;
+  const mergedText =
+    text ?? words.map((w) => (w?.text ?? "")).join("");
+  return [
+    {
+      id: `${words[0].id}-seg`,
+      start,
+      end,
+      text: mergedText,
+      words,
+    },
+  ];
+};
+
+const normalizeTranscriptionOutput = (
+  existing: any
+): TranscriptionOutput => {
+  if (!existing) return existing;
+  if (Array.isArray(existing.segments)) return existing as TranscriptionOutput;
+  if (Array.isArray(existing.words)) {
+    return {
+      filename: existing.filename,
+      language: existing.language,
+      text: existing.text ?? (existing.words as Word[]).map((w) => w.text).join(""),
+      speakers: existing.speakers,
+      segments: wordsToSingleSegment(existing.words as Word[], existing.text),
+    };
+  }
+  // Fallback to empty segments but preserve basic fields
+  return {
+    filename: existing.filename,
+    language: existing.language,
+    text: existing.text ?? "",
+    speakers: existing.speakers,
+    segments: [],
+  };
+};
 
 export const transcribe = async (
   inputFile: string,
@@ -16,9 +56,10 @@ export const transcribe = async (
   let existingTranscription: TranscriptionOutput | null = null;
 
   if (!options?.force) {
-    existingTranscription = await readJSON<TranscriptionOutput>(
-      whisperOutputFile
-    );
+    const raw = await readJSON<TranscriptionOutput>(whisperOutputFile);
+    if (raw) {
+      existingTranscription = normalizeTranscriptionOutput(raw);
+    }
   }
 
   if (existingTranscription) {
@@ -37,8 +78,10 @@ export const transcribe = async (
 
   const transcription: TranscriptionOutput = {
     filename: inputFile,
+    language: transcriptionOutput.language,
     text: transcriptionOutput.text,
-    words: importWordsFromWhisper(transcriptionOutput),
+    segments: importSegmentsFromWhisper(transcriptionOutput),
+    speakers: transcriptionOutput.speakers,
   };
 
   await writeJSON(whisperOutputFile, transcription);

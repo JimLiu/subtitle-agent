@@ -9,10 +9,15 @@ import { TranscriptionOutput } from "@subtitle-agent/core";
 export interface WhisperKitOutputType {
   text: string;
   language: string;
+  speakers?: Array<{
+    id: string;
+    name: string;
+  }>;
   segments: Array<{
     text: string;
     start: number;
     end: number;
+    speakerId?: string;
     words: Array<{
       word: string;
       start: number;
@@ -29,6 +34,7 @@ export interface TranscribeOptions {
   modelPath?: string; // path to the model, default: "lib/whisperkit/models"
   prompt?: string;
   language?: string; // default: "en"
+  diarize?: boolean; // default: true
   onProgress?: (progress: number) => void;
 }
 
@@ -49,6 +55,7 @@ export const transcribe = async (
     modelPath = "/Volumes/Extreme SSD/Models/",
     prompt,
     language = "en",
+    diarize = true,
     onProgress,
   } = options || {};
 
@@ -92,6 +99,10 @@ export const transcribe = async (
   // 如需实现 force 功能，假设 CLI 有类似的参数，如 `--force`，则可在此加入
   if (force) {
     args.push("--force");
+  }
+
+  if (diarize) {
+    args.push("--diarize");
   }
 
   const child = spawn(binMain, args, {
@@ -159,13 +170,19 @@ function convertWhisperKitOutputToTranscriberOutput(
     filename,
     language: output.language,
     text: output.text,
-    words: output.segments
-      .flatMap((segment) => segment.words)
-      .map((word) => ({
+    segments: output.segments.map((segment, index) => ({
+      id: generateId(),
+      start: segment.start,
+      end: segment.end,
+      text: segment.text,
+      speakerId: segment.speakerId,
+      words: segment.words.map((word) => ({
         id: generateId(),
         text: word.word,
         start: word.start,
         end: word.end,
       })),
+    })),
+    speakers: output.speakers,
   };
 }

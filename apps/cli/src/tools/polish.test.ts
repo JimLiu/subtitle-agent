@@ -5,7 +5,7 @@ vi.mock("@subtitle-agent/ai", () => ({
   correctTextWithLLM: vi.fn(),
 }));
 
-import type { Word, Paragraph } from "@subtitle-agent/core";
+import type { Word, Paragraph, Segment } from "@subtitle-agent/core";
 import type { ParagraphBuilderDraft } from "./polish";
 
 describe("polishWords", () => {
@@ -96,8 +96,18 @@ describe("polish", () => {
     vi.resetModules();
   });
 
-  it("processes chunks sequentially and defers tail paragraphs until the next chunk", async () => {
+  it("processes chunks sequentially within a single speaker group and defers tail paragraphs until the next chunk", async () => {
     const words: Word[] = Array.from({ length: 10 }, (_, i) => createWord(i));
+    const segments: Segment[] = [
+      {
+        id: "s0",
+        start: words[0].start,
+        end: words[words.length - 1].end,
+        text: words.map((w) => w.text).join(" "),
+        words,
+        speakerId: "spk0",
+      },
+    ];
     const chunkProgress: number[] = [];
 
     vi.resetModules();
@@ -136,7 +146,8 @@ describe("polish", () => {
     const { polish } = await import("./polish");
 
     const draft: ParagraphBuilderDraft = {
-      words,
+      segments,
+      lastProcessedGroupIndex: 0,
       lastProcessedWordIndex: 0,
       paragraphs: [],
       options: {
@@ -154,7 +165,8 @@ describe("polish", () => {
     expect(polishWordsStub).toHaveBeenCalledTimes(4);
     expect(onChunkResult).toHaveBeenCalledTimes(4);
     expect(chunkProgress).toEqual([2, 4, 6, 10]);
-    expect(result.lastProcessedWordIndex).toBe(words.length);
+    expect(result.lastProcessedGroupIndex).toBe(1);
+    expect(result.lastProcessedWordIndex).toBe(0);
     expect(result.paragraphs?.map((p) => p.id)).toEqual([
       "p0",
       "p2",
@@ -162,6 +174,8 @@ describe("polish", () => {
       "p6",
       "p7",
     ]);
+    // paragraphs should carry speakerId
+    expect(result.paragraphs?.every((p) => p.speakerId === "spk0")).toBe(true);
     expect(result.options).toEqual({
       maxWordsPerRequest: 4,
       overlapWords: 1,
@@ -170,8 +184,18 @@ describe("polish", () => {
     polishWordsStub.mockRestore();
   });
 
-  it("advances cursor when a chunk yields no paragraphs", async () => {
+  it("advances cursor when a chunk yields no paragraphs (single group)", async () => {
     const words: Word[] = Array.from({ length: 5 }, (_, i) => createWord(i));
+    const segments: Segment[] = [
+      {
+        id: "s0",
+        start: words[0].start,
+        end: words[words.length - 1].end,
+        text: words.map((w) => w.text).join(" "),
+        words,
+        speakerId: "spk0",
+      },
+    ];
     const chunkProgress: number[] = [];
 
     vi.resetModules();
@@ -190,7 +214,7 @@ describe("polish", () => {
     const { polish } = await import("./polish");
 
     const draft: ParagraphBuilderDraft = {
-      words,
+      segments,
       paragraphs: [],
       options: {
         maxWordsPerRequest: 3,
@@ -206,8 +230,48 @@ describe("polish", () => {
 
     expect(polishWordsStub).toHaveBeenCalledTimes(2);
     expect(chunkProgress).toEqual([2, 5]);
-    expect(result.lastProcessedWordIndex).toBe(words.length);
+    expect(result.lastProcessedGroupIndex).toBe(1);
+    expect(result.lastProcessedWordIndex).toBe(0);
     expect(result.paragraphs?.map((p) => p.id)).toEqual(["final"]);
+
+    polishWordsStub.mockRestore();
+  });
+
+  it("groups segments by contiguous speakerId and preserves speaker on paragraphs", async () => {
+    const w = (i: number): Word => ({ id: `wa${i}`, text: `w${i}`, start: i, end: i + 0.4 });
+    const aWords = [w(0), w(1)];
+    const bWords = [w(2), w(3), w(4)];
+
+    const segments: Segment[] = [
+      { id: "s0", start: 0, end: 1, text: "a", words: aWords, speakerId: "spkA" },
+      { id: "s1", start: 2, end: 3, text: "b", words: bWords, speakerId: "spkB" },
+    ];
+
+    vi.resetModules();
+    const polishWordsModule = await import("./polish-words");
+    const polishWordsStub = vi
+      .spyOn(polishWordsModule, "polishWords")
+      .mockImplementation(async (chunk) => ({
+        paragraphs: [
+          {
+            id: `p-${chunk[0]?.id}`,
+            start: chunk[0]?.start ?? 0,
+            end: chunk[chunk.length - 1]?.end ?? 0,
+            text: chunk.map((c) => c.text).join(""),
+            words: chunk,
+          },
+        ],
+        correctedWords: chunk,
+      }));
+
+    const { polish } = await import("./polish");
+    const draft: ParagraphBuilderDraft = { segments, paragraphs: [], options: { maxWordsPerRequest: 9999 } };
+    const result = await polish(draft, async () => {});
+
+    expect(polishWordsStub).toHaveBeenCalledTimes(2);
+    expect(result.paragraphs?.length).toBe(2);
+    expect(result.paragraphs?.[0].speakerId).toBe("spkA");
+    expect(result.paragraphs?.[1].speakerId).toBe("spkB");
 
     polishWordsStub.mockRestore();
   });

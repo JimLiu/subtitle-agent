@@ -1,8 +1,9 @@
-import { Word } from "./subtitle";
+import { Word, Speaker, Segment } from "./subtitle";
 
 export interface TranscriptionOutput {
   filename: string;
   language?: string;
-  words: Word[];
+  speakers?: Speaker[];
+  segments: Segment[];
   text: string;
 }

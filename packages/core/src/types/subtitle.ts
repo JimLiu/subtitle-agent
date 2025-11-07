@@ -5,12 +5,18 @@ export interface Word {
   end: number;
 }
 
+export interface Speaker {
+  id: string;
+  name: string;
+}
+
 export interface Segment {
   id: string;
   start: number;
   end: number;
   text: string;
   words: Word[];
+  speakerId?: string;
 }
 
 export interface Paragraph {
@@ -19,6 +25,7 @@ export interface Paragraph {
   end: number;
   text: string;
   words: Word[];
+  speakerId?: string;
 }
 
 export interface Chapter {
@@ -36,6 +43,7 @@ export interface Subtitle {
   title: string;
   filename: string;
   language: string;
+  speakers?: Speaker[];
   paragraphs: Paragraph[];
   chapters?: Chapter[];
 }
