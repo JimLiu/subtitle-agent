@@ -11,8 +11,8 @@ import { readJSON, writeJSON } from "./utils/file";
 dotenv.config();
 
 
-const input = "/Volumes/Extreme SSD/Downie/The rise of Cursor꞉ The $300M ARR AI tool that engineers can’t stop using  Michael Truell.mp4";
-// const input = "/Users/jimliu/Downloads/1 video.mp4";
+// const input = "/Volumes/Extreme SSD/Downie/The rise of Cursor꞉ The $300M ARR AI tool that engineers can’t stop using  Michael Truell.mp4";
+const input = "/Users/jimliu/Downloads/1 video.mp4";
 
 async function main() {
   const { whisperOutputFile, subtitleFile, paragraphsDraftFile } =

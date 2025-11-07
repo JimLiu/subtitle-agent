@@ -40,6 +40,7 @@ export async function correctTextWithLLM(
 5. Do NOT add any content that doesn't exist in the original text
 6. Maintain the original meaning and context
 7. Use \n to indicate paragraph breaks
+8. Important: return plain text only. Do NOT use any HTML tags like <p> or <br>.
 
 ## Output format
 Please provide only the corrected text without any explanations or additional comments.`;
@@ -60,7 +61,25 @@ Please provide only the corrected text without any explanations or additional co
       maxRetries: 3,
     });
 
-    const correctedText = response.text.replace(/\n\n/g, "\n");
+    // Clean up LLM text: strip leading/trailing HTML tags that
+    // sometimes appear (<p>, </p>, <br>, <br />) and normalize breaks.
+    const stripEdgeHtml = (input: string): string => {
+      let s = input.trim();
+      // Remove any leading paragraph or break tags repeatedly
+      const leadingRe = /^\s*(?:<p\b[^>]*>\s*|<\/p>\s*|<br\s*\/?>(?:\s*)*)/i;
+      while (leadingRe.test(s)) {
+        s = s.replace(leadingRe, "");
+      }
+      // Remove any trailing paragraph closing or break tags repeatedly
+      const trailingRe = /(?:\s*<\/p>|\s*<br\s*\/?>(?:\s*)*)\s*$/i;
+      while (trailingRe.test(s)) {
+        s = s.replace(trailingRe, "");
+      }
+      return s.trim();
+    };
+
+    // Replace double newlines with single newline
+    const correctedText = stripEdgeHtml(response.text).replace(new RegExp("\\n\\n", "g"), "\n");
 
     console.log("[LLM Response]", {
       success: true,
@@ -91,3 +110,4 @@ Please provide only the corrected text without any explanations or additional co
     };
   }
 }
+
