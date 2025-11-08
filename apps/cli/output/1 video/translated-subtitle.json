@@ -66,7 +66,8 @@
           "text": " question."
         }
       ],
-      "speakerId": "speaker_0"
+      "speakerId": "speaker_0",
+      "translation": "我不问这个问题就太傻了。"
     },
     {
       "id": "ww6bln",
@@ -170,7 +171,8 @@
           "text": " decade."
         }
       ],
-      "speakerId": "speaker_0"
+      "speakerId": "speaker_0",
+      "translation": "最近，你参加了《16分钟》节目，谈到人工智能有可能在未来十年内治愈所有疾病。"
     },
     {
       "id": "esoq6x",
@@ -229,7 +231,8 @@
           "text": " down?"
         }
       ],
-      "speakerId": "speaker_0"
+      "speakerId": "speaker_0",
+      "translation": "这具体会如何实现？监管会拖慢进程吗？"
     },
     {
       "id": "4792v5",
@@ -379,7 +382,8 @@
           "text": " drugs."
         }
       ],
-      "speakerId": "speaker_1"
+      "speakerId": "speaker_1",
+      "translation": "让我澄清一下我的意思。你可以独家报道这个。我的意思是，一个可以研发出数百种药物的平台。"
     },
     {
       "id": "xxtnm9",
@@ -658,7 +662,8 @@
           "text": " regulation."
         }
       ],
-      "speakerId": "speaker_1"
+      "speakerId": "speaker_1",
+      "translation": "至于是否能获得FDA和其他监管机构的所有批准等等，这可能也会随着时间而改变，可能比十年要慢。但这并不意味着这些潜在的疗法不会存在于世。也许还需要十年才能通过所有的流程和监管。"
     },
     {
       "id": "g64wly",
@@ -1057,7 +1062,8 @@
           "text": " too."
         }
       ],
-      "speakerId": "speaker_1"
+      "speakerId": "speaker_1",
+      "translation": "另一方面，我可以想象，一旦这些类型的药物被证明有效——也许是最初的五六种AI设计的药物——我们可以回溯测试预测在副作用等方面是否准确。然后，你可能会更新监管协议，使其更能接受这些预测，认为它们是可靠的，或者统计学上知道其可靠性有多高。所以我也能想象这会随着时间而改变。"
     },
     {
       "id": "wop87q",
@@ -1358,7 +1364,8 @@
           "text": " steps."
         }
       ],
-      "speakerId": "speaker_1"
+      "speakerId": "speaker_1",
+      "translation": "但首先，我们必须发展我们的生物化学，并在AlphaFold的基础上进行构建。我们需要建立所有新的小分子设计系统等等，这在Isomorphic进展顺利。我们首先还有几年的工作要做，然后我们再看下一步。"
     },
     {
       "id": "n0w9r4",
@@ -1637,7 +1644,8 @@
           "text": " case."
         }
       ],
-      "speakerId": "speaker_1"
+      "speakerId": "speaker_1",
+      "translation": "所以，加速个性化治疗才是AI真正能帮助的。我认为是这样。我回溯的一点是，很多人对这个时间表持怀疑态度，这种怀疑是非常合理的，因为通常开发一种药物需要十年时间。如果能做到这一点，你已经很成功了。"
     },
     {
       "id": "mci3b5",
@@ -2188,7 +2196,9 @@
           "text": " it."
         }
       ],
-      "speakerId": "speaker_1"
+      "speakerId": "speaker_1",
+      "translation": "但这和我们被告知的情况一样，通常来说，大多数人要花整个博士生涯来结晶并找到一种蛋白质的结构——平均一种蛋白质需要五年。而现在有了AlphaFold，我们在一年内完成了科学界已知的全部2亿种蛋白质，这相当于十亿年的博士研究时间。所以我们曾经解决了一个被认为是无法攻克的难题，一个生物学的巨大挑战。当然，这更难，因为它涉及人体，但我乐观地认为这是可能的，我们将非常非常努力地去实现它。"
     }
-  ]
+  ],
+  "targetLanguage": "Simplified Chinese"
 }

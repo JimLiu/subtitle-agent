@@ -4,6 +4,8 @@ import { generateId } from "@subtitle-agent/core";
 import type { Subtitle } from "@subtitle-agent/core";
 import { polish } from "./tools/polish";
 import type { ParagraphBuilderDraft } from "./tools/polish";
+import { translateSubtitle } from "./tools/translate";
+import type { SubtitleTranslationDraft } from "./tools/translate";
 import { transcribe } from "./tools/transcribe";
 import { readJSON, writeJSON } from "./utils/file";
 
@@ -12,12 +14,17 @@ dotenv.config();
 
 
 // const input = "/Volumes/Extreme SSD/Downie/The rise of Cursor꞉ The $300M ARR AI tool that engineers can’t stop using  Michael Truell.mp4";
-// const input = "/Users/jimliu/Downloads/1 video.mp4";
-const input = "/Users/jimliu/Downloads/大白话聊"+"ChatGPT（Sarah & 王建硕）.mp3";
+const input = "/Users/jimliu/Downloads/1 video.mp4";
+// const input = "/Users/jimliu/Downloads/大白话聊"+"ChatGPT（Sarah & 王建硕）.mp3";
 
 async function main() {
-  const { whisperOutputFile, subtitleFile, paragraphsDraftFile } =
-    await getFilePaths(input);
+  const {
+    whisperOutputFile,
+    subtitleFile,
+    paragraphsDraftFile,
+    translationDraftFile,
+    translatedSubtitleFile,
+  } = await getFilePaths(input);
   console.log("Transcribing with WhisperKit...");
   const whisperResult = await transcribe(input, whisperOutputFile);
   console.log("Transcription completed.");
@@ -54,6 +61,25 @@ async function main() {
 
   await writeJSON(subtitleFile, subtitle);
   console.log(`Subtitle saved to ${subtitleFile}`);
+
+  console.log("Translating subtitle...");
+  const translationDraft: SubtitleTranslationDraft = {
+    subtitle,
+    targetLanguage:
+      process.env.TRANSLATION_TARGET_LANGUAGE ?? "Simplified Chinese",
+  };
+
+  const translatedSubtitle = await translateSubtitle(
+    translationDraft,
+    async (currentDraft) => {
+      console.log("Saving translation draft to", translationDraftFile);
+      await writeJSON(translationDraftFile, currentDraft);
+    }
+  );
+
+  await writeJSON(translationDraftFile, translationDraft);
+  await writeJSON(translatedSubtitleFile, translatedSubtitle);
+  console.log(`Translated subtitle saved to ${translatedSubtitleFile}`);
 }
 
 
@@ -64,8 +90,17 @@ const getFilePaths = async (inputFile: string) => {
   const whisperOutputFile = path.join(outputDir, "whisper.json");
   const subtitleFile = path.join(outputDir, "subtitle.json");
   const paragraphsDraftFile = path.join(outputDir, "paragraphs-draft.json");
+  const translationDraftFile = path.join(outputDir, "translation-draft.json");
+  const translatedSubtitleFile = path.join(outputDir, "translated-subtitle.json");
 
-  return { outputDir, whisperOutputFile, subtitleFile, paragraphsDraftFile };
+  return {
+    outputDir,
+    whisperOutputFile,
+    subtitleFile,
+    paragraphsDraftFile,
+    translationDraftFile,
+    translatedSubtitleFile,
+  };
 };
 
 main().catch((error) => {
