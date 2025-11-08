@@ -54,7 +54,7 @@ export const transcribe = async (
     model = "whisper-large-v3",
     modelPath = "/Volumes/Extreme SSD/Models/",
     prompt,
-    language = "en",
+    language = "auto",
     diarize = true,
     onProgress,
   } = options || {};
