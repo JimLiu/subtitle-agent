@@ -1,12 +1,12 @@
 import { TranslatedParagraph } from "@subtitle-agent/core";
 import { generateObject } from "ai";
+import type { CoreMessage } from "ai";
 import { z } from "zod";
-import { createGeminiClient, createOpenAIClient } from "../lib";
-
-const TRANSLATION_MODEL =
-  process.env.OPENAI_TRANSLATION_MODEL ?? "gemini-2.5-flash";
-const TARGET_LANGUAGE =
-  process.env.TRANSLATION_TARGET_LANGUAGE ?? "简体中文";
+import {
+  createTranslationClient,
+  TARGET_LANGUAGE,
+  TRANSLATION_MODEL,
+} from "./config";
 
 const translationSchema = z.object({
   id: z.string().describe("Paragraph id"),
@@ -34,7 +34,7 @@ export async function translateParagraphs(
     return [];
   }
 
-  const client = createGeminiClient();
+  const client = createTranslationClient();
 
   const systemPrompt = `You are a professional subtitle translator. Detect the source language automatically and translate every paragraph into ${TARGET_LANGUAGE}.
 
@@ -65,10 +65,22 @@ Format:
     2
   )}`;
 
+  const llmMessages: CoreMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userMessage },
+  ];
+
   console.log("[Translate Request]", {
     model: TRANSLATION_MODEL,
     targetLanguage: TARGET_LANGUAGE,
     paragraphCount: paragraphs.length,
+    timestamp: new Date().toISOString(),
+  });
+
+  console.log("[Translate LLM Request]", {
+    model: TRANSLATION_MODEL,
+    systemPrompt,
+    userMessage,
     timestamp: new Date().toISOString(),
   });
 
@@ -77,12 +89,15 @@ Format:
       model: client(TRANSLATION_MODEL),
       schema: translationSchema,
       output: "array",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userMessage },
-      ],
+      messages: llmMessages,
       temperature: 0.2,
       maxRetries: 2,
+    });
+
+    console.log("[Translate LLM Response]", {
+      model: TRANSLATION_MODEL,
+      translatedObjects,
+      timestamp: new Date().toISOString(),
     });
 
     const translationsMap = new Map(

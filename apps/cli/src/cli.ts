@@ -4,8 +4,10 @@ import { generateId } from "@subtitle-agent/core";
 import type { Subtitle } from "@subtitle-agent/core";
 import { polish } from "./tools/polish";
 import type { ParagraphBuilderDraft } from "./tools/polish";
-import { translateSubtitle } from "./tools/translate";
-import type { SubtitleTranslationDraft } from "./tools/translate";
+import { translateParagraphs } from "./tools/translate-paragraphs";
+import type { SubtitleTranslationDraft } from "./tools/translate-paragraphs";
+import { ensureParagraphSegments } from "./tools/segments";
+import { translateSegments } from "./tools/translate-segments";
 import { transcribe } from "./tools/transcribe";
 import { readJSON, writeJSON } from "./utils/file";
 
@@ -69,13 +71,31 @@ async function main() {
       process.env.TRANSLATION_TARGET_LANGUAGE ?? "Simplified Chinese",
   };
 
-  const translatedSubtitle = await translateSubtitle(
+  const translatedSubtitle = await translateParagraphs(
     translationDraft,
     async (currentDraft) => {
       console.log("Saving translation draft to", translationDraftFile);
       await writeJSON(translationDraftFile, currentDraft);
     }
   );
+
+  translatedSubtitle.paragraphs = ensureParagraphSegments(
+    translatedSubtitle.paragraphs
+  );
+
+  const paragraphsWithSegments = translatedSubtitle.paragraphs;
+  const hasSegments = paragraphsWithSegments.some(
+    (paragraph) => paragraph.segments && paragraph.segments.length > 0
+  );
+
+  if (hasSegments) {
+    console.log("Translating segments...");
+
+    await translateSegments(translationDraft, async (currentDraft) => {
+      console.log("Saving translation draft to", translationDraftFile);
+      await writeJSON(translationDraftFile, currentDraft);
+    });
+  }
 
   await writeJSON(translationDraftFile, translationDraft);
   await writeJSON(translatedSubtitleFile, translatedSubtitle);

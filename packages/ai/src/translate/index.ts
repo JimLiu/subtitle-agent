@@ -1,1 +1,2 @@
-export * from "./translate";
+export * from "./translate-paragraphs";
+export * from "./translate-segments";

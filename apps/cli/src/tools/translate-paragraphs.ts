@@ -3,7 +3,9 @@ import {
   TranslatedParagraph,
   TranslatedSubtitle,
 } from "@subtitle-agent/core";
-import { translateParagraphs } from "@subtitle-agent/ai";
+import {
+  translateParagraphs as translateParagraphsWithLLM,
+} from "@subtitle-agent/ai";
 
 const DEFAULT_MAX_PARAGRAPHS_PER_REQUEST = 25;
 const DEFAULT_OVERLAP_PARAGRAPHS = 4;
@@ -155,7 +157,7 @@ const collectContextParagraphs = (
   return paragraphs.slice(contextStart, chunkStart).filter(hasTranslation);
 };
 
-export const translateSubtitle = async (
+export const translateParagraphs = async (
   draft: SubtitleTranslationDraft,
   onChunkResult: SubtitleTranslationChunkHandler = noopChunkHandler
 ): Promise<TranslatedSubtitle> => {
@@ -206,7 +208,7 @@ export const translateSubtitle = async (
         normalizedOptions.overlapParagraphs
       );
 
-      const translatedChunk = await translateParagraphs(
+      const translatedChunk = await translateParagraphsWithLLM(
         paragraphsNeedingTranslation,
         contextParagraphs
       );
