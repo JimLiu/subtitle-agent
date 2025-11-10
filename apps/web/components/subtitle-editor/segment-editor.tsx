@@ -6,7 +6,7 @@ import type { JSONContent } from '@tiptap/core'
 import type { Node as PMNode } from '@tiptap/pm/model'
 import Word from './extensions/word-node'
 
-export interface WordEditorProps {
+export interface SegmentEditorProps {
   value: JSONContent
   onValueChange: (next: JSONContent) => void
   onFocus?: (e: FocusEvent) => void
@@ -31,7 +31,7 @@ const isJSONContentEqual = (a?: JSONContent, b?: JSONContent) => {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
-export const WordEditor = React.forwardRef<Editor | null, WordEditorProps>(
+export const SegmentEditor = React.forwardRef<Editor | null, SegmentEditorProps>(
   (props, ref) => {
     const { value, onValueChange, onFocus, onBlur, onKeyDown, onWordClick, editable, className } = props
     const wordExtension = React.useMemo(() => Word.configure({ onWordClick }), [onWordClick])
@@ -95,6 +95,6 @@ export const WordEditor = React.forwardRef<Editor | null, WordEditorProps>(
   },
 )
 
-WordEditor.displayName = 'WordEditor'
+SegmentEditor.displayName = 'SegmentEditor'
 
-export default WordEditor
+export default SegmentEditor

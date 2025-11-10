@@ -35,13 +35,13 @@ export function generateTextMaterialWordsText(text: string): string[] {
 
   if (matches) {
     for (const piece of matches) {
-      // 检查是否为CJK标点符号（全角标点）
+      // 检查是否为 CJK 标点符号（全角标点）
       const isCJKPunctuation = /^[\u3000-\u303F\uFF00-\uFFEF]+$/.test(piece);
 
       // 如果是纯标点，则先拼接到 buffer
       if (new RegExp("^\\p{P}+$", "u").test(piece)) {
         if (isCJKPunctuation) {
-          // CJK标点单独处理，作为独立部分
+          // CJK 标点单独处理，作为独立部分
           if (buffer !== "") {
             pushPiece(buffer);
             buffer = "";
@@ -78,7 +78,7 @@ export function isEndOfSegment(word: string): boolean {
   if (specialWords.has(word.trim().toLowerCase())) {
     return false;
   }
-  // 匹配常见结尾标点: . ! ? ， 。 ！ ？ … ]
+  // 匹配常见结尾标点：. ! ? ， 。 ！ ？ … ]
   // 注意 \s*$ 用来匹配后面可能存在的空格
   return /[,.!?，。！？…\]]\s*$/.test(word);
 }
