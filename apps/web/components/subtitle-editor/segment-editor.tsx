@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import Document from '@tiptap/extension-document'
@@ -62,8 +64,16 @@ export const SegmentEditor = React.forwardRef<Editor | null, SegmentEditorProps>
           onValueChange(json)
         }
       },
-      onFocus: onFocus as any,
-      onBlur: onBlur as any,
+      onFocus: onFocus
+        ? ({ event }) => {
+            onFocus(event as FocusEvent)
+          }
+        : undefined,
+      onBlur: onBlur
+        ? ({ event }) => {
+            onBlur(event as FocusEvent)
+          }
+        : undefined,
     }, [wordExtension, editable])
 
     React.useEffect(() => {
@@ -82,7 +92,7 @@ export const SegmentEditor = React.forwardRef<Editor | null, SegmentEditorProps>
       chain.run()
     }, [value, editor])
 
-    React.useImperativeHandle(ref, () => editor as any, [editor])
+    React.useImperativeHandle(ref, () => editor, [editor])
 
     return (
       <EditorContent
