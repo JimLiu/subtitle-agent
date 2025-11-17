@@ -11,7 +11,7 @@ import {
   ensureMainTrack,
   validateElementTrackCompatibility,
 } from "@/types/timeline";
-import { useMediaStore, getMediaAspectRatio } from "@/store/media-store";
+import { useMediaStore, getMediaAspectRatio } from "@/stores/media-store";
 import { MediaFile, MediaType } from "@/types/media";
 import { findBestCanvasPreset } from "@/lib/editor-utils";
 import { storageService } from "@/lib/storage/storage-service";
@@ -1084,7 +1084,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
           getImageDimensions,
           generateVideoThumbnail,
           getMediaDuration,
-        } = await import("@/store/media-store");
+        } = await import("@/stores/media-store");
 
         const fileType = getFileType(newFile);
         if (!fileType) {
@@ -1233,7 +1233,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
         if (mediaFile.type === "video" && mediaFile.file) {
           const { generateVideoThumbnail } = await import(
-            "@/store/media-store"
+            "@/stores/media-store"
           );
           const { thumbnailUrl } = await generateVideoThumbnail(mediaFile.file);
           return thumbnailUrl;
